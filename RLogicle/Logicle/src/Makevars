@@ -1,0 +1,2 @@
+# compiling as part of an R package
+PKG_CFLAGS = -DR_LOGICLE
