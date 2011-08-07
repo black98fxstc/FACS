@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Logicle", "Logicle\Logicle.vcproj", "{711637A6-48BE-45EE-92F3-19C8AB57BCCE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestLogicle", "TestLogicle\TestLogicle.vcproj", "{1190832A-D8F3-468E-B936-32FFE4D9CA45}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9F779DA7-B2AB-4885-AFEA-5F00095061E1} = {9F779DA7-B2AB-4885-AFEA-5F00095061E1}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PureCLogicle", "PureCLogicle\PureCLogicle.vcproj", "{9F779DA7-B2AB-4885-AFEA-5F00095061E1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{711637A6-48BE-45EE-92F3-19C8AB57BCCE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{711637A6-48BE-45EE-92F3-19C8AB57BCCE}.Debug|Win32.Build.0 = Debug|Win32
+		{711637A6-48BE-45EE-92F3-19C8AB57BCCE}.Release|Win32.ActiveCfg = Release|Win32
+		{711637A6-48BE-45EE-92F3-19C8AB57BCCE}.Release|Win32.Build.0 = Release|Win32
+		{1190832A-D8F3-468E-B936-32FFE4D9CA45}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1190832A-D8F3-468E-B936-32FFE4D9CA45}.Debug|Win32.Build.0 = Debug|Win32
+		{1190832A-D8F3-468E-B936-32FFE4D9CA45}.Release|Win32.ActiveCfg = Release|Win32
+		{1190832A-D8F3-468E-B936-32FFE4D9CA45}.Release|Win32.Build.0 = Release|Win32
+		{9F779DA7-B2AB-4885-AFEA-5F00095061E1}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9F779DA7-B2AB-4885-AFEA-5F00095061E1}.Debug|Win32.Build.0 = Debug|Win32
+		{9F779DA7-B2AB-4885-AFEA-5F00095061E1}.Release|Win32.ActiveCfg = Release|Win32
+		{9F779DA7-B2AB-4885-AFEA-5F00095061E1}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
