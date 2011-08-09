@@ -1,4 +1,6 @@
-# TODO: Add comment
+# Logicle Data Transform
+#
+# R wrapper code for pure C implementation of the logicle scale
 # 
 # Author: wmoore
 ###############################################################################

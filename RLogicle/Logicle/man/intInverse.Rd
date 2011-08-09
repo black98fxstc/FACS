@@ -1,12 +1,12 @@
-\name{inverse}
-\alias{inverse}
-\title{Data value for Logicle scale position}
+\name{intInverse}
+\alias{intInverse}
+\title{Data value for Logicle scale lookup table index}
 \description{
 	Returns the data value corresponding to Logicle scale position.
 }
 
 \usage{
-	inverse(p, y)
+	intInverse(p, y)
 }
 \arguments{
 	\item{p}{Parameters of the Logicle scale to be used}

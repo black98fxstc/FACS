@@ -14,9 +14,11 @@
 }
 \value{Scale values}
 
-\references{ Logicle Manuscript. 2007. Logicle Tech Note. 2010 }
+\references{ Logicle Manuscript. 2007. Logicle Tech Note. 2011 }
 \author{Wayne A. Moore, Genetics Department, Stanford University}
+
 \keyword{vector}
+
 \examples{
 	l = Logicle::create(1000,1)
 	x = 1 : 10

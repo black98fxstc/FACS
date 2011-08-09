@@ -21,8 +21,9 @@
 	\item{p}{The Logicle parameters to be interrogated}
 }
 
-\references{ Logicle Manuscript. 2007. Logicle Tech Note. 2010 }
+\references{ Logicle Manuscript. 2007. Logicle Tech Note. 2011 }
 \author{Wayne A. Moore, Genetics Department, Stanford University}
+
 \keyword{logicle}
 \keyword{biexponential}
 \keyword{vector}

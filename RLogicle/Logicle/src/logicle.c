@@ -305,8 +305,8 @@ const struct logicle_params * logicle_create (double T, double W, double M, doub
 	error_string = (char *)0;
 	if (T <= 0)
 		throw IllegalParameter("T is not positive");
-	if (W <= 0)
-		throw IllegalParameter("W is not positive");
+	if (W < 0)
+		throw IllegalParameter("W is negative");
 	if (M <= 0)
 		throw IllegalParameter("M is not positive");
 	if (2 * W > M)
@@ -424,7 +424,6 @@ double logicle_inverse (const struct logicle_params * params, double scale)
 
 double logicle_int_inverse (const struct logicle_params * params, int scale)
 {
-
 	if (!(params->bins > 0))
 		return NaN;
 	if (scale < 0)
@@ -446,7 +445,7 @@ R_NativePrimitiveArgType unary_args[] = {
 R_NativeArgStyle scale_style[] = {
 		R_ARG_IN, R_ARG_IN, R_ARG_IN, R_ARG_OUT };
 
-R_CallMethodDef callMethods[] ={
+R_CallMethodDef callMethods[] = {
 		{ "R_create", (DL_FUNC) &R_create, 5 },
 		{ "R_T", (DL_FUNC) &R_T, 1 },
 		{ "R_W", (DL_FUNC) &R_W, 1 },
@@ -455,7 +454,7 @@ R_CallMethodDef callMethods[] ={
 		{ "R_bins", (DL_FUNC) &R_bins, 1 },
 		{ NULL, NULL, 0 } };
 
-R_CMethodDef cMethods[] ={
+R_CMethodDef cMethods[] = {
 		{ "R_destroy", (DL_FUNC) &R_destroy, 1, unary_args },
 		{ "R_scale", (DL_FUNC) &R_scale, 4, scale_args, scale_style },
 		{ "R_intScale", (DL_FUNC) &R_intScale, 4, int_scale_args, scale_style },

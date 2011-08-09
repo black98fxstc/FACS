@@ -1,12 +1,12 @@
 Package: Logicle
-Version: 0.0
-Date: 2010-09-25
-Title: Logicle Scale
+Version: 1.0
+Date: 2011-08-08
+Title: Logicle Data Transform
 Author: Wayne A. Moore <wmoore@stanford.edu>
 Maintainer: Wayne A. Moore <wmoore@stanford.edu>
 Depends: R (>= 2.11.1)
 Description: R interface routines for the Logicle display scale implementation
 License: BSD
-Copyright: Copyright (c) 2010, The Board of Trustees of The Leland Stanford Junior University. All rights reserved. 
+Copyright: Copyright (c) 2010, 2011, The Board of Trustees of The Leland Stanford Junior University. All rights reserved. 
 Encoding: UTF-8
 Imports: graphics

@@ -1,17 +1,18 @@
-\name{inverse}
-\alias{inverse}
-\title{Data value for Logicle scale position}
+\name{intScale}
+\alias{intScale}
+\title{Integer valued Logicle scale for data value}
 \description{
-	Returns the data value corresponding to Logicle scale position.
+	Returns the Logicle lookup table indecies of a data vector
 }
 
 \usage{
-	inverse(p, y)
+	scale(p, x)
 }
 \arguments{
 	\item{p}{Parameters of the Logicle scale to be used}
-	\item{y}{Logicle scale value}
+	\item{x}{Data values}
 }
+\value{Scale values}
 
 \references{ Logicle Manuscript. 2007. Logicle Tech Note. 2011 }
 \author{Wayne A. Moore, Genetics Department, Stanford University}
@@ -21,6 +22,6 @@
 \examples{
 	l = Logicle::create(1000,1)
 	x = 1 : 10
-	y = Logicle::scale(l, x)
+	y = Logicle::intScale(l, x)
 	z = Logicle::inverse(l, y)
 }
