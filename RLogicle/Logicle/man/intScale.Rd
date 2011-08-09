@@ -6,7 +6,7 @@
 }
 
 \usage{
-	scale(p, x)
+	intScale(p, x)
 }
 \arguments{
 	\item{p}{Parameters of the Logicle scale to be used}
