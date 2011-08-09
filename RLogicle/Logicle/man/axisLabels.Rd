@@ -7,7 +7,7 @@
 }
 
 \usage{
-	axisLables(logicle)
+	axisLabels(logicle)
 }
 \arguments{
 	\item{logicle}{Logicle scale that defines the axis}

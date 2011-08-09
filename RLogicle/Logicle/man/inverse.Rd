@@ -12,7 +12,7 @@
 	\item{p}{Parameters of the Logicle scale to be used}
 	\item{y}{Logicle scale value}
 }
-\value(
+\value{
 	Data values
 }
 

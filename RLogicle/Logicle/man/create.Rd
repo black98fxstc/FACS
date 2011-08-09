@@ -15,7 +15,7 @@
 	\item{A}{Additional decades of negative data range}
 	\item{bins}{Number of bins in lookup table or 0}
 }
-/value{
+\value{
 	an opaque object representing the logicle scale
 }
 
