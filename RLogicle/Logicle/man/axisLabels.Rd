@@ -33,7 +33,7 @@
 	u = Logicle::scale(l,x)
 	
 	# Logicle histogram
-	graphics::plot(u, v, xaxt='n')
+	graphics::plot(u, xaxt='n')
 	coordinates = Logicle::axisLabels(l)
 	positions = Logicle::scale(l,coordinates)
 	graphics::axis(side=1,at=positions,labels=coordinates)
