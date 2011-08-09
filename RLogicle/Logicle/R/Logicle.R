@@ -102,7 +102,7 @@ axis <- function(side,logicle,...)
 	else
 	{
 		coordinates = Logicle::axisLabels(logicle)
-		positions = Logicle::scale(logicle,positions)
+		positions = Logicle::scale(logicle,coordinates)
 		graphics::axis(side,at=positions,labels=coordinates,...)
 	}
 }
