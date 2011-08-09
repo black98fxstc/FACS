@@ -7,12 +7,13 @@
 }
 
 \usage{
-	axis(side, logicle)
+	axis(side, logicle, ...)
 }
 \arguments{
 	\item{side}{an integer specifying which side of the plot the axis is to be drawn on.
 		Identical in behavior to graphics::axis}
 	\item{logicle}{Logicle scale that defines the axis}
+	\item{...}{additional arguments to graphics::axis}
 }
 
 \references{ Logicle Manuscript. 2007. Logicle Tech Note. 2011 }
