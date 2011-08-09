@@ -12,6 +12,9 @@
 	\item{p}{Parameters of the Logicle scale to be used}
 	\item{y}{Logicle scale value}
 }
+\value(
+	Data values
+}
 
 \references{ Logicle Manuscript. 2007. Logicle Tech Note. 2011 }
 \author{Wayne A. Moore, Genetics Department, Stanford University}

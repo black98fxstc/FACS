@@ -15,6 +15,9 @@
 	\item{A}{Additional decades of negative data range}
 	\item{bins}{Number of bins in lookup table or 0}
 }
+/value{
+	an opaque object representing the logicle scale
+}
 
 \references{ Logicle Manuscript. 2007. Logicle Tech Note. 2011 }
 \author{Wayne A. Moore, Genetics Department, Stanford University}

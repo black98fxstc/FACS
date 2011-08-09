@@ -10,5 +10,6 @@ export(W)
 export(M)
 export(A)
 export(bins)
+export(axisLabels)
 export(axis)
 

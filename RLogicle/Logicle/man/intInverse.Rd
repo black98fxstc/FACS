@@ -10,7 +10,10 @@
 }
 \arguments{
 	\item{p}{Parameters of the Logicle scale to be used}
-	\item{y}{Logicle scale value}
+	\item{y}{Integer Logicle scale value}
+}
+\value{
+	Scale values
 }
 
 \references{ Logicle Manuscript. 2007. Logicle Tech Note. 2011 }

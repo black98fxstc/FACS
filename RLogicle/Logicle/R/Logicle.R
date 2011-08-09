@@ -50,50 +50,59 @@ A <- function(p)
 bins <- function(p)
 	.Call(R_bins, p)
 
+axisLabels <- function(logicle)
+{
+	# number of decades in the positive logarithmic region
+	p = M(logicle) - 2 * W(logicle)
+	# smallest power of 10 in the region
+	log10x = ceiling(log10(T(logicle)) - p)
+	# data value at that point
+	x = exp(log(10) * log10x)
+	# number of positive labels
+	if (x > T(logicle))
+	{
+		x = T(logicle)
+		np = 1
+	}
+	else
+		np = floor(log10(T(logicle)) - log10x) + 1
+	# bottom of scale
+	B = inverse(logicle, 0)
+	# number of negative labels
+	if (x > -B)
+		nn = 0
+	else if (x == T(logicle))
+		nn = 1
+	else
+		nn = floor(log10(-B) - log10x) + 1
+
+	# fill in the axis labels
+	label <- numeric(nn + np + 1)
+	if (nn > 0)
+		for (i in 1:nn)
+		{
+			label[1 + nn - i] = -x
+			label[1 + nn + i] = x
+			x = x * 10;
+		}
+	if (np > nn)
+		for (i in (nn + 1):np)
+		{
+			label[1 + nn + i] = x
+			x = x * 10
+		}
+
+	label
+}
+
 axis <- function(side,logicle,...)
 {
 	if (missing(logicle))
 		graphics::axis(side,...)
 	else
 	{
-		p = M(logicle) - 2 * W(logicle)
-		log10x = ceiling(log10(T(logicle)) - p)
-		x = exp(log(10) * log10x)
-		
-		np = floor(log10(T(logicle) - log10x)) + 1
-		n = A(logicle)
-		if (n < 0)
-			np = 0
-		else
-			nn = ceiling(n) + 1
-		
-		ac <- 0
-		data_value <- numeric(np + nn + 1)
-		scale_value <- numeric(np + nn + 1)
-		
-		ac <- ac + 1
-		data_value[ac] <- 0
-		scale_value[ac] <- Logicle::scale(logicle,0)
-		if (nn > 0)
-			for (i in 1:nn)
-			{
-				ac <- ac + 1
-				data_value[ac] <- x
-				scale_value[ac] <- Logicle::scale(logicle,x)
-				ac <- ac + 1
-				data_value[ac] <- -x
-				scale_value[ac] <- Logicle::scale(logicle,-x)
-				x <- x * 10
-			}
-		if (np > nn)
-			for (i in (nn + 1):np)
-			{
-				ac <- ac + 1
-				data_value[ac] <- x
-				scale_value[ac] <- Logicle::scale(logicle,x)
-				x <- x * 10
-			}
-		
-		graphics::axis(side,at=scale_value,labels=data_value,...)
+		coordinates = Logicle::axisLables(logicle)
+		positions = Logicle::scale(logicle,positions)
+		graphics::axis(side,at=positions,labels=coordinates,...)
 	}
 }
