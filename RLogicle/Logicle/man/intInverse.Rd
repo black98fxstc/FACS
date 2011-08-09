@@ -19,8 +19,8 @@
 \keyword{vector}
 
 \examples{
-	l = Logicle::create(1000,1)
+	l = Logicle::create(1000,1,bins=4096)
 	x = 1 : 10
 	y = Logicle::scale(l, x)
-	z = Logicle::inverse(l, y)
+	z = Logicle::intInverse(l, y)
 }
