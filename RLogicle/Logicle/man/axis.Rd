@@ -7,7 +7,7 @@
 }
 
 \usage{
-	axis(side, logicle, ...)
+	axis(side, logicle)
 }
 \arguments{
 	\item{side}{an integer specifying which side of the plot the axis is to be drawn on.
@@ -21,6 +21,20 @@
 \keyword{axis}
 
 \examples{
-	l = Logicle::create(1000,1)
-	Logicle::axis(side=0,logicle=l);
+	# reasonable Diva default
+	l <- Logicle::create(300000,.5)
+	
+	# equal mixture of normal and log normal populations
+	N = 1000;
+	x = c( 1000 * exp(rnorm(N)), 10 * rnorm(N) );
+	y = c( 4000 * exp(rnorm(N)), 40 * rnorm(N) );
+	
+	# transform to Logicle scale
+	u = Logicle::scale(l,x)
+	v = Logicle::scale(l,y)
+	
+	# Logicle dot plot
+	graphics::plot(u, v, xaxt='n', yaxt='n')
+	Logicle::axis(side=1,logicle=l)
+	Logicle::axis(side=2,logicle=l)
 }
