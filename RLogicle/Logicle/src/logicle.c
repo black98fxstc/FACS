@@ -262,13 +262,13 @@ static double fast_inverse (const struct logicle_params * p, double scale)
 static struct logicle_params * logicle_allocate(int bins)
 {
 #ifdef R_LOGICLE
-	struct logicle_params * p = Calloc(1, struct logicle_params);
+	struct logicle_params * p = (struct logicle_params *)Calloc(1, struct logicle_params);
 	p->taylor = (double *)Calloc(TAYLOR_LENGTH, double);
 	p->bins = bins;
 	if (bins > 0)
 		p->lookup = (struct logicle_params *)Calloc(bins + 1, double);
 #else
-	struct logicle_params * p = malloc(sizeof (struct logicle_params));
+	struct logicle_params * p = (struct logicle_params *)malloc(sizeof (struct logicle_params));
 	p->taylor = (double *)malloc(TAYLOR_LENGTH * sizeof(double));
 	p->bins = bins;
 	if (bins > 0)
