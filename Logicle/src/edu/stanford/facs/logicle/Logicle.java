@@ -259,7 +259,7 @@ public class Logicle
    * Computes the value of Taylor series at a point on the scale
    * 
    * @param scale
-   * @return
+   * @return value of the biexponential function
    */
   protected double seriesBiexponential (double scale)
   {
@@ -277,7 +277,7 @@ public class Logicle
    * Computes the Logicle scale value of the given data value
    * 
    * @param value a data value
-   * @return the Logicle scale value
+   * @return the double Logicle scale value
    */
   public double scale (double value)
   {
@@ -344,7 +344,7 @@ public class Logicle
    * 
    * @param scale
    *          a double scale value
-   * @return double the double data value
+   * @return the double data value
    */
   public double inverse (double scale)
   {
@@ -380,4 +380,55 @@ public class Logicle
   {
     return slope(1) / slope(x1);
   }
+  
+	/**
+	 * Choose a suitable set of data coordinates for a Logicle scale
+	 * 
+	 * @return a double array of data values
+	 */
+	public double[] axisLabels ()
+	{
+		// number of decades in the positive logarithmic region
+		double p = M - 2 * W;
+		// smallest power of 10 in the region
+		double log10x = Math.ceil(Math.log(T) / LN_10 - p);
+		// data value at that point
+		double x = Math.exp(LN_10 * log10x);
+		// number of positive labels
+		int np;
+		if (x > T)
+		{
+			x = T;
+			np = 1;
+		}
+		else
+			np = (int) (Math.floor(Math.log(T) / LN_10 - log10x)) + 1;
+		// bottom of scale
+		double B = this.inverse(0);
+		// number of negative labels
+		int nn;
+		if (x > -B)
+			nn = 0;
+		else if (x == T)
+			nn = 1;
+		else
+			nn = (int) Math.floor(Math.log(-B) / LN_10 - log10x) + 1;
+
+		// fill in the axis labels
+		double[] label = new double[nn + np + 1];
+		label[nn] = 0;
+		for (int i = 1; i <= nn; ++i)
+		{
+			label[nn - i] = -x;
+			label[nn + i] = x;
+			x *= 10;
+		}
+		for (int i = nn + 1; i <= np; ++i)
+		{
+			label[nn + i] = x;
+			x *= 10;
+		}
+
+		return label;
+	}
 }
