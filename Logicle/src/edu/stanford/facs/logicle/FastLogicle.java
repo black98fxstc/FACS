@@ -14,7 +14,7 @@ public class FastLogicle
   extends Logicle
 {
   /**
-   * The default number of bins
+   * The default number of entries in the interpolation lookup table
    */
   public static final int DEFAULT_BINS = 1 << 12;
 
