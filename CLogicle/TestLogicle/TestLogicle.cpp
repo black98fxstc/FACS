@@ -325,7 +325,7 @@ TEST_F(TestLogicle, TestAxisLabels)
 
 TEST_F(TestLogicle, TestSolve)
 {
-	TestLogicle::testSolve(*random);
+	testSolve(*random);
 }
 
 TEST_F(TestLogicle, TestIntScale)
