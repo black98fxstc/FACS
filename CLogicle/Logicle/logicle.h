@@ -131,7 +131,7 @@ public:
         virtual double scale (double value) const;
         virtual double inverse (double scale) const;
         double dynamicRange () const;
-		void Logicle::axisLabels (std::vector<double> & label) const;
+	void axisLabels (std::vector<double> & label) const;
 
 protected:
         static const double LN_10;
