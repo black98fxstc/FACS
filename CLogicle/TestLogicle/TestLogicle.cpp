@@ -51,7 +51,7 @@ protected:
 				u = nextDouble();
 				v = 1.7156 * (nextDouble() - .5);
 				x = u - .449871;
-				y = abs(v) + .386595;
+				y = fabs(v) + .386595;
 				q = x * x + y * (.196 * y - .25472 * x);
 			} while (q > .27597 && (q > 0.27846 || v * v > -4. * log(u) * (u * u)));
 			return v/u;
@@ -134,7 +134,7 @@ protected:
 			double trueScale = distribution.sample();
 			double dataValue = logicle.inverse(trueScale);
 			double testScale = logicle.scale(dataValue);
-			EXPECT_LE(abs(trueScale - testScale), precision);
+			EXPECT_LE(fabs(trueScale - testScale), precision);
 		}
 	}
 
@@ -147,7 +147,7 @@ protected:
 			double scale = logicle.scale(trueData);
 			double testData = logicle.inverse(scale);
 			// data can't be better than slope times tolerance of argument
-			EXPECT_LE(abs(trueData - testData), tolerance * logicle.slope(scale));
+			EXPECT_LE(fabs(trueData - testData), tolerance * logicle.slope(scale));
 		}
 	}
 
@@ -160,7 +160,7 @@ protected:
 			double delta = actual[i] - expected[i];
 			if (expected[i] != 0)
 				delta /= expected[i];
-			EXPECT_LE(abs(delta), float_epsilon);
+			EXPECT_LE(fabs(delta), float_epsilon);
 		}
 	}
 
@@ -178,7 +178,7 @@ protected:
 		  double true_w = .5 * random.nextDouble();
 		  double d = Logicle::solve(b, true_w);
 		  double test_w = -2 * (log(d) - log(b)) / (b + d);
-		  EXPECT_LE(abs(true_w - test_w), tolerance);
+		  EXPECT_LE(fabs(true_w - test_w), tolerance);
 		}
 	}
 
