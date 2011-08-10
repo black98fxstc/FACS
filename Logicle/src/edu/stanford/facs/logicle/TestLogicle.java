@@ -103,6 +103,7 @@ public class TestLogicle
   }
 
   /**
+   * Setup random number generators
    * @throws java.lang.Exception
    */
   @Before
@@ -114,6 +115,7 @@ public class TestLogicle
   }
 
   /**
+   * Tear down random number generators
    * @throws java.lang.Exception
    */
   @After
@@ -123,52 +125,37 @@ public class TestLogicle
     random = null;
   }
 
-  /**
-   * Test that the specified Logicle scale is invertible to the stated precision
-   * over the stated range
-   * 
-   * @param logicle
-   * @param min
-   * @param max
-   */
-  public void testLogicleScale (Logicle logicle, Distribution distribution,
-    double precision)
-  {
-    for (int i = 0; i < NUMBER_OF_VALUES; ++i)
-    {
-      double trueScale = distribution.sample();
-      double dataValue = logicle.inverse(trueScale);
-      double testScale = logicle.scale(dataValue);
-      if (Math.abs(trueScale - testScale) > precision)
-        fail("scale invertability test failed");
-    }
-  }
+	/**
+	 * Test whether the specified Logicle scale is invertible to the stated precision
+	 * using pseudorandom data from the supplied distribution.
+	 * 
+	 * @param logicle
+	 * @param distribution
+	 * @param precision
+	 */
+	public void testLogicleScale (Logicle logicle, Distribution distribution,
+			double precision)
+	{
+		for (int i = 0; i < NUMBER_OF_VALUES; ++i)
+		{
+			double trueScale = distribution.sample();
+			double dataValue = logicle.inverse(trueScale);
+			double testScale = logicle.scale(dataValue);
+			if (Math.abs(trueScale - testScale) > precision)
+				fail("scale invertability test failed");
+		}
+	}
 
   /**
-   * Test that the specified Logicle scale is invertible to the stated precision
-   * over the stated range
+   * Test whether the inverse of the specified Logicle scale is accurate to
+   * the stated tolerance using pseudorandom data from the supplied distribution.
+   * Precision is calculated as the tolerance times the slope of the biexponential 
+   * at a given point on the scale.
    * 
    * @param logicle
-   * @param min
-   * @param max
+   * @param distribution
+   * @param tolerance
    */
-  public void testLogicleScaleToReference (Logicle logicle, Logicle reference,
-    Distribution distribution, double precision, boolean censor)
-  {
-    double minimum = logicle.scale(0);
-    double maximum = logicle.scale(1);
-    
-    for (int i = 0; i < NUMBER_OF_VALUES; ++i)
-    {
-      double trueScale = distribution.sample();
-      double dataValue = logicle.inverse(trueScale);
-      double testScale = logicle.scale(dataValue);
-      double referenceScale = reference.scale(dataValue);
-      if (Math.abs(referenceScale - testScale) > precision)
-        fail("scale invertability test failed");
-    }
-  }
-
   public void testLogicleInverse (Logicle logicle, Distribution distribution,
     double tolerance)
   {
@@ -182,9 +169,31 @@ public class TestLogicle
         fail("inverse data test failed");
     }
   }
+  
+  /**
+   * Test whether two arrays are equal to single precision accuracy.
+   * Used to test equivalence of sets of scale coordinates returned by
+   * {@link edu.stanford.facs.logicle.Logicle#axisLabels()}.
+   * @param actual coordinate values returned
+   * @param expected coordinate values
+   */
+  public void testLabels (double[] actual, double expected[])
+  {
+  	if (actual.length != expected.length)
+  		fail("number of labels differs");
+  	for (int i = 0, n = expected.length; i < n; ++i)
+  	{
+  		double delta = actual[i] - expected[i];
+  		if (expected[i] != 0)
+  			delta /= expected[i];
+  		if (Math.abs(delta) >= Math.ulp(1F))
+  			fail("label values differ");
+  	}
+  }
 
-  /*
-   * Test that the solution found actually solves the problem
+  /**
+   * Test method for {@link edu.stanford.facs.logicle.Logicle#solve(double,double)}.
+   * Test whether the solution found actually solves the problem.
    */
   @Test
   public void testSolve ()
@@ -263,53 +272,56 @@ public class TestLogicle
     distribution = new LogNormal(logicle.b / 2, logicle.b / 6);
     testLogicleInverse(logicle, distribution, 3 * Math.ulp(1D) );
   }
+  
+	/**
+	 * Test method for {@link edu.stanford.facs.logicle.Logicle#axisLabels()}.
+	 * Test whether the function returns the expected results in various circumstances.
+	 */
+	@Test
+	public void testAxisLabels ()
+	{
+		Logicle logicle;
+
+		// typical scale
+		logicle = new Logicle(10000, 1);
+		double[] typical = { 0, 100, 1000, 10000 };
+		testLabels(logicle.axisLabels(), typical);
+
+		// typical Diva
+		logicle = new Logicle(300000, .5);
+		double[] typical_diva = { -100, 0, 100, 1000, 10000, 100000 };
+		testLabels(logicle.axisLabels(), typical_diva);
+
+		// typical EDesk
+		logicle = new Logicle(1000, .5);
+		double[] typical_desk = { 0, 1, 10, 100 };
+		testLabels(logicle.axisLabels(), typical_desk);
+
+		// unit full scale
+		logicle = new Logicle(1, .5);
+		double[] unit_full_scale = { 0, .001, .01, .1, 1 };
+		testLabels(logicle.axisLabels(), unit_full_scale);
+
+		// arcsinh scale
+		logicle = new Logicle(10000, 0, Logicle.DEFAULT_DECADES, .5);
+		double[] arcsinh = { 0, 1, 10, 100, 1000, 10000 };
+		testLabels(logicle.axisLabels(), arcsinh);
+
+		// no negative region
+		logicle = new Logicle(10000, 1, Logicle.DEFAULT_DECADES, -1);
+		double[] no_negative = { 0, 100, 1000, 10000 };
+		testLabels(logicle.axisLabels(), no_negative);
+
+		// worst case
+		logicle = new Logicle(10000, 2.5, 5.0);
+		double[] worst_case = { -10000, 0, 10000 };
+		testLabels(logicle.axisLabels(), worst_case);
+	}
 
   /**
-   * Test method for {@link edu.stanford.facs.logicle.Logicle#scale(double)}.
+   * Test method for {@link edu.stanford.facs.logicle.FastLogicle#intScale(double)}.
    * Test that the scale function really is the inverse of the biexponential
    */
-  @Test
-  public void testSimpleScale ()
-  {
-    Logicle logicle;
-    Distribution distribution;
-
-    logicle = new SimpleLogicle(10000, 1);
-
-    // normal scale range
-    distribution = new Uniform(0, 1);
-    testLogicleScale(logicle, distribution, 1.0E-14);
-
-    // extended scale range
-    distribution = new Uniform(-1, 4);
-    testLogicleScale(logicle, distribution, 2.0E-14);
-  }
-
-  /**
-   * Test method for {@link edu.stanford.facs.logicle.Logicle#inverse(double)}.
-   * Check that the inverse function really is the inverse of the scale function
-   */
-  @Test
-  public void testSimpleInverse ()
-  {
-    Logicle logicle;
-    Distribution distribution;
-
-    // worst case for near zero behavior
-    logicle = new SimpleLogicle(10000, 2.5, 5.0);
-    // normally distributed data
-    distribution = new Normal(0, 5);
-    testLogicleInverse(logicle, distribution, 1.0E-14);
-
-    // typical default scale
-    logicle = new Logicle(10000, 1);
-    // normally distributed data
-    testLogicleInverse(logicle, distribution, 1.0E-14);
-    // log normally distributed data
-    distribution = new LogNormal(logicle.b / 2, logicle.b / 6);
-    testLogicleInverse(logicle, distribution, 1.0E-14 );
-  }
-
   @Test
   public void testIntScale ()
     throws Exception
@@ -327,7 +339,7 @@ public class TestLogicle
   }
   
   /**
-   * Test method for {@link edu.stanford.facs.logicle.Logicle#scale(double)}.
+   * Test method for {@link edu.stanford.facs.logicle.FastLogicle#scale(double)}.
    * Test that the scale function really is the inverse of the biexponential
    */
   @Test
@@ -348,7 +360,7 @@ public class TestLogicle
   }
   
   /**
-   * Test method for {@link edu.stanford.facs.logicle.Logicle#scale(double)}.
+   * Test method for {@link edu.stanford.facs.logicle.FastLogicle#scale(double)}.
    * Test that the scale function really is the inverse of the biexponential
    */
   @Test(expected=LogicleArgumentException.class)
@@ -365,7 +377,7 @@ public class TestLogicle
   }
   
   /**
-   * Test method for {@link edu.stanford.facs.logicle.Logicle#scale(double)}.
+   * Test method for {@link edu.stanford.facs.logicle.FastLogicle#scale(double)}.
    * Test that the scale function really is the inverse of the biexponential
    */
   @Test(expected=LogicleArgumentException.class)
@@ -381,7 +393,7 @@ public class TestLogicle
   }
   
   /**
-   * Test method for {@link edu.stanford.facs.logicle.Logicle#scale(double)}.
+   * Test method for {@link edu.stanford.facs.logicle.FastLogicle#scale(double)}.
    * Test that the scale function really is the inverse of the biexponential
    */
   @Test(expected=LogicleArgumentException.class)
