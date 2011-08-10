@@ -279,16 +279,17 @@ static struct logicle_params * logicle_allocate(int bins)
 
 void logicle_destroy(const struct logicle_params * p)
 {
+  struct logicle_params * q = (struct logicle_params *) p;
 #ifdef R_LOGICLE
-	if (p->bins > 0)
-		Free(p->lookup);
-	Free(p->taylor);
-	Free((struct logicle_params *)p);
+	if (q->bins > 0)
+		Free(q->lookup);
+	Free(q->taylor);
+	Free(q);
 #else
-	if (p->bins > 0)
-		free(p->lookup);
-	free(p->taylor);
-	free((struct logicle_params *)p);
+	if (q->bins > 0)
+		free(q->lookup);
+	free(q->taylor);
+	free(p);
 #endif
 }
 
