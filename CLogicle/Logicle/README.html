@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
@@ -6,8 +6,8 @@
 </head>
 <body>
 <h2>Classes Logicle and FastLogicle</h2>
-
-Provides an implementation of the Logicle data scale and its inverse.
+<p>
+Provide an implementation in C++ of the Logicle data scale and its inverse.
 The Logicle data scale is a generalization of the inverse hyperbolic sine function 
 or <code>arcsinh</code>.
 Like <code>arcsinh</code> it is logarithmic for large data values, linear
@@ -19,43 +19,56 @@ the maximum data value on scale and the width of the linear region.
 It is used in flow cytometry where a large dynamic range of data, most suitable for a
 logarithmic scale, is present along with other data distributed near zero
 and including negative values, for which an ordinary logarithmic scale is not suitable.
-
+</p>
+<h2>Pure C Logicle</h2>
+<p>
+An implementation of the Logicle scale using only ANSI standard C. 
+The functionality is the same as the C++ version but due to the limitations of the C language it is more awkward to use.
+However, it can be called more easily from other languages, for example, R or MATLAB and does not require linking with any C++ libraries.
+</p>
+<h2>Test Logicle</h2>
+<p>
+A set of unit test for the Logicle implementation using the Google Test framework, an implementation of the xUnit test methods.
+</p>
 <h2>Related Documentation</h2>
 <p>
 The Logicle methods was originally described in the publication:
-<blockquote>
+</p>
+<blockquote><p>
 A new "Logicle" display method avoids deceptive effects of logarithmic scaling for low signals and compensated data
-<br>
+<br/>
 David R. Parks, Mario Roederer, Wayne A. Moore, 
-<br>
+<br/>
 Cytometry Part A, Volume 69A, Issue 6, Pages 541-551
-</blockquote>
+</p></blockquote>
+<p>
 available online as 
-<a href="http://www3.interscience.wiley.com/cgi-bin/fulltext/112587611/PDFSTART" target="_new">
+<a href="http://www3.interscience.wiley.com/cgi-bin/fulltext/112587611/PDFSTART" target="_blank">
 PDF
 </a>
 or
-<a href="http://www3.interscience.wiley.com/cgi-bin/fulltext/112587611/HTMLSTART" target="_new">
+<a href="http://www3.interscience.wiley.com/cgi-bin/fulltext/112587611/HTMLSTART" target="_blank">
 HTML
 </a>.
 </p>
 <p>
 The method is included in the Gating-ML proposed standard of the International Society
 for the Advancement of Cytometry. The specifications for Gating-ML are available 
-<a href="http://flowcyt.sourceforge.net/gating/" target="_new">here</a>.
+<a href="http://flowcyt.sourceforge.net/gating/" target="_blank">here</a>.
 </p>
 <h2>Copyright, License and Patent</h2>
-
-Copyright (c) 2009, The Board of Trustees of The Leland Stanford Junior University. 
+<p>
+Copyright (c) 2009, 2011, The Board of Trustees of The Leland Stanford Junior University. 
 All rights reserved.
+</p>
 <p>
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+</p>
 <ul>
 <li>Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</li>
 <li>Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</li>
 <li>Neither the name of the Leland Stanford Junior University nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.</li>
 </ul>
-</p>
 <p>
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </p>
