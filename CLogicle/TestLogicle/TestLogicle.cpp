@@ -151,6 +151,19 @@ protected:
 		}
 	}
 
+	static void testLabels (std::vector<double> actual, double expected[], int count)
+	{
+		double float_epsilon = std::numeric_limits<float>::epsilon();
+		EXPECT_EQ(actual.size(), count);
+	  	for (int i = 0; i < count; ++i)
+		{
+			double delta = actual[i] - expected[i];
+			if (expected[i] != 0)
+				delta /= expected[i];
+			EXPECT_LE(abs(delta), float_epsilon);
+		}
+	}
+
 	void testSolve (Random & random)
 	{
 		// use standard 4.5 decade logicle scale
@@ -171,7 +184,7 @@ protected:
 
 	static void testPureCScale (Logicle & logicle, Distribution & distribution)
 	{
-		const struct logicle_params * params = logicle_initialize(logicle.T(), logicle.W(), logicle.M(), logicle.A(), 0);
+		const struct logicle_params * params = logicle_create(logicle.T(), logicle.W(), logicle.M(), logicle.A(), 0);
 
 		for (int i = 0; i < NUMBER_OF_VALUES; ++i)
 		{
@@ -185,7 +198,7 @@ protected:
 
 	static void testPureCInverse (Logicle & logicle, Distribution & distribution)
 	{
-		const struct logicle_params * params = logicle_initialize(logicle.T(), logicle.W(), logicle.M(), logicle.A(), 0);
+		const struct logicle_params * params = logicle_create(logicle.T(), logicle.W(), logicle.M(), logicle.A(), 0);
 
 		for (int i = 0; i < NUMBER_OF_VALUES; ++i)
 		{
@@ -199,7 +212,7 @@ protected:
 
 	static void testPureCFastScale (FastLogicle & logicle, Distribution & distribution)
 	{
-		const struct logicle_params * params = logicle_initialize(logicle.T(), logicle.W(), logicle.M(), logicle.A(), logicle.bins());
+		const struct logicle_params * params = logicle_create(logicle.T(), logicle.W(), logicle.M(), logicle.A(), logicle.bins());
 
 		for (int i = 0; i < NUMBER_OF_VALUES; ++i)
 		{
@@ -260,6 +273,54 @@ TEST_F(TestLogicle, TestInverse)
 		LogNormal log_normal(random, josef.b() / 2, josef.b() / 6);
 		testLogicleInverse(josef, log_normal, 3 * EPSILON );
 	}
+}
+
+TEST_F(TestLogicle, TestAxisLabels) 
+{
+	Logicle * logicle;
+	std::vector<double> label;
+
+	// typical scale
+	logicle = new Logicle(10000, 1);
+	double typical[] = { 0, 100, 1000, 10000 };
+	logicle->axisLabels(label);
+	testLabels(label, typical, sizeof(typical)/sizeof(double));
+
+	// typical Diva
+	logicle = new Logicle(300000, .5);
+	double typical_diva[] = { -100, 0, 100, 1000, 10000, 100000 };
+	logicle->axisLabels(label);
+	testLabels(label, typical_diva, sizeof(typical_diva)/sizeof(double));
+
+	// typical EDesk
+	logicle = new Logicle(1000, .5);
+	double typical_desk[] = { 0, 1, 10, 100 };
+	logicle->axisLabels(label);
+	testLabels(label, typical_desk, sizeof(typical_desk)/sizeof(double));
+
+	// unit full scale
+	logicle = new Logicle(1, .5);
+	double unit_full_scale[] = { 0, .001, .01, .1, 1 };
+	logicle->axisLabels(label);
+	testLabels(label, unit_full_scale, sizeof(unit_full_scale)/sizeof(double));
+
+	// arcsinh scale
+	logicle = new Logicle(10000, 0, Logicle::DEFAULT_DECADES, .5);
+	double arcsinh[] = { 0, 1, 10, 100, 1000, 10000 };
+	logicle->axisLabels(label);
+	testLabels(label, arcsinh, sizeof(arcsinh)/sizeof(double));
+
+	// no negative region
+	logicle = new Logicle(10000, 1, Logicle::DEFAULT_DECADES, -1);
+	double no_negative[] = { 0, 100, 1000, 10000 };
+	logicle->axisLabels(label);
+	testLabels(label, no_negative, sizeof(no_negative)/sizeof(double));
+
+	// worst case
+	logicle = new Logicle(10000, 2.5, 5.0);
+	double worst_case[] = { -10000, 0, 10000 };
+	logicle->axisLabels(label);
+	testLabels(label, worst_case, sizeof(worst_case)/sizeof(double));
 }
 
 TEST_F(TestLogicle, TestSolve)
@@ -355,7 +416,7 @@ TEST_F(TestLogicle, TestPureCInverse)
 
 TEST_F(TestLogicle, TestPureCIntScale)
 {
-	const struct logicle_params * params = logicle_initialize(10000, 1, 4.5, 0, 4096);
+	const struct logicle_params * params = logicle_create(10000, 1, 4.5, 0, 4096);
     for (int i = 0; i < NUMBER_OF_VALUES; ++i)
     {
       double trueScale = random->nextDouble();
