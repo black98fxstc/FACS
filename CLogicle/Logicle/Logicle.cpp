@@ -64,8 +64,8 @@ void Logicle::initialize (double T, double W, double M, double A, int bins)
 
 	if (T <= 0)
 		throw IllegalParameter("T is not positive");
-	if (W <= 0)
-		throw IllegalParameter("W is not positive");
+	if (W < 0)
+		throw IllegalParameter("W is negative");
 	if (M <= 0)
 		throw IllegalParameter("M is not positive");
 	if (2 * W > M)
@@ -320,6 +320,51 @@ double Logicle::inverse (double scale) const
 double Logicle::dynamicRange () const
 {
 	return slope(1) / slope(p->x1);
+};
+
+void Logicle::axisLabels (std::vector<double> & label) const
+{
+	// number of decades in the positive logarithmic region
+	double pd = p->M - 2 * p->W;
+	// smallest power of 10 in the region
+	double log10x = ceil(log(p->T) / LN_10 - pd);
+	// data value at that point
+	double x = exp(LN_10 * log10x);
+	// number of positive labels
+	int np;
+	if (x > p->T)
+	{
+		x = p->T;
+		np = 1;
+	}
+	else
+		np = (int) (floor(log(p->T) / LN_10 - log10x)) + 1;
+	// bottom of scale
+	double B = this->inverse(0);
+	// number of negative labels
+	int nn;
+	if (x > -B)
+		nn = 0;
+	else if (x == p->T)
+		nn = 1;
+	else
+		nn = (int) floor(log(-B) / LN_10 - log10x) + 1;
+
+	// fill in the axis labels
+	label.resize(nn + np + 1);
+	label[nn] = 0;
+	for (int i = 1; i <= nn; ++i)
+	{
+		label[nn - i] = -x;
+		label[nn + i] = x;
+		x *= 10;
+	}
+	for (int i = nn + 1; i <= np; ++i)
+	{
+		label[nn + i] = x;
+		x *= 10;
+	}
 }
 
+// Visual C++ hack!
 int PullInMyLibrary () { return 0; };
