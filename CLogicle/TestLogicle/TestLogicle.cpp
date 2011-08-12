@@ -2,6 +2,7 @@
 #include "gtest/gtest.h"
 #include <memory.h>
 #include <limits>
+#include <cmath>
 
 // unit tests based on GoogleTest framework
 
