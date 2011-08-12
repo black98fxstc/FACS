@@ -1,7 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #ifndef R_LOGICLE
+#ifndef __APPLE__
 #include <malloc.h>
+#else
+#include <malloc/malloc.h>
+#endif
 #endif
 #include <math.h>
 #include <float.h>
