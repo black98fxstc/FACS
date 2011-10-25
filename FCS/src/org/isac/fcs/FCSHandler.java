@@ -22,8 +22,7 @@
 
 package org.isac.fcs;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
 
 /**
  * An <code>abstract</code> superclass used in implementing input and output

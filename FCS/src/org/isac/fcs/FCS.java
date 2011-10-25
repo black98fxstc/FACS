@@ -22,7 +22,6 @@
 
 package org.isac.fcs;
 
-import java.util.*;
 
 /**
  * Constants used elsewhere in the FCS package.

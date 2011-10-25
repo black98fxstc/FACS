@@ -177,10 +177,10 @@ public class FCSTextSegment
   {
     GregorianCalendar cal = new GregorianCalendar();
     cal.setTime(date);
-    String value = String.valueOf(cal.get(cal.DAY_OF_MONTH));
+    String value = String.valueOf(cal.get(Calendar.DAY_OF_MONTH));
     if (value.length() < 2)
       value = "0" + value;
-    value += "-" + months[cal.get(cal.MONTH)] + "-" + String.valueOf(cal.get(cal.YEAR));
+    value += "-" + months[cal.get(Calendar.MONTH)] + "-" + String.valueOf(cal.get(Calendar.YEAR));
 
     setAttribute(keyword, value);
   }
