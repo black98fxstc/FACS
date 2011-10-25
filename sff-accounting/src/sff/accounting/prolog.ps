@@ -1,0 +1,159 @@
+%%DocumentData: Clean8Bit
+%%DocumentNeededResources: font Helvetica Helvetica-Bold
+%%DocumentSuppliedResources: procset (Stanford Schedule Printout) 1.1 1
+%%EndComments
+%%BeginDefaults
+%%PageResources: font Helvetica Helvetica-Bold
+%%EndDefaults
+%%BeginProlog
+%%BeginResource: procset (Stanford Schedule Printout) 1.1 1
+
+/dateFontSize 24 def
+/dateFont /Helvetica-Bold def
+
+/machineFontSize 18 def
+/machineFont /Helvetica-Bold def
+
+/subtitleFontSize 10 def
+/subtitleFont /Helvetica-Bold def
+
+/itemFontSize 8 def
+/itemFont /Helvetica def
+
+/in { 72 mul } bind def
+/mm { 72 25.4 div mul } bind def
+
+itemFont itemFontSize selectfont
+
+/startWidth (00:00  ) stringwidth pop def
+/endWidth (00:00  ) stringwidth pop def
+/userWidth 1.5 in def
+/behalfOfWidth 1.5 in def
+/operatorWidth 1.5 in def
+/lasersWidth 80 def
+/sterilityWidth (Non-sterile  ) stringwidth pop def
+/useWidth (Sort - No Reanalysis ) stringwidth pop def
+
+/widths [ startWidth endWidth userWidth behalfOfWidth operatorWidth lasersWidth sterilityWidth useWidth ] def
+
+/totalWidth 0 widths { add } forall def
+
+/Xleft 8.5 in totalWidth sub 2 div def
+
+/positions [ Xleft dup widths { add dup } forall pop ] def
+
+/titles [ (Start) (End) (User) (On Behalf Of) (Operator) (Lasers) (Sterility) (Use) ] def
+
+/docolor
+{
+  [ /Indexed /DeviceRGB 6
+    <000000 FF0000 FF8888 FFFF7F FFAAFF 7FFF7F FFFFFF>
+  ] setcolorspace
+} def
+
+/black   0 def
+/bl2     1 def
+/bl1     2 def
+/sterile 3 def
+/lasers  4 def
+/nozzle  5 def
+/normal  6 def
+
+% text dayTitle
+/dayTitle {
+  /Y 10.5 in dateFontSize sub def
+
+  black setcolor
+
+  dateFont dateFontSize selectfont
+  dup stringwidth pop neg 8.5 in add 2 div
+  Y moveto
+  show
+
+%  /Y Y dateFontSize sub def
+} def
+
+% machine machineTitle
+/machineTitle {
+  3 dict begin
+
+  black setcolor
+
+  /Y Y machineFontSize sub def
+  machineFont machineFontSize selectfont
+  Xleft Y moveto
+  show
+
+  /Y Y subtitleFontSize 2 add sub def
+  subtitleFont subtitleFontSize selectfont
+  0 1 7 {
+    /i exch def
+    positions i get Y moveto
+    titles i get show
+  } for
+  subtitleFont subtitleFontSize selectfont
+
+  end
+  /Y Y machineFontSize sub subtitleFontSize 2 mul 2 add sub def
+} def
+
+% [ start end user behalfOf operator lasers sterility use ] sterileColor laserColor nozzlecolor reservation
+/reservation {
+  4 dict begin
+
+  /nozzleColor exch def
+  /laserColor exch def
+  /sterileColor exch def
+  /reserve exch def
+
+  itemFont itemFontSize selectfont
+  0 1 7 {
+    /i exch def
+
+    gsave
+
+    newpath
+    positions i get Y descent add moveto
+    widths i get 0 rlineto
+    0 itemFontSize rlineto
+    widths i get neg 0 rlineto
+    closepath
+    clip
+
+    sterileColor setcolor
+    i 5 eq {laserColor setcolor} if
+    i 7 eq {nozzleColor setcolor} if
+    fill
+
+    black setcolor
+    positions i get Y moveto
+    reserve i get show
+
+    grestore
+  } for
+
+  end
+  /Y Y itemFontSize sub def
+} def
+
+
+/ascent
+{
+  currentfont /FontBBox get 2 get
+  currentfont /FontBBox get 3 get
+  currentfont /FontMatrix get transform exch pop
+} bind def
+
+/descent
+{
+  currentfont /FontBBox get 0 get
+  currentfont /FontBBox get 1 get
+  currentfont /FontMatrix get transform exch pop
+} bind def
+
+%%EndResource
+%%EndProlog
+%%BeginSetup
+%%IncludeResource: font Helvetica
+%%IncludeResource: font Helvetica-Bold
+%%EndSetup

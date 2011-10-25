@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : build-e.xml
+    Created on : October 15, 2010, 2:45 PM
+    Author     : cate
+    Description:
+        Purpose of the document follows.
+-->
+
+<project name = "FCS3.0">
+    <description>
+        Compile the FCS source files and create a jar file
+    </description>
+    <property name="basedir" location = "." />
+    <property name="classdir" location="${basedir}/classes"/>
+    <property name="distdir" location="${basedir}/dist"/>
+    <property name="srcdir" location="${basedir}/src"/>
+
+    <target name="buildall">
+        <echo> ************Build all**********</echo>
+        <mkdir dir="${basedir}/classes"/>
+        <mkdir dir="${basedir}/dist"/>
+        <javac srcdir="${srcdir}"
+               destdir="${classdir}"
+               />
+               <jar destfile="${distdir}/FCS.jar"
+                    basedir="${classdir}"
+                    update="true"
+                    />
+
+    </target>
+
+    <target name="clean">
+        <delete dir="${classdir}" quiet="true"></delete>
+        <delete dir="${distdir}" quiet="true"></delete>
+    </target>
+
+</project>

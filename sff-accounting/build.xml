@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="SFF Accounting" default="build" basedir=".">
+
+	<property name="src" value="src" />
+	<property name="classes" value="classes" />
+	<property name="dist" value="dist" />
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: init                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="init">
+		<mkdir dir="${classes}" />
+	</target>
+
+	<!-- ================================= 
+          target: clean              
+         ================================= -->
+	<target name="clean" depends="" description="clean up working directories">
+		<delete dir="${classes}" />
+	</target>
+
+	<!-- ================================= 
+          target: compile              
+         ================================= -->
+	<target name="compile" depends="init" description="compile soruce files">
+		<javac destdir="${classes}" target="1.5" source="1.5">
+			<src path="${src}" />
+		</javac>
+	</target>
+
+	<!-- ================================= 
+          target: jar              
+         ================================= -->
+	<target name="jar" depends="compile" description="make jar file">
+		<jar destfile="sff-accounting.jar">
+			<fileset dir="${classes}" />
+			<fileset dir="${src}">
+				<include name="**/*.ps" />
+			</fileset>
+		</jar>
+	</target>
+
+
+	<!-- ================================= 
+          target: build              
+         ================================= -->
+	<target name="build" depends="compile,jar" description="complete build">
+
+	</target>
+
+</project>

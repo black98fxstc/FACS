@@ -1,0 +1,15 @@
+<Context docBase="EDesk" path="/EDesk" reloadable="true">
+  <Environment name="ers/Host" override="false"
+    type="java.lang.String" value="FACSDATA.Stanford.EDU" />
+  <Environment name="ers/Port" override="false"
+    type="java.lang.Integer" value="8080" />
+  <Environment name="desk/Host" override="false"
+    type="java.lang.String" value="FACS.Stanford.EDU"/>
+  <Environment name="desk/Port" override="false"
+    type="java.lang.Integer" value="8080" />
+  <Resource name="jdbc/EDeskMetadata" auth="Container"
+    type="javax.sql.DataSource"
+    maxActive="100" maxIdle="30" maxWait="10000"
+    username="wizard" password="lizard" driverClassName="org.postgresql.Driver"
+    url="jdbc:postgresql://192.168.20.2/edesk_metadata"/>
+</Context>
