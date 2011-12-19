@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="build" name="FCS">
+	<property file="${local.properties}" />
+
+	<property environment="env" />
+
+	<property name="debuglevel" value="source,lines,vars" />
+	<property name="target" value="1.5" />
+	<property name="source" value="1.5" />
+
+	<!-- ================================= 
+          target: clean              
+         ================================= -->
+	<target name="clean" description="Remove all generated files">
+		<delete dir="bin" />
+		<delete file="FCS.jar" />
+	</target>
+
+	<target depends="clean" name="cleanall">
+		<ant antfile="build.xml" dir="${ERS.location}" inheritAll="false" target="clean" />
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: init                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="init">
+		<mkdir dir="bin" />
+		<copy includeemptydirs="false" todir="bin">
+			<fileset dir="src">
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+	</target>
+
+	<!-- ================================= 
+          target: compile              
+         ================================= -->
+	<target name="compile" depends="init" description="Compile Java sources">
+		<javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}" includeantruntime="false">
+			<src path="src" />
+		</javac>
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: fcs-jar                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="fcs-jar" depends="compile">
+		<jar destfile="FCS.jar" duplicate="fail">
+			<fileset dir="bin" includes="org/isac/fcs/*" />
+		</jar>
+	</target>
+
+	<!-- ================================= 
+          target: build              
+         ================================= -->
+	<target name="build" depends="fcs-jar" description="Build FCS library jar" />
+
+</project>
