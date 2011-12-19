@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="build" name="FlowJo">
+	<property file="${local.properties}" />
+
+	<property environment="env" />
+
+	<property name="FCS.location" value="../FCS" />
+	<property name="FlowJo.location" value="../FlowJo" />
+
+	<property name="debuglevel" value="source,lines,vars" />
+	<property name="target" value="1.5" />
+	<property name="source" value="1.5" />
+
+	<path id="FCS.classpath">
+		<pathelement location="${FCS.location}/FCS.jar" />
+	</path>
+
+	<path id="FlowJo.classpath">
+		<pathelement location="bin" />
+		<path refid="FCS.classpath" />
+	</path>
+
+	<!-- ================================= 
+          target: clean              
+         ================================= -->
+	<target name="clean" description="Remove all generated files">
+		<delete dir="bin" />
+		<delete file="FlowJo.jar" />
+	</target>
+
+	<target depends="clean" name="cleanall">
+		<ant antfile="build.xml" dir="${ERS.location}" inheritAll="false" target="clean" />
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: init                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="init">
+		<mkdir dir="bin" />
+		<copy includeemptydirs="false" todir="bin">
+			<fileset dir="src">
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+	</target>
+
+	<!-- ================================= 
+          target: compile              
+         ================================= -->
+	<target name="compile" depends="init" description="Compile Java sources">
+		<javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}" includeantruntime="false">
+			<src path="src" />
+			<classpath refid="FCS.classpath" />
+		</javac>
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: flowjo-jar                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="flowjo-jar" depends="compile">
+		<jar destfile="FlowJo.jar" duplicate="fail">
+			<fileset dir="bin" includes="edu/stanford/facs/flowjo/*" />
+		</jar>
+	</target>
+
+	<!-- ================================= 
+          target: build              
+         ================================= -->
+	<target name="build" depends="flowjo-jar" description="Build FlowJo library jar" />
+
+</project>
