@@ -1,0 +1,508 @@
+ private void parseFile_1 () {
+        Document doc;
+        String[] fl_label = null;
+        boolean CGEXP = false;
+        try {
+          SAXBuilder builder = new SAXBuilder();
+          doc = builder.build(datafile);
+          Element root = doc.getRootElement();
+          Element exp_ele = root.getChild ("experiment");
+
+          if (exp_ele != null ) {
+              expName = exp_ele.getAttributeValue ("name");
+              System.out.println ("Experiment name = "+expName);
+              List instrument_list = exp_ele.getChildren ("instrument_settings");
+              if (instrument_list != null && instrument_list.size() > 0){
+                  List parameters = ((Element) instrument_list.get(0)).getChildren ("parameter");
+                  if (parameters != null){
+//                      System.out.println (" Length of parameter list is " + parameters.size());
+                      Iterator <org.jdom.Element> it = parameters.iterator();
+                      while (it.hasNext() ){
+                          Element oneparam = it.next();
+                          int type = oneparam.getAttribute ("type").getIntValue();
+                          if (type == 30){
+//                              String name = oneparam.getAttribute ("name").getName();
+//                              System.out.println (name + ", " + type + ",  "+ oneparam.getAttribute("name").getValue());
+                              String att = oneparam.getAttribute("name").getValue();
+                              if (!att.startsWith("FSC") && !att.startsWith ("SSC")){
+//                                  int index = att.indexOf('-');
+//                                  if (index > -1)
+//                                      att = att.substring(0, index);
+                     //             System.out.println ("Parsing:  att add to detector list " + att);
+                                   detectorList.add(att);
+                              }
+                          }
+                          
+                      }
+
+                  }
+                  else {
+                      errorMessage.append (" Unable to get the instrument settings from the file.");
+                  }
+                  List specimen_list = exp_ele.getChildren ("specimen");
+                  int ith=0;
+                  if (specimen_list != null && specimen_list.size() > 0) {
+                      for (int i =0; i < specimen_list.size(); i++) {
+                          Element ele_i = (Element) specimen_list.get(i);
+//                          System.out.println ("Specimen name " + ele_i.getAttribute("name"));
+                          ith++;  //where is the comp one in this list?
+                          //These are DiVa Compensation Controls
+                          String controlAttribute = ele_i.getAttribute("name").getValue();
+                          if (controlAttribute.contains("CytoGenie")){
+                              CGEXP = true;
+                             // getTubes (ele_i.getChildren ("tube"));
+                          }
+                          
+//                          if (ele_i.getAttribute("name").getValue().equals("Compensation Controls")){
+                          //if this is a CytoGenie Compensation controls, we can't guarantee that they are in the correct
+                          //order.  That is the order of the compensaton controls do not fit just 5-1.fcs,5-2.fcs, 5-3.fcs etc.
+                          //This assumption can't be made!!
+                          
+                          if (controlAttribute.indexOf ("Compensation Controls")>-1 || 
+                                  controlAttribute.indexOf("Compensation controls")>=-1){
+                              compi = ith;
+//                              System.out.println (" this one is a comp " + compi);
+                              List tube_list = ele_i.getChildren ("tube");
+
+                              if (tube_list != null && tube_list.size() > 0){
+                                 
+                                  for (int j=0; j < tube_list.size(); j++){
+                                       
+                                      Element onetube = (Element) tube_list.get(j);
+                                      String value = ((Element) tube_list.get(j)).getAttribute("name").getValue();
+//                                      System.out.println ("Tube name value is " + value);
+                                      int index =value.indexOf (" Stained Control");
+                                      if (index > -1){
+                                          value = value.substring(0, index);
+                                          List labels = onetube.getChildren ("labels");
+                                          for (int p = 0; p < labels.size(); p++){
+                                              fl_label = new String[2];
+                                              List fls = ((Element) labels.get(p)).getChildren("fl");
+                                              for (int q=0; q < fls.size(); q++){
+                                                  Element fl_1 = (Element) fls.get(q);
+                                                  String flname = ((Element) fls.get(q)).getAttribute("name").getValue();
+                                                  fl_label[0] = flname;
+                                                  System.out.println ("fl name = "+ flname);
+                                                  Element label_1 = fl_1.getChild ("label");
+                                                  if (label_1 != null){
+                                                      //content value
+                                                      List labellist = label_1.getContent();
+                                                      if (labellist != null && labellist.size()>0){
+                                                          String labelis =  ((Text)labellist.get(0)).getText();
+                                                          if (labelis == null) labelis="";
+                                                          fl_label[1] = labelis;
+                                                          System.out.println ("label is " + labelis);
+                                                      }
+                                                  }
+                                                  
+                                              }
+                                          }
+
+                                      }
+                                      else if (value.contains("capture beads")){
+                                          System.out.println (" capture beads " + value);
+                                        //  Element onetube = (Element) tube_list.get(j);
+                                          List keys = onetube.getChildren("keywords");
+                                          List keywords = ((Element)keys.get(0)).getChildren("keyword");
+                                        //  List keywords = ((Element)tube_list.get(j)).getAttribute("keywords").getChildren("keyword");
+                                          for (int k=0; k < keywords.size(); k++){
+                                              Element ekey = (Element) keywords.get(k);
+                                              System.out.println (ekey.toString());
+                                              if (ekey.getAttribute("name").getValue().equals("type")){
+                                                 
+                                                 List children = ekey.getChildren("value");
+                                                 if (children.size() == 1){
+                                                    Element one =  (Element) children.get(0);
+                                                    List contents = one.getContent();
+                                                    System.out.println (contents.get(0));
+                                                    
+                                                 }
+                                              }
+                                              
+                                          }
+
+                                      }
+                                      else if (CGEXP){
+                                          System.out.println ("CGEXP is true " + value);
+                                          String fcsfilename = getFCSfileName (onetube);
+
+                                          List keys = onetube.getChildren("keywords");
+                                          List keywords = ((Element)keys.get(0)).getChildren("keyword");
+                                          for (int p=0; p < keywords.size(); p++){
+                                              Element ekey = (Element) keywords.get(p);
+                                              System.out.println (ekey.toString());
+
+                                              if (ekey.getAttribute("name").getValue().equals("type")){
+
+                                                  Text type = getKeywordValue (ekey);
+                                                  System.out.println ("type "+ type);
+                    //                             List children = ekey.getChildren("value");
+                    //                             if (children.size() == 1){
+                    //                                Element one =  (Element) children.get(0);
+                    //                                List contents = one.getContent();
+                    //                                System.out.println (contents.get(0));
+
+                    //                             }
+                                              }
+                                              else if (ekey.getAttribute("name").getValue().equals("Tube-identifier")){
+                                                  Text tube_id = getKeywordValue (ekey );
+                                                  System.out.println ("Tube-identifier " + tube_id);    
+                                                  }
+
+                                              else if (ekey.getAttribute ("name").getValue().equals("Tube-type")){
+                                                  Text type = getKeywordValue (ekey);
+                                                  System.out.println ("tube-type "+ type);
+                                              }
+                                              else if (ekey.getAttribute ("name").getValue().equals ("Label-for")){
+                                                  Text label = getKeywordValue (ekey);
+                                                  System.out.println ("Label-for " + label);
+                                              }
+                                              else if (ekey.getAttribute ("name").getValue().equals ("Unstained-control")){
+                                                  Text unstained = getKeywordValue (ekey);
+                                                  System.out.println ("Unstained-control "+ unstained);
+                                              }
+                                              
+                                          }
+                                          
+                                          
+                                          
+                                      }
+                                      reagentList.add (value);
+                                      if (fl_label != null)
+                                          controlList.add (fl_label);
+
+                                  }
+                              }
+                              
+                          }
+ 
+
+                      }
+                      fcsFilenames = new String[reagentList.size()];
+                      int j=1;
+                      for (int i = 0; i < reagentList.size(); i++){
+                          fcsFilenames[i] = dataPath + File.separator + compi + "-" + j + ".fcs";
+                          System.out.println (" fcs file = " + fcsFilenames[i]+ " "+ reagentList.get(i));
+                          j++;
+                      }
+                  }
+                  //look for the speciment named comp
+
+              }
+          }
+        } catch(JDOMException e) {
+          e.printStackTrace();
+        } catch (IOException e){
+            e.printStackTrace();
+        } catch(NullPointerException e) {
+          e.printStackTrace();
+        }
+   
+    }
+    
+   private void parseFileForStainSets () {
+        Document doc;
+        String[] fl_label = null;
+        boolean CGEXP = false;
+         try {
+          SAXBuilder builder = new SAXBuilder();
+          doc = builder.build(datafile);
+          Element root = doc.getRootElement();
+          Element exp_ele = root.getChild ("experiment");
+
+          if (exp_ele != null ) {
+              expName = exp_ele.getAttributeValue ("name");
+              System.out.println ("Experiment name = "+expName);
+              List instrument_list = exp_ele.getChildren ("instrument_settings");
+              if (instrument_list != null && instrument_list.size() > 0){
+                  List parameters = ((Element) instrument_list.get(0)).getChildren ("parameter");
+                  if (parameters != null){
+//                      System.out.println (" Length of parameter list is " + parameters.size());
+                      Iterator <org.jdom.Element> it = parameters.iterator();
+                      while (it.hasNext() ){
+                          Element oneparam = it.next();
+                          int type = oneparam.getAttribute ("type").getIntValue();
+                          if (type == 30){
+//                              String name = oneparam.getAttribute ("name").getName();
+//                              System.out.println (name + ", " + type + ",  "+ oneparam.getAttribute("name").getValue());
+                              String att = oneparam.getAttribute("name").getValue();
+                              if (!att.startsWith("FSC") && !att.startsWith ("SSC")){
+//                                  int index = att.indexOf('-');
+//                                  if (index > -1)
+//                                      att = att.substring(0, index);
+                     //             System.out.println ("Parsing:  att add to detector list " + att);
+                                   detectorList.add(att);
+                              }
+                          }
+                          
+                      }
+
+                  }
+                  else {
+                      errorMessage.append (" Unable to get the instrument settings from the file.");
+                  }
+                  List specimen_list = exp_ele.getChildren ("specimen");
+                  int ith=0;
+                  if (specimen_list != null && specimen_list.size() > 0) {
+                      for (int i =0; i < specimen_list.size(); i++) {
+                          Element ele_i = (Element) specimen_list.get(i);
+//                          System.out.println ("Specimen name " + ele_i.getAttribute("name"));
+                          ith++;  //where is the comp one in this list?
+                          //These are DiVa Compensation Controls
+                          String controlAttribute = ele_i.getAttribute("name").getValue();
+                          boolean control = false;
+                          if (controlAttribute.indexOf ("Compensation Controls")>-1)
+                              control = true;
+                          else if (controlAttribute.indexOf ("Compensation controls")>-1){//this is CytoGenie
+                              control = true;
+                              CGEXP = true;
+                          }
+                               
+                          
+//                          if (ele_i.getAttribute("name").getValue().equals("Compensation Controls")){
+                          //if this is a CytoGenie Compensation controls, we can't guarantee that they are in the correct
+                          //order.  That is the order of the compensaton controls do not fit just 5-1.fcs,5-2.fcs, 5-3.fcs etc.
+                          //This assumption can't be made!!
+                          
+                          if (control){
+                              compi = ith;
+//                              System.out.println (" this one is a comp " + compi);
+                              List tubeChildren = ele_i.getChildren ("tube");
+                              
+                              if (tubeChildren != null && tubeChildren.size() > 0){
+                                 
+                                  for (int j=0; j < tubeChildren.size(); j++){
+                                       
+                                      Element onetube = (Element) tubeChildren.get(j);
+                                      String value = ((Element) tubeChildren.get(j)).getAttribute("name").getValue();
+                                      Tube newtube = null;
+//                                      System.out.println ("Tube name value is " + value);
+                                      int index =value.indexOf ("Stained Control");
+                                      if (index > -1){  
+                                          newtube = new Tube ();
+                                          newtube.tube_type = STAINED_CONTROL;
+                                          newtube.name = value;
+                                          value = value.substring(0, index);
+                                          List labels = onetube.getChildren ("labels");
+                                          for (int p = 0; p < labels.size(); p++){
+                                              fl_label = new String[2];
+                                              List fls = ((Element) labels.get(p)).getChildren("fl");
+                                              for (int q=0; q < fls.size(); q++){
+                                                  Element fl_1 = (Element) fls.get(q);
+                                                  String flname = ((Element) fls.get(q)).getAttribute("name").getValue();
+                                                  fl_label[0] = flname;
+                                                  System.out.println ("fl name = "+ flname);
+                                                  newtube.fl = flname;
+                                                  Element label_1 = fl_1.getChild ("label");
+                                                  if (label_1 != null){
+                                                      //content value
+                                                      List labellist = label_1.getContent();
+                                                      if (labellist != null && labellist.size()>0){
+                                                          String labelis =  ((Text)labellist.get(0)).getText();
+                                                          if (labelis == null) labelis="";
+                                                          fl_label[1] = labelis;
+                                                          System.out.println ("label is " + labelis);
+                                                          newtube.label = labelis;
+                                                      }
+                                                  }
+                                                  
+                                              }
+                                          }
+
+                                      }
+                                      else if (value.contains("capture beads")){
+                                          System.out.println (" capture beads " + value);
+                                        //  Element onetube = (Element) tubeChildren.get(j);
+                                          List keys = onetube.getChildren("keywords");
+                                          List keywords = ((Element)keys.get(0)).getChildren("keyword");
+                                        //  List keywords = ((Element)tubeChildren.get(j)).getAttribute("keywords").getChildren("keyword");
+                                          for (int k=0; k < keywords.size(); k++){
+                                              Element ekey = (Element) keywords.get(k);
+                                              System.out.println (ekey.toString());
+                                              if (ekey.getAttribute("name").getValue().equals("type")){
+                                                 
+                                                 List children = ekey.getChildren("value");
+                                                 if (children.size() == 1){
+                                                    Element one =  (Element) children.get(0);
+                                                    List contents = one.getContent();
+                                                    System.out.println (contents.get(0));
+                                                    
+                                                 }
+                                              }
+                                              
+                                          }
+
+                                      }
+                                      else if (CGEXP){
+                                          System.out.println ("CGEXP is true " + value);
+                                          String fcsfilename = getFCSfileName (onetube);
+//                                          List children = onetube.getChildren ("data_filename");
+//                                          int ii=0;
+//                                          while (ii < children.size()){
+//                                              System.out.println (children.get(ii).toString());
+//                                              Element ele = (Element) children.get(ii);
+//                                              if (ele.getName().equals("data_filename")){
+//                                                  List list = ele.getContent();
+//                                                  if (list.size() == 1){
+//                                                      String fcs = ((Text) list.get(0)).getText();
+//                                                      System.out.println (fcs);
+//                                                  }
+//                                              }
+//                                              
+//                                              ii++;
+//                                          }
+                                          List keys = onetube.getChildren("keywords");
+                                          List keywords = ((Element)keys.get(0)).getChildren("keyword");
+                                          for (int p=0; p < keywords.size(); p++){
+                                              Element ekey = (Element) keywords.get(p);
+                                              
+                                              if (ekey.getAttribute("name").getValue().equals("type")){
+
+                                                  Text type = getKeywordValue (ekey);
+                                                  System.out.println ("type "+ type.getText());
+                  
+                                              }
+                                              else if (ekey.getAttribute("name").getValue().equals("Tube-identifier")){
+                                                  Text tube_id = getKeywordValue (ekey );
+                                                  System.out.println ("Tube-identifier " + tube_id.getText());    
+                                                  }
+
+                                              else if (ekey.getAttribute ("name").getValue().equals("Tube-type")){
+                                                  Text type = getKeywordValue (ekey);
+                                                  System.out.println ("tube-type "+ type.getText());
+                                              }
+                                              else if (ekey.getAttribute ("name").getValue().equals ("Label-for")){
+                                                  Text label = getKeywordValue (ekey);
+                                                  System.out.println ("Label-for " + label.getText());
+                                              }
+                                              else if (ekey.getAttribute ("name").getValue().equals ("Unstained-control")){
+                                                  Text unstained = getKeywordValue (ekey);
+                                                  System.out.println ("Unstained-control "+ unstained.getText());
+                                              }
+                                              
+                                          }
+                                          
+                                          
+                                          
+                                      }
+                                      reagentList.add (value);
+                                      if (fl_label != null)
+                                          controlList.add (fl_label);
+
+                                  }
+                              }
+                              
+                          }
+                          else {  //this specimen is a sample.  Get the Stain set.  Get the tube name for the sample or stain set.
+                              List tubeChildren = ele_i.getChildren ("tube"); 
+                              for (int j=0; j < tubeChildren.size(); j++){
+                                       
+                                      Element onetube = (Element) tubeChildren.get(j);
+                                      String value = ((Element) tubeChildren.get(j)).getAttribute("name").getValue();
+//                                      System.out.println ("Tube name value is " + value);
+                                      int index =value.indexOf ("Stained Control");
+                                      if (index > -1){    
+                                          value = value.substring(0, index);
+                                          List labels = onetube.getChildren ("labels");
+                                          for (int p = 0; p < labels.size(); p++){
+                                              fl_label = new String[2];
+                                              List fls = ((Element) labels.get(p)).getChildren("fl");
+                                              for (int q=0; q < fls.size(); q++){
+                                                  Element fl_1 = (Element) fls.get(q);
+                                                  String flname = ((Element) fls.get(q)).getAttribute("name").getValue();
+                                                  fl_label[0] = flname;
+                                                  System.out.println ("fl name = "+ flname);
+                                                  Element label_1 = fl_1.getChild ("label");
+                                                  if (label_1 != null){
+                                                      //content value
+                                                      List labellist = label_1.getContent();
+                                                      if (labellist != null && labellist.size()>0){
+                                                          String labelis =  ((Text)labellist.get(0)).getText();
+                                                          if (labelis == null) labelis="";
+                                                          fl_label[1] = labelis;
+                                                          System.out.println ("label is " + labelis);
+                                                      }
+                                                  }
+                                                  
+                                              }
+                                          }
+                                      }
+                                      else{//this is the stain set
+                                         
+                                          StainSet newone = null;
+                                          List labels = onetube.getChildren ("labels");
+                                          
+                                              
+                                          for (int p = 0; p < labels.size(); p++){
+                                              fl_label = new String[2];
+                                              List fls = ((Element) labels.get(p)).getChildren("fl");
+                                              for (int q=0; q < fls.size(); q++){
+                                                  Element fl_1 = (Element) fls.get(q);
+                                                  String flname = ((Element) fls.get(q)).getAttribute("name").getValue();
+                                                  fl_label[0] = flname;
+                                                  System.out.println ("fl name = "+ flname);
+                                                  
+                                                  Element label_1 = fl_1.getChild ("label");
+                                                  if (label_1 != null){
+                                                      //content value
+                                                      List labellist = label_1.getContent();
+                                                      if (labellist != null && labellist.size()>0){
+                                                          String labelis =  ((Text)labellist.get(0)).getText();
+                                                          if (labelis == null) labelis="";
+                                                          fl_label[1] = labelis;
+                                                          System.out.println ("label is " + labelis);
+                                                      }
+                                                  }
+                                                  if (newone == null) newone = new StainSet (value);
+                                                  newone.addElement (fl_label[0], fl_label[1]);
+                                                  
+                                                  
+                                              }
+                                          }
+                                          if (newone != null )
+                                              stainSets.put (value, newone);   
+                                          
+                                      }
+                              }
+                          }
+ 
+
+                      }
+                      fcsFilenames = new String[reagentList.size()];
+                      int j=1;
+                      for (int i = 0; i < reagentList.size(); i++){
+                          fcsFilenames[i] = dataPath + File.separator + compi + "-" + j + ".fcs";
+                          System.out.println (" fcs file = " + fcsFilenames[i]+ " "+ reagentList.get(i));
+                          j++;
+                      }
+                  }
+                  //look for the speciment named comp
+
+              }
+          }
+        } catch(JDOMException e) {
+          e.printStackTrace();
+        } catch (IOException e){
+            e.printStackTrace();
+        } catch(NullPointerException e) {
+          e.printStackTrace();
+        }
+         
+        Set keyset = stainSets.keySet();
+        Iterator it = keyset.iterator();
+        while (it.hasNext()){
+            String key = (String) it.next();
+            StainSet oneset = stainSets.get(key);
+            System.out.println ("Stain Set :" + oneset.name);
+            for (int i=0; i < oneset.stainset.size(); i++){
+                String[] one = oneset.stainset.get(i);
+                System.out.println ("\t" + one[0] + ", "+one[1]);
+            
+            }
+        
+                
+        }
+         
+   
+        
+    }

@@ -1,0 +1,9 @@
+September 22, 2010
+Write compensation matrix to a file.
+    Add button to the ui to let that happen.
+    Use the FlowJo format
+Add the csv files that describe the instruments to the fmo directory.
+    Then read as a stream instead of a file
+Look up the XCode to make an application bundle -- jar bundler
+Make an app for the compensation.
+

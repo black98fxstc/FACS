@@ -1,0 +1,12 @@
+<project name="myproject">
+    
+    <target name="compile">
+        <javac srcdir="./"/>
+    </target>
+   <target name=run">
+       <java classname="fcsutils.TextToFCS">
+           <classpath>
+              <pathelement location="./" />
+           </classpath>
+   </target> 
+</project>

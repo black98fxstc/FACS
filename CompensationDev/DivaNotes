@@ -1,0 +1,18 @@
+Special things about DiVa;
+
+1.  If the user sets up their controls using DiVa mechanisms, the controls come out as
+*** Stained Control  and Unstained Control in the tube name.
+
+2.  If the control is just one per detector, the 'name' of the detector is given by this
+convention.  So it says FITC Stained Control for example.  FITC would be the name of the detector
+given in the configuration file, I suppose.  It is the name that DiVa knows about anyway.
+
+3.  To match this with a detector name, one would add on a -A on the end and the link it
+to the index on the detector list. Then there is no <labels> <fl> <label> </label></fl></labels>
+in the xml file.
+
+4.  If the user is setting up the tandems, I mean multiple reagents on one detector, then
+the DiVa convention is  to give the <name of the reagent><name of the detector> and these and
+then listed in the XML file as <labels><fl><Label></label></fl></labels>
+
+ 

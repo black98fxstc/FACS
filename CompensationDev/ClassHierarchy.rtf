@@ -1,0 +1,155 @@
+{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf540
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww14980\viewh14660\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f0\fs24 \cf0 StainedControl \
+     |        overrides analyze();\
+                                markovData ()\
+     |\
+     |--->>> ScatterGatedControl\
+\
+\
+\
+UnstainedControl\
+    |        overrides analyze();\
+    |\
+    |--->>> ScatterGatedControl\
+                    |\
+                    |\
+                    |----->BoundedControl\
+                                   |     analyze();\
+                                   |\
+                                   |\
+                                   |----GatedControl\
+                                           |       read (FCSFile, String[] detector )\
+                                           |\
+                                           | ----->>AnalyzedControl\
+\
+-------------------------------------------------------------------------------------\
+------------------------------------------------------------------------------------\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\b \cf0 FlowData
+\b0 \
+         float[][] read (FCSFile )\
+|\
+|\
+|----->>>>>>
+\b AugmentedData 
+\b0 (String tag)   extends FlowData\
+                public void writeAugmented()   //writes this fcs file out\
+                public void writeAugmentedCSV()     //write it out as a cvs file\
+\
+                \ul protected abstract void augmentData (FCSHandler itout, int k)\
+                protected abstract void augmentHeader (FCSFile out)\
+                protected abstract void augmentDataCSV ()\
+                protected abstract void augmentHeaderCSV()\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+\cf0 \ulnone         |\
+        |\
+        |------->>>>>>>
+\b AnalyzedData   
+\b0 extends AugmentedData\
+                         public class IntegerAnalysis\
+                         public class Float Analysis\
+\
+                          public final float[] addFloatAnalysis(String detectorname )\
+                          public final int[]     addIntegerAnalysis (String detectorname )\
+                          public final List<IntegerAnalysis> getIntegerResults();\
+                          public final List<FloatAnalysis> getFloatResults();\
+                          \ul protected abstract void analyze();\ulnone \
+                          implements protected void augmentData (FCSHandler itout, int k);\
+                          implements protected void augmentHeader (FCSFile out);\
+                          overrides       protected void augmentDataCSV  ()\
+                          overrides       protected void augmentHeaderCSV ()\
+                 \
+            |\
+            |\
+            |-------->>>>>>>>>
+\b CompensatedData 
+\b0 extends AnalyzedData\
+                          overrides        protected void read (FCSFile, FluorescenceCompensation )\
+                          overrides        protected void analyze();\
+\
+                          |\
+                          |\
+                          |---------->>>>>>>>>> 
+\b FMOData
+\b0    extends CompensatedData\
+                                   overrides        public void writeAugmented()\
+                                   overrides        protected void augmentHeader (FCSFile )\
+               \
+ \
+\
+-----------------------------------------------------------------\
+-----------------------------------------------------------------\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\b \cf0 StainedControl and UnstainedControl  extends ScatterGatedControl
+\b0 \
+                 overrides void analyze()\
+      |\
+      |\
+      | -------->>>>>>> 
+\b ScatterGatedControl extends BoundedControl
+\b0 \
+                                             overrides void analyze()\
+                                    |\
+                                    |\
+                                    |------------->>>>>>>>>>>>
+\b BoundedControl extends GatedControl
+\b0 \
+                                                                       overrides analyze()\
+                                                              |\
+			                          |\
+	   			              |------------->>>>>>>>
+\b GatedControl 
+\b0  extends AnalyzedControl\
+   								overrides void read (FCSFile, String[]detector )  \
+AnalyzedControl was removed.						\
+							|\
+							|\
+							| ---------  
+\b ControlData  
+\b0 extends AnalyzedData\
+                                                                                                   protected void read (FCSFile, String[] detector)    									|\
+									|\
+									|---->>>>>>> 
+\b AnalyzedData 
+\b0 extends AugmentedData\
+										contains class IntegerAnalysis\
+											     class FloatAnalysis   \
+             										protected final ArrayList<IntergerAnalysis> intResults\
+ 											protected final ArrayList<FloatAnalysis> floatResults\
+										|\
+										|\
+										|----->>>>> 
+\b AugmentedData 
+\b0 extends FlowData
+\b \
+											|\
+											|\
+											|------->>>> FlowData\
+                                                                                                                                                  protected FlowData (FCSFile file )
+\b0 \
+												protected float [][] read ();
+\b 	
+\b0 	             \
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+}
