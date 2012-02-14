@@ -51,8 +51,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
+
 import javax.swing.text.Document;
 import org.isac.fcs.FCSException;
 import org.isac.fcs.FCSFile;
@@ -80,7 +82,7 @@ public class FCSFileDialog extends JDialog {
     private ArrayList<ControlInformation> allInfo = new ArrayList<ControlInformation>();
     private String[] colNames={"Add Row", "Detector", "Reagent",
                                "Unstained FCSFile ",
-                               "Stained FCSFile"};
+                               "Stained FCSFile", "Cells?"};
    
 
     private final URL addURL = FCSFileDialog.class.getResource ("/edu/stanford/facs/gui/add.png");
@@ -307,12 +309,12 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
 		        return false;
             }
 
-            @Override
+            //override
             public int getSourceActions(JComponent c) {
                 return COPY;
             }
 
-            @Override
+            //override
             protected Transferable createTransferable(JComponent c) {
                 JList list = (JList)c;
                 Object[] values = list.getSelectedValues();
@@ -707,10 +709,19 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
         constraints.gridwidth = GridBagConstraints.RELATIVE;
         bag.setConstraints (label3, constraints);
         leftPanel.add (label3);
+        
         JLabel label4 = new JLabel (colNames[4]);
-        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        //constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.gridwidth = GridBagConstraints.RELATIVE;
         bag.setConstraints (label4, constraints );
         leftPanel.add (label4);
+        
+        JLabel label5 = new JLabel (colNames[5]);
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        bag.setConstraints (label5, constraints );
+        leftPanel.add (label5);
+        
+        
         for (int i=0; i < detectors.length; i++){
             if (detectors[i].startsWith("<") && detectors[i].endsWith(">"))
                 detectors[i] = detectors[i].substring (1, detectors[i].length()-1);
@@ -756,12 +767,18 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
             bag.setConstraints (tf2, constraints);
             leftPanel.add (tf2);
             JTextField tf3 = new JTextField (12);
-            constraints.gridwidth = GridBagConstraints.REMAINDER;
+            constraints.gridwidth = GridBagConstraints.RELATIVE;
             bag.setConstraints (tf3, constraints);
             leftPanel.add (tf3);
+            JCheckBox cb = new JCheckBox();
+            constraints.gridwidth = GridBagConstraints.REMAINDER;
+            bag.setConstraints (cb, constraints);
+            leftPanel.add (cb);         
             addListenersTo (tf1, newone,"tf1");
             addListenersTo (tf2, newone,"tf2");
             addListenersTo (tf3, newone,"tf3");
+             
+            
             allInfo.add (newone);
         }
         

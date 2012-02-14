@@ -52,7 +52,7 @@ public class UnstainedStainedMapping extends JPanel {//implements ActionListener
         list.setDragEnabled(true);
         list.setTransferHandler(new TransferHandler() {
 
-            @Override
+            //override
             public boolean canImport(TransferHandler.TransferSupport info) {
                 // we only import Strings
                 if (!info.isDataFlavorSupported(DataFlavor.stringFlavor)) {
@@ -66,7 +66,7 @@ public class UnstainedStainedMapping extends JPanel {//implements ActionListener
                 return true;
             }
 
-            @Override
+            //override
             public boolean importData(TransferHandler.TransferSupport info) {
                 if (!info.isDrop()) {
                     return false;

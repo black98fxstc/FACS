@@ -12,7 +12,7 @@ public class BoundedControl
     super(fcsfile, comp);
   }
 
-  @Override
+  //override
   protected void analyze ()
   {
     int Noriginal = exclude.cardinality();

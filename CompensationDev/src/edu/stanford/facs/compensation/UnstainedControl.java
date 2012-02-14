@@ -14,7 +14,7 @@ public class UnstainedControl
     super(comp, fcsfile);
   }
 
-  @Override
+  //override
   protected void analyze ()
   {
     Selector selector = Tools.threadLocal.get().selector;

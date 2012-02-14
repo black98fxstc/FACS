@@ -109,7 +109,7 @@ public class Detector
     nowBackgroundLight = adjust * bgBackgroundLight;
   }
 
-  @Override
+  //override
   /**
    * override toString for debugging
    */

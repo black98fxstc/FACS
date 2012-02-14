@@ -44,7 +44,7 @@ public class Diagnostic implements Comparable<Diagnostic>
 		return reagentName + ": " +message;
 	}
 
-	@Override
+	//override
 	public int compareTo (Diagnostic that)
 	{
 		if (this.importance < that.importance)

@@ -8,7 +8,7 @@ package edu.stanford.facs.gui;
  * $Id: CompensationResults.java,v 1.2 2011/11/09 19:49:46 beauheim Exp $
  * @author cate
  */
-public interface CompensationResults {
+public interface CompensationResults  {
     
     public void setFailsLinearityTest(int i, int j, boolean fails);
     public void setFailsInterceptTest(int i, int j, boolean fails);

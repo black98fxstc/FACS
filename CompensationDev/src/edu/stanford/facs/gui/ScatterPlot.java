@@ -403,7 +403,7 @@ public class ScatterPlot extends JPanel implements ItemListener {
         return SHEIGHT * (yymax - y) / (yymax - yymin) + heightxborder;
     }
 
-    @Override
+    //override
     public void itemStateChanged (ItemEvent ie) {
         JCheckBox cb = (JCheckBox) ie.getItem();
         String label = cb.getText();

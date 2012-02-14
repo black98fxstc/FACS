@@ -27,6 +27,7 @@ public class ControlInformation implements ActionListener, TextListener, Documen
         String reagent;
         String unstainedControlFile, stainedControlFile;
         TubeInfo unstainedTube, stainedTube;
+        boolean compensationCells = false;
        
         String unstainedTubeName, stainedTubeName;
         
@@ -134,7 +135,7 @@ public class ControlInformation implements ActionListener, TextListener, Documen
             System.out.println ("textValue Changed " + e.getSource());
         }
 
-        @Override
+        //override
         public String toString() {
             StringBuilder buf = new StringBuilder();
             buf.append ("Detector:  ").append (detectorName);
@@ -206,7 +207,7 @@ public class ControlInformation implements ActionListener, TextListener, Documen
             if (stainedControlFile != null) stainedControlFile = stainedControlFile.trim();
         }
 
-//        @Override
+//        //override
         public void insertUpdate (DocumentEvent de) {
 //            System.out.println (" document event insertUpdate "+ de.getDocument().getProperty(Document.TitleProperty));
             String title = (String)de.getDocument().getProperty (Document.TitleProperty);
@@ -216,7 +217,7 @@ public class ControlInformation implements ActionListener, TextListener, Documen
 
         }
 
-//        @Override
+//        //override
         public void removeUpdate (DocumentEvent de) {
 //            System.out.println (" document event removeUpdate "+ de.getDocument().getProperty (Document.TitleProperty));
             String title = (String)de.getDocument().getProperty (Document.TitleProperty);
@@ -225,7 +226,7 @@ public class ControlInformation implements ActionListener, TextListener, Documen
             }
         }
 
-//        @Override
+//        //override
         public void changedUpdate (DocumentEvent de) {
 //            System.out.println (" document event changedUpdate "+ de.getDocument().getProperty (Document.TitleProperty));
             String title = (String)de.getDocument().getProperty (Document.TitleProperty);

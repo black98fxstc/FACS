@@ -27,7 +27,7 @@ extends Estimator
     return intercept;
   }
 
-  @Override
+  //override
   public double coefficient (int j)
   {
     throw new UnsupportedOperationException();

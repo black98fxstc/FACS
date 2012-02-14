@@ -1,7 +1,6 @@
 package edu.stanford.facs.gui;
 
 import edu.stanford.facs.controllers.CompensationController;
-import com.apple.eio.FileManager;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -57,7 +56,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.JTableHeader;
 
 
-public class CompensationFrame extends JFrame  implements CompensationResults {
+public class CompensationFrame extends JFrame  implements CompensationResults, PropertyChangeListener {
  
 
   private final SpectrumCellRenderer spectrumRenderer = new SpectrumCellRenderer();
@@ -123,6 +122,11 @@ public class CompensationFrame extends JFrame  implements CompensationResults {
   private MouseAdapter colClick;
   private DecimalFormat decimalFormat = new DecimalFormat ("#.####");
   private NumberFormat percentFormat = new DecimalFormat ("##.##%");
+
+    //Override
+    public void propertyChange (PropertyChangeEvent pce) {
+        System.out.println (" Compensation Frame -- propertyChangeListener ");
+    }
 
 
     public interface CellSelectionListener {

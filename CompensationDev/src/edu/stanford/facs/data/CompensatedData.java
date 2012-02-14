@@ -35,7 +35,7 @@ public class CompensatedData
     }
   }
 
-  @Override
+  //override
   protected void analyze ()
   {
     String[] detector = fc.getDetectorNames();

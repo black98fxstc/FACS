@@ -32,12 +32,13 @@ public class AutoWrapTest {
       ">>>>>> >>>>>> >>>>>>>>> >>>>>> >>>>>>>>> >>|"
     };
     TableModel model = new DefaultTableModel(data, columnNames) {
-      @Override public boolean isCellEditable(int row, int column) {
+        public boolean isCellEditable(int row, int column) {
         return false;
       }
     };
     JTable table = new JTable(model) {
-      @Override public void doLayout() {
+      //Override 
+      public void doLayout() {
         TableColumn col = getColumnModel().getColumn(0);
         for(int row=0; row<getRowCount(); row++) {
           Component c = prepareRenderer(col.getCellRenderer(), row, 0);
@@ -78,7 +79,8 @@ public class AutoWrapTest {
   }
   public static void main(String[] args) {
     EventQueue.invokeLater(new Runnable() {
-      @Override public void run() { createAndShowGUI(); }
+      //Override 
+      public void run() { createAndShowGUI(); }
     });
   }
   public static void createAndShowGUI() {
@@ -97,7 +99,8 @@ class TextAreaCellRenderer extends JTextArea implements TableCellRenderer {
     setLineWrap(true);
     setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
   }
-  @Override public Component getTableCellRendererComponent(
+  //Override 
+  public Component getTableCellRendererComponent(
     JTable table, Object value, boolean isSelected,
     boolean hasFocus, int row, int column) {
     if(isSelected) {

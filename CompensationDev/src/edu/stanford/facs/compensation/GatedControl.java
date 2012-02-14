@@ -17,7 +17,7 @@ public abstract class GatedControl
     super(comp, fcsfile);
   }
 
-  @Override
+  //override
   protected void load ()
     throws FCSException, IOException
   {

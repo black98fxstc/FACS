@@ -90,7 +90,7 @@ public class JoFile  extends SwingWorker<Exception, String[]>
 
      class DataStoreAuthenticator extends Authenticator {
 
-        @Override
+        //override
          protected PasswordAuthentication getPasswordAuthentication() {
             char[] passwd= new String("314159").toCharArray();
              PasswordAuthentication auth = new PasswordAuthentication ("flowjo", passwd);
@@ -271,7 +271,7 @@ public class JoFile  extends SwingWorker<Exception, String[]>
     public String[][]getControlData () {
         return controlData;
     }
-    @Override  //the property change function can be used instead.  it is called when the thing finishes
+    //override  //the property change function can be used instead.  it is called when the thing finishes
     public void putMappingData (String[][] data, File tempFolder) {
         System.out.println ("put MappingData in JoFile");
         this.tempFolder = tempFolder;
@@ -874,7 +874,7 @@ public class JoFile  extends SwingWorker<Exception, String[]>
 
     
 
-    @Override
+    //override
     protected Exception doInBackground () throws Exception {
         //some kind of message that says -- getting the data together or something.
        System.out.println (" ---doInBackground--- " );//DataStoreAuthenticator

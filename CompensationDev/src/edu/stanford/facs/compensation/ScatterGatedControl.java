@@ -14,7 +14,7 @@ public class ScatterGatedControl
     super(comp, fcsfile);
   }
 
-  @Override
+  //override
   protected void analyze ()
   {
     super.analyze();
