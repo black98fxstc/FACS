@@ -387,7 +387,7 @@ public class BatchController extends CompensationController implements Compensat
 
     }
 
-    @Override
+    //override
     public void setFailsLinearityTest (int i, int j, boolean fails) {
        System.out.println ("Fails LinearityTest " + i + " "+ j + "  "+ failsLinearityTest.length+ "  "+ failsLinearityTest[i].length);
        if (i < failsLinearityTest.length && j < failsLinearityTest[i].length)
@@ -395,7 +395,7 @@ public class BatchController extends CompensationController implements Compensat
         
     }
 
-    @Override
+    //override
     public void setFailsInterceptTest (int i, int j, boolean fails) {
     
       if (i < failsInterceptTest.length && j < failsInterceptTest[i].length)
@@ -410,7 +410,7 @@ public class BatchController extends CompensationController implements Compensat
 //    spectrumModel.setSpectrum();
     }
 
-    @Override
+    //override
     public void setSpectrum (int i, int j, double spillover, double uncertainty) {
           if (i < spectrumData.length && j < spectrumData[i].length){
 

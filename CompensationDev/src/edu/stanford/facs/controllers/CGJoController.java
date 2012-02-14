@@ -390,7 +390,7 @@ private void initialize () {
     }
     
 
-    @Override
+    //override
     public void setFailsLinearityTest (int i, int j, boolean fails) {
         
         System.out.println ("Fails LinearityTest " + i + " "+ j + "  "+ failsLinearityTest.length+ "  "+ failsLinearityTest[i].length);
@@ -398,7 +398,7 @@ private void initialize () {
             failsLinearityTest[i][j] = fails;
     }
 
-    @Override
+    //override
     public void setFailsInterceptTest (int i, int j, boolean fails) {
        
         if (i < failsInterceptTest.length && j < failsInterceptTest[i].length)
@@ -407,7 +407,7 @@ private void initialize () {
 
     }
 
-    @Override
+    //override
     public void setSpectrum (int i, int j, double spillover, double uncertainty) {
         
          if (i < spectrumData.length && j < spectrumData[i].length){
@@ -417,13 +417,13 @@ private void initialize () {
           }
     }
 
-    @Override
+    //override
     
     public void reportMessage (String msg, boolean flag) {
         System.out.println (" CGJoController.reportMessage "+ msg + "  "+ flag);
     }
 
-    @Override
+    //override
     public void spilloverNotSignificantTest (int reagent, int j, boolean b) {
         if (reagent < failsSignificanceTest.length){
            if (j < failsSignificanceTest[reagent].length);
@@ -431,7 +431,7 @@ private void initialize () {
         }
     }
 
-    @Override
+    //override
     public void setFailsSignificanceTest (int i, int j, boolean fails) {
          if (i < failsSignificanceTest.length && j < failsSignificanceTest[i].length)
             failsSignificanceTest[i][j] = fails;
@@ -472,7 +472,7 @@ private void initialize () {
 //        }
     }
 
-    @Override
+    //override
     public void enableButton (boolean b) {
     }
     
