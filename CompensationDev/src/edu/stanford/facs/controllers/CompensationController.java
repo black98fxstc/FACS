@@ -1095,7 +1095,7 @@ System.out.println (" ------------------end of list------------------------");
     while (!found && i < data.length){
         if (data[i][3] != null && !data[i][3].equals("")){  //this could be the tube name and not the name
             found = true;                                   //of the file.  
-            if (data[i][4] != null && data[i][4] != null && data[i][3].equals(data[i][4])){
+            if (data[i].length > 4 && data[i][4] != null  && data[i][3].equals(data[i][4])){
                 //this is a tube name
                 TubeInfo tube = tubeMap.get(data[i][3]);
                 if (tube != null){
@@ -1608,7 +1608,7 @@ System.out.println (" ------------------end of list------------------------");
 
    
 
-    @Override
+    //override
     /*
      * the fcsfiledialog class sends this data when its continue button is clicked
      * this is a pass through.
@@ -1656,7 +1656,7 @@ if (info != null){
     });
   }
 
-    @Override
+    //override
     public void propertyChange (PropertyChangeEvent pce) {
         System.out.println (" CompensationController propertyChanged");
         System.out.println (pce.getSource().getClass().getName());
@@ -1738,7 +1738,7 @@ if (info != null){
                 isSelected = b;
             }
 
-            @Override
+            //override
             public void actionPerformed (ActionEvent ae) {
                
                 if (ae.getSource() instanceof JCheckBox){
@@ -1749,7 +1749,7 @@ if (info != null){
 
             }
 
-            @Override
+            //override
             public void itemStateChanged (ItemEvent ie) {
                 if (ie.getStateChange() == ItemEvent.DESELECTED ) isSelected = false;
                 else isSelected = true;
