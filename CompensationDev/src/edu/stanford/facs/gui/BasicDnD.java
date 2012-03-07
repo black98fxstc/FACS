@@ -4,20 +4,16 @@
  */
 package edu.stanford.facs.gui;
 
-import java.util.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.text.*;
-import java.awt.datatransfer.*;
 
+import java.awt.*;
+import java.awt.datatransfer.*;
 import javax.swing.*;
-import javax.swing.text.*;
-import javax.swing.tree.*;
-import javax.swing.table.*;
+
 
 public class BasicDnD extends JPanel {//implements ActionListener {
     private static JFrame frame;
-  
+	private static final long serialVersionUID = 1L;
+
     private JList list;
 
 
@@ -47,7 +43,10 @@ public class BasicDnD extends JPanel {//implements ActionListener {
         list.setDragEnabled(true);
         list.setTransferHandler(new TransferHandler() {
 
-            public boolean canImport(TransferHandler.TransferSupport info) {
+            
+			private static final long serialVersionUID = 1L;
+
+			public boolean canImport(TransferHandler.TransferSupport info) {
                 // we only import Strings
                 if (!info.isDataFlavorSupported(DataFlavor.stringFlavor)) {
                     return false;

@@ -39,7 +39,8 @@ public class DownloadDialogSimple extends JDialog{
     private JoFile parent;
     protected boolean saveFiles = false;
     protected File saveJoFileDirectory;
-    
+	private static final long serialVersionUID = 1L;
+
     public DownloadDialogSimple (JoFile parent, HashMap <String, TubeInfo> tubeList){
     
         super (parent.getFrame(), "Download Compensation Files");
@@ -70,13 +71,13 @@ public class DownloadDialogSimple extends JDialog{
        
         JPanel checkPanel = new JPanel();
         checkPanel.setLayout (new GridLayout (0,1));
-        Collection ctubes = tubeList.values();
-        Iterator it = ctubes.iterator();
+        Collection <TubeInfo>ctubes = tubeList.values();
+        Iterator <TubeInfo>it = ctubes.iterator();
         
         
         
         while (it.hasNext()){
-            final TubeInfo tube = (TubeInfo) it.next();
+            final TubeInfo tube =  it.next();
        System.out.println ("  list "+ tube.getTubeName());     
             JCheckBox cb = new JCheckBox (tube.getTubeName());
             cb.addItemListener (new ItemListener(){
@@ -112,10 +113,10 @@ public class DownloadDialogSimple extends JDialog{
             public void actionPerformed (ActionEvent e){
                System.out.println ("  Download simple:  Selected tubes: ");
                Collection <TubeInfo> tubes = tubeList.values();
-               Iterator it = tubes.iterator();
+               Iterator <TubeInfo>it = tubes.iterator();
                
                while (it.hasNext()){
-                   TubeInfo one = (TubeInfo) it.next();
+                   TubeInfo one = it.next();
                    if (one.isSelected ){
                        System.out.println (one.getTubeName() );
                    }

@@ -108,13 +108,13 @@ public class DivaXmlParser {
           Element root = doc.getRootElement();
           Element exp_ele = root.getChild ("experiment");
           if (exp_ele != null ) {
-              List spec_list = exp_ele.getChildren ("specimen");
+              List<Element> spec_list = exp_ele.getChildren ("specimen");
               if (spec_list !=null && spec_list.size() > 0){
-                  List tube_list = ((Element) spec_list.get(0)).getChildren ("tube");
+                  List <Element> tube_list = ((Element) spec_list.get(0)).getChildren ("tube");
                   if (tube_list != null && tube_list.size() > 0){
-                      List laserS_list = ((Element) tube_list.get(0)).getChildren ("lasers");
+                      List <Element>laserS_list = ((Element) tube_list.get(0)).getChildren ("lasers");
                       if (laserS_list != null && laserS_list.size() > 0){
-                          List laser_list = ((Element) laserS_list.get(0)).getChildren("laser");
+                          List <Element>laser_list = ((Element) laserS_list.get(0)).getChildren("laser");
                           if (laser_list != null && laser_list.size()>0){
                               areaScalingValues = new String[laser_list.size()][2];
                               for (int i=0; i < laser_list.size(); i++){
@@ -161,9 +161,9 @@ public class DivaXmlParser {
           Element exp_ele = root.getChild ("experiment");
           int i=0;
           if (exp_ele != null ) {
-              List instrument_list = exp_ele.getChildren ("instrument_settings");
+              List <Element>instrument_list = exp_ele.getChildren ("instrument_settings");
               if (instrument_list != null && instrument_list.size() > 0){
-                  List parameter_list = ((Element) instrument_list.get(0)).getChildren("parameter");
+                  List <Element>parameter_list =  instrument_list.get(0).getChildren("parameter");
                   if (parameter_list != null){
                       Iterator <org.jdom.Element> it =  parameter_list.iterator();
                       while (it.hasNext() ){
@@ -174,7 +174,7 @@ public class DivaXmlParser {
                           //check the detector list
                           if (onDetectorList (att)){
                               String volt = null;
-                              List volt_list = oneparam.getChildren("voltage");
+                              List<Element> volt_list = oneparam.getChildren("voltage");
                               if (volt_list != null && volt_list.size() == 1){
                                   Element volt_ele = (Element) volt_list.get(0);
                                   volt = volt_ele.getText();
@@ -291,9 +291,9 @@ public class DivaXmlParser {
           if (exp_ele != null ) {
               expName = exp_ele.getAttributeValue ("name");
               System.out.println ("Experiment name = "+expName);
-              List instrument_list = exp_ele.getChildren ("instrument_settings");
+              List <Element>instrument_list = exp_ele.getChildren ("instrument_settings");
               if (instrument_list != null && instrument_list.size() > 0){
-                  List parameters = ((Element) instrument_list.get(0)).getChildren ("parameter");
+                  List <Element>parameters =  instrument_list.get(0).getChildren ("parameter");
                   if (parameters != null){
 //                      System.out.println (" Length of parameter list is " + parameters.size());
                       Iterator <org.jdom.Element> it = parameters.iterator();
@@ -319,7 +319,7 @@ public class DivaXmlParser {
                   else {
                       errorMessage.append (" Unable to get the instrument settings from the file.");
                   }
-                  List specimen_list = exp_ele.getChildren ("specimen");
+                  List <Element>specimen_list = exp_ele.getChildren ("specimen");
                   int ith=0;
                   if (specimen_list != null && specimen_list.size() > 0) {
                       for (int i =0; i < specimen_list.size(); i++) {
@@ -330,7 +330,7 @@ public class DivaXmlParser {
                           if (ele_i.getAttribute("name").getValue().equals("Compensation Controls")){
                               compi = ith;
 //                              System.out.println (" this one is a comp " + compi);
-                              List tube_list = ele_i.getChildren ("tube");
+                              List<Element> tube_list = ele_i.getChildren ("tube");
                           
                               if (tube_list != null && tube_list.size() > 0){
                                   System.out.println (" tube list size?  "+ tube_list.size());
@@ -359,11 +359,11 @@ public class DivaXmlParser {
 
                                           }
                                           
-                                          List labels = onetube.getChildren ("labels");
+                                          List <Element>labels = onetube.getChildren ("labels");
                                           /*These are the stain sets!! when not a Stained Control*/
                                           for (int p = 0; p < labels.size(); p++){
                                               fl_label = new String[2];
-                                              List fls = ((Element) labels.get(p)).getChildren("fl");
+                                              List<Element> fls = labels.get(p).getChildren("fl");
                                               for (int q=0; q < fls.size(); q++){
                                                   Element fl_1 = (Element) fls.get(q);
                                                   String flname = ((Element) fls.get(q)).getAttribute("name").getValue();
@@ -372,7 +372,7 @@ public class DivaXmlParser {
                                                   Element label_1 = fl_1.getChild ("label");
                                                   if (label_1 != null){
                                                       //content value
-                                                      List labellist = label_1.getContent();
+                                                      List<List<Text>> labellist = label_1.getContent();
                                                       if (labellist != null && labellist.size()>0){
                                                           String labelis =  ((Text)labellist.get(0)).getText();
                                                           if (labelis == null) labelis="";
@@ -400,18 +400,18 @@ public class DivaXmlParser {
                                       else if (value.contains("capture beads")){
                                           System.out.println (" capture beads " + value);
                                         //  Element onetube = (Element) tube_list.get(j);
-                                          List keys = onetube.getChildren("keywords");
-                                          List keywords = ((Element)keys.get(0)).getChildren("keyword");
+                                          List <Element >keys = onetube.getChildren("keywords");
+                                          List <Element>keywords = keys.get(0).getChildren("keyword");
                                         //  List keywords = ((Element)tube_list.get(j)).getAttribute("keywords").getChildren("keyword");
                                           for (int k=0; k < keywords.size(); k++){
-                                              Element ekey = (Element) keywords.get(k);
+                                              Element ekey =  keywords.get(k);
                                               System.out.println (ekey.toString());
                                               if (ekey.getAttribute("name").getValue().equals("type")){
                                                  
-                                                 List children = ekey.getChildren("value");
+                                                 List<Element> children = ekey.getChildren("value");
                                                  if (children.size() == 1){
                                                     Element one =  (Element) children.get(0);
-                                                    List contents = one.getContent();
+                                                    List<List<Text>> contents = one.getContent();
                                                     System.out.println (contents.get(0));
                                                     
                                                  }
@@ -437,7 +437,7 @@ public class DivaXmlParser {
                               
                           } //if specimen is a compensation control
                           else {
-                              List tube_list = ele_i.getChildren ("tube");
+                              List<Element> tube_list = ele_i.getChildren ("tube");
                              //some other kind of tube.
                               parseDiVaForTubes (tube_list);
                               printTubeMap ();
@@ -483,14 +483,14 @@ public class DivaXmlParser {
         }
    
     }
-    private  String[][] getStainSet(List labels ) {
+    private  String[][] getStainSet(List<Element> labels ) {
         ArrayList <String[]> astainset = new ArrayList <String[]>();
        
         String[] fl_label;
         String[][] onestainset = null;
         for (int p = 0; p < labels.size(); p++){
                   fl_label = new String[2];
-                  List fls = ((Element) labels.get(p)).getChildren("fl");
+                  List<Element> fls = labels.get(p).getChildren("fl");
                   for (int q=0; q < fls.size(); q++){
                       Element fl_1 = (Element) fls.get(q);
                       String flname = ((Element) fls.get(q)).getAttribute("name").getValue();
@@ -499,7 +499,7 @@ public class DivaXmlParser {
                       Element label_1 = fl_1.getChild ("label");
                       if (label_1 != null){
                           //content value
-                          List labellist = label_1.getContent();
+                          List<List<Text>> labellist = label_1.getContent();
                           if (labellist != null && labellist.size()>0){
                               String labelis =  ((Text)labellist.get(0)).getText();
                               if (labelis == null) labelis="";
@@ -519,10 +519,12 @@ public class DivaXmlParser {
     }
    
    
-    private void parseDiVaForTubes (List tubeList) {
+    private void parseDiVaForTubes (List<Element> tubeList) {
         
         String alt=null;
-        String tube_id=null, control_name=null, tube_type=null;
+        String tube_type = null;
+        String tube_id = null;
+        String control_name = null;
         String tubeName = null, control_id;
         HashMap <Integer, String> compensationForList = new HashMap<Integer, String>();
         TubeInfo newtube = null;
@@ -531,7 +533,7 @@ public class DivaXmlParser {
              for (int j=0; j < tubeList.size(); j++){
                  
                   Element onetube = (Element) tubeList.get(j);
-                  List li = onetube.getAttributes();
+                  List<List<Attribute>> li = onetube.getAttributes();
                   Attribute attr = (Attribute) li.get(0);
                   System.out.println (attr.getName() + "  "+ attr.getValue());
                   tubeName = ((Attribute) onetube.getAttributes().get(0)).getValue();
@@ -552,14 +554,14 @@ public class DivaXmlParser {
                       }
                   }
                   
-                  List labels = onetube.getChildren ("labels");
+                  List <Element>labels = onetube.getChildren ("labels");
                   String[][] stainset = getStainSet (labels);
                   allStainSets.add (stainset);
                   
 /*these are CytoGenie keywords, not DiVA */
-                  List keys = onetube.getChildren("keywords");
+                  List <Element>keys = onetube.getChildren("keywords");
                   
-                  List keywords = ((Element)keys.get(0)).getChildren("keyword");
+                  List <Element>keywords = keys.get(0).getChildren("keyword");
                 //  List keywords = ((Element)tube_list.get(j)).getAttribute("keywords").getChildren("keyword");
                   for (int k=0; k < keywords.size(); k++){
                       Element ekey = (Element) keywords.get(k);
@@ -567,7 +569,7 @@ public class DivaXmlParser {
                       
                       if (ekey.getAttribute("name").getValue().startsWith("Compensation-for-")){
                          control_name = ekey.getAttribute("name").getValue();
-                          List children = ekey.getChildren ("value");
+                          List <Element>children = ekey.getChildren ("value");
                           if (children!= null){
 //                              Element one = (Element) children.get(0);  
                               control_id = ((Element) children.get(0)).getText();
@@ -582,18 +584,18 @@ public class DivaXmlParser {
                           //only CytoGenie has the tube-identifier as a keyword.
 //                          tube_id = ekey.getAttribute("name").getValue();
 //                          System.out.print ("\tTube identifier "+ tube_id);
-                          List children = ekey.getChildren ("value");
+                          List <Element>children = ekey.getChildren ("value");
 //                          for (int c=0; c < children.size(); c++){
                             if (children != null && children.size() == 1){
-                               System.out.println (" Tube identifier " + ((Element) children.get(0)).getText());
-                               tube_id = ((Element) children.get(0)).getText();
+                               System.out.println (" Tube identifier " +  children.get(0).getText());
+                               tube_id = children.get(0).getText();
                           }
 
                       }
                       else if (ekey.getAttribute("name").getValue().equalsIgnoreCase("tube-type")){
 //                          tube_type = ekey.getAttribute("name").getValue();
 //                          System.out.print ("\t Tube type "+ tube_type);
-                          List children = ekey.getChildren ("value");
+                          List <Element>children = ekey.getChildren ("value");
                           for (int c=0; c < children.size(); c++) {
                               tube_type = ((Element)children.get(c)).getText();
                               System.out.println (((Element) children.get(c)).getText());
@@ -688,9 +690,9 @@ public class DivaXmlParser {
     private void printTubeMap (){
         System.out.println (" --------- Print Tube Map---------------" + tubemap.size());
         Set<String> keys = tubemap.keySet();
-        Iterator it = keys.iterator();
+        Iterator <String>it = keys.iterator();
         while (it.hasNext()){
-            String k = (String) it.next();
+            String k =  it.next();
             TubeInfo value = (TubeInfo) tubemap.get(k);
             System.out.println (k + " :: ");
             System.out.println (value.toString());

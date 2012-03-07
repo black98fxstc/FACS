@@ -8,6 +8,7 @@ public class UnstainedControl
   public double[] A;
   public double[] V;
   public float[] AQ2;
+  //protected boolean areCells=false is inherited in ScatterGatedControl
 
   public UnstainedControl (Compensation2 comp, FCSFile fcsfile)
   {

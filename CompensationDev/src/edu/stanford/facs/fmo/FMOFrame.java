@@ -52,6 +52,8 @@ public class FMOFrame extends JFrame  {
   private JProgressBar progressBar;
   private ProgressListener progressListener;
   private JButton exitButton;
+	private static final long serialVersionUID = 1L;
+
 
   public FMOFrame ()
   {
@@ -319,7 +321,7 @@ public class FMOFrame extends JFrame  {
 
     class ProgressListener implements PropertyChangeListener {
         // prevent creation without providing a progress bar
-        private ProgressListener() {}
+       // private ProgressListener() {}
 
         ProgressListener(JProgressBar progressBar) {
             this.progressBar = progressBar;

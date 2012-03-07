@@ -5,7 +5,6 @@
 
 package edu.stanford.facs.data;
 
-import com.apple.eio.FileManager;
 import java.io.File;
 import java.io.BufferedReader;
 import java.io.FileReader;

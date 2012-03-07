@@ -390,8 +390,7 @@ public class Compensation2
 
   public Compensation2 (CompensationResults ui, File dataFolder){
 //            public Compensation2 (CompensationFrame ui, File dataFolder)
-
-  
+	    
     compResults = ui;
     this.dataFolder = dataFolder;
     this.addPropertyChangeListener ((PropertyChangeListener)compResults);
@@ -559,8 +558,9 @@ System.out.println (stainedControl[index].getFCSFile().getFile().getName() + "  
             continue;
       //    ui.setFailsSignificanceTest(control.reagent, j, control.slope[j] < control.slopeSigma[j]);
  System.out.println ("Compensation2 process "+ control.reagent + ", "+ j + ", "+ control.slope[j]);
- if (compResults == null)
+ if (compResults == null){
      System.out.println (" compResults are null ");
+ }
               compResults.spilloverNotSignificantTest(control.reagent, j, control.slope[j] < control.slopeSigma[j]);
 
               compResults.setFailsLinearityTest(control.reagent, j, !control.linearity[j]);

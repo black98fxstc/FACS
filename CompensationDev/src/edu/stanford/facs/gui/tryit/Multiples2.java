@@ -16,16 +16,13 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
-import javax.swing.ButtonModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
-import javax.swing.border.MatteBorder;
 /*0  FITC-A,CD34
   0 FITC-A,cd16
   1 APC-A,C-kit
@@ -51,21 +48,23 @@ public class Multiples2 extends JDialog {
 
 //        private Multiples[] multiples;//  0 = primary detector, 1 = reagent.
 //        private Multiples[] currentlySelected;
-        private int npanels = 0;
-        private Color lightBlue = new Color (102, 102, 255);
-        private Color lightGreen = new Color (102, 255, 102);
-        private Color lighterGreen = new Color (200, 255, 200);
-        private Color lighterBlue = new Color (200, 200, 255);
+      //  private int npanels = 0;
+      //  private Color lightBlue = new Color (102, 102, 255);
+      //  private Color lightGreen = new Color (102, 255, 102);
+      //  private Color lighterGreen = new Color (200, 255, 200);
+     //   private Color lighterBlue = new Color (200, 200, 255);
         private Color genieBlue = new Color (20,75,114);
         private JRadioButton []rbs;
         ButtonGroup []groups;
+		private static final long serialVersionUID = 1L;
+
         
 
 //        private CompensationController controller;
     String[] detectors = {"FITC-A", "APC-A", "APC-Cy5-5-A", "APC-Cy7-A","PE-A", "PE-Cy5-A",
                       "PE-Cy7-A", "APC-Cy7-A",  "PE-Texas-Red-A", "APC-Cy5-5-A", "PerCP-Cy5-5-A"};
 
-       ArrayList[] reagents = new ArrayList[detectors.length];
+       ArrayList<String>[] reagents = new ArrayList[detectors.length];
     
     Multiples2() {
         super ();

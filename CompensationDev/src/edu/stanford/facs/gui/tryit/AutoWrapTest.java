@@ -14,6 +14,7 @@ import javax.swing.text.*;
  */
 public class AutoWrapTest {
     LineWrapCellRenderer linerenderer;
+    static final long serialVersionUID = 123456789;
 
  public JComponent makeUI() {
     String[] columnNames = {"TextAreaCellRenderer"};
@@ -32,11 +33,15 @@ public class AutoWrapTest {
       ">>>>>> >>>>>> >>>>>>>>> >>>>>> >>>>>>>>> >>|"
     };
     TableModel model = new DefaultTableModel(data, columnNames) {
+		private static final long serialVersionUID = 1L;
+
         public boolean isCellEditable(int row, int column) {
         return false;
       }
     };
     JTable table = new JTable(model) {
+		private static final long serialVersionUID = 1L;
+
       //Override 
       public void doLayout() {
         TableColumn col = getColumnModel().getColumn(0);
@@ -94,6 +99,8 @@ public class AutoWrapTest {
 }
 class TextAreaCellRenderer extends JTextArea implements TableCellRenderer {
   private final Color evenColor = new Color(230, 240, 255);
+	private static final long serialVersionUID = 1L;
+
   public TextAreaCellRenderer() {
     super();
     setLineWrap(true);
@@ -119,6 +126,8 @@ class TextAreaCellRenderer extends JTextArea implements TableCellRenderer {
 }
 
 class LineWrapCellRenderer extends JTextArea implements ListCellRenderer {
+	private static final long serialVersionUID = 1L;
+
     private final Color evenColor = new Color(230, 240, 255);
     public LineWrapCellRenderer() {
         super();

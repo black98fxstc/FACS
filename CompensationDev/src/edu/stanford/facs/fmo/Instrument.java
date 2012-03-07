@@ -44,9 +44,9 @@ public class Instrument {
             StringBuilder buf = new StringBuilder();
             buf.append (sep).append("Instrument:  ").append(name).append(sep);
             Set<String> keys = detectors.keySet();
-            Iterator it = keys.iterator();
+            Iterator <String>it = keys.iterator();
             while ( it.hasNext()){
-                Detector d = (Detector) detectors.get ((String) it.next());
+                Detector d = (Detector) detectors.get ( it.next());
                 buf.append (d.toString());
             }
             return buf.toString();

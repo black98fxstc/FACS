@@ -66,9 +66,9 @@ public class CGJoController extends CompensationController implements Compensati
         //these are actually the list of compensation controls.  Not the complete list of detectors.
         String[][] parameters = jo.teaseOutDetectors();
         HashMap<Integer, ArrayList <String>> allParameters = jo.getParameterNames();
-        Set keys = allParameters.keySet();
+        Set<Integer> keys = allParameters.keySet();
         Integer[] sortedKeys = new Integer[keys.size()];
-        Iterator itt = keys.iterator();
+        Iterator <Integer>itt = keys.iterator();
         int k=0;
         
         while (itt.hasNext()){
@@ -120,8 +120,8 @@ public class CGJoController extends CompensationController implements Compensati
 //            controlList[i] = parameters[i][0];
 //            PnSreagents[i] = parameters[i][1];
 //        }
-        Collection tubes =  tubeMap.values();
-        Iterator it = tubes.iterator();
+        Collection<TubeInfo> tubes =  tubeMap.values();
+        Iterator<TubeInfo> it = tubes.iterator();
         while (it.hasNext()){
             TubeInfo tube = (TubeInfo) it.next();
             if (tube.getTubeType().equalsIgnoreCase ("compensation")){
@@ -161,12 +161,12 @@ public class CGJoController extends CompensationController implements Compensati
     
     protected void  continueAnalysis() {
         System.out.println (" continue Analysis");
-        Collection values = tubeMap.values();
-        Iterator it = values.iterator();
+        Collection <TubeInfo>values = tubeMap.values();
+        Iterator <TubeInfo>it = values.iterator();
         ArrayList<String[]> dataraw = new ArrayList<String[]>();
         while (it.hasNext()){
             
-            TubeInfo tube = (TubeInfo) it.next();
+            TubeInfo tube =  it.next();
             System.out.println (tube.getInfo());
             if (tube.getTubeType().equalsIgnoreCase ("compensation")){
                 String[] onerow = new String[4];
@@ -317,11 +317,11 @@ System.out.println (" CGJoController.runanalysis end....... ");
     private void findStainSets () {
             System.out.println ("Find Stain Sets ");
          int n=1;            
-        Collection tubes = tubeMap.values();
-        Iterator it = tubes.iterator();
+        Collection <TubeInfo>tubes = tubeMap.values();
+        Iterator <TubeInfo>it = tubes.iterator();
         while (it.hasNext () ){
             System.out.println (" tube number "+ n++);
-            TubeInfo onetube = (TubeInfo) it.next();
+            TubeInfo onetube =  it.next();
             if (onetube.getTubeType().equals ("analysis")){
                 ArrayList<String[]> onecompset = onetube.getCompensations(); 
                 Integer[] onestainset = new Integer[onecompset.size()];

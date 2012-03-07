@@ -12,7 +12,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
-import java.util.ArrayList;
+
 import java.util.HashMap;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -36,6 +36,8 @@ public class DetectorPanel extends JPanel{
     private JTextField tf1, tf2, tf3;
     private ControlInformation[] allInfo;
     private HashMap <String, TubeInfo> tubeMap;
+	private static final long serialVersionUID = 1L;
+
     
     DetectorPanel (ControlInformation[] controlInfo) {
         super();

@@ -8,10 +8,15 @@ public class ScatterGatedControl
   public int NscatterGated;
   
   protected KDTree kdtree;
+  protected boolean areCells = false;
 
   ScatterGatedControl (Compensation2 comp, FCSFile fcsfile)
   {
     super(comp, fcsfile);
+  }
+  
+  public boolean areCells() {
+	  return areCells;
   }
 
   //override

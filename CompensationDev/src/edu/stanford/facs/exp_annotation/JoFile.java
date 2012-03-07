@@ -201,9 +201,9 @@ public class JoFile  extends SwingWorker<Exception, String[]>
 //        System.out.println ("----------  Save selections? ------------- ");
         ArrayList<String> names = new ArrayList<String>();
         Collection <TubeInfo> tubes = tubeList.values();
-               Iterator it = tubes.iterator();  
+               Iterator <TubeInfo>it = tubes.iterator();  
                while (it.hasNext()){
-                   TubeInfo one = (TubeInfo) it.next();
+                   TubeInfo one =  it.next();
                    if (one.isSelected ){
                        names.add (one.getTubeName());
                        String[] s = new String[2];
@@ -366,7 +366,7 @@ public class JoFile  extends SwingWorker<Exception, String[]>
         }
        
         
-        Iterator it = keys.iterator();
+        Iterator <Integer>it = keys.iterator();
         ArrayList<String[]>detectors = new ArrayList<String[]>();
       
         //while (it.hasNext()){
@@ -427,7 +427,7 @@ public class JoFile  extends SwingWorker<Exception, String[]>
     
     
 
-    public ArrayList getFileURLMapping () {
+    public ArrayList<String[]> getFileURLMapping () {
         return fileURLMapping;
     }
 
@@ -439,7 +439,7 @@ public class JoFile  extends SwingWorker<Exception, String[]>
         return stainSets;
     }
 
-    private String[] getListofControls() {
+    /**private String[] getListofControls() {
         String[] controls = new String[fileURLMapping.size()];
 
         for (int i=0; i < downloadURLS.size(); i++){
@@ -449,9 +449,9 @@ public class JoFile  extends SwingWorker<Exception, String[]>
         }
         return controls;
 
-    }
+    }**/
     
-    private boolean parseJoFileForUrls (File jofile){
+   /** private boolean parseJoFileForUrls (File jofile){
         boolean flag = true;
         try {
             BufferedReader reader = new BufferedReader(new FileReader (jofile));
@@ -513,7 +513,7 @@ public class JoFile  extends SwingWorker<Exception, String[]>
             flag = false;
         }
         return flag;
-    }
+    } **/
 
     private boolean parseJoFile (File jofile){
         boolean flag = true;
@@ -1060,7 +1060,7 @@ public class JoFile  extends SwingWorker<Exception, String[]>
      */
     class ProgressListener implements PropertyChangeListener {
         // prevent creation without providing a progress bar
-        private ProgressListener() {}
+       // private ProgressListener() {}
 
         ProgressListener(JProgressBar progressBar) {
             this.progressBar = progressBar;

@@ -36,14 +36,12 @@ public class TubeInfo {
     private ArrayList<String[]> label_for ;
     private ArrayList<String[]> compensations_for ; // this is the stain set Tube type is analysis
     public boolean isSelected = false;
+    private boolean areCells = false;
     //collection of detector id and the antibody name.  
     private ArrayList<String[]>PnS = new ArrayList<String[]>(); 
     
     private static final String [] tubeTypes= 
                 {"calibration", "analysis", "cells unstained", "compensation", "beads unstained"};
-    
-    
-                 
     
     
     public TubeInfo (String tubename){
@@ -85,6 +83,10 @@ public class TubeInfo {
         }
     }
     
+    public boolean getAreCells() {
+    	return areCells;
+    }
+    
     public ArrayList<String[]> getLabelInfo() {
         return label_for;
     }
@@ -119,7 +121,9 @@ public class TubeInfo {
             if (tubeTypes[i].equalsIgnoreCase (type)){
                 tube_type = i;
                 break;
-            }     
+            }
+            if (type.equals(tubeTypes[tubeTypes.length-1]))
+            	areCells = true;
         }
        
         
@@ -264,7 +268,7 @@ public class TubeInfo {
         lotId = Integer.parseInt (lotIds);
     }
     public void setAntibody (String antibody){
-        antibody = antibody;
+        this.antibody = antibody;
     }
     public void setSelected (boolean is){
         isSelected = is;

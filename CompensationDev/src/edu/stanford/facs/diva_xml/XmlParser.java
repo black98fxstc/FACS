@@ -101,13 +101,13 @@ public class XmlParser {
           Element root = doc.getRootElement();
           Element exp_ele = root.getChild ("experiment");
           if (exp_ele != null ) {
-              List spec_list = exp_ele.getChildren ("specimen");
+              List <Element>spec_list = exp_ele.getChildren ("specimen");
               if (spec_list !=null && spec_list.size() > 0){
-                  List tube_list = ((Element) spec_list.get(0)).getChildren ("tube");
+                  List <Element>tube_list = spec_list.get(0).getChildren ("tube");
                   if (tube_list != null && tube_list.size() > 0){
-                      List laserS_list = ((Element) tube_list.get(0)).getChildren ("lasers");
+                      List <Element>laserS_list =  tube_list.get(0).getChildren ("lasers");
                       if (laserS_list != null && laserS_list.size() > 0){
-                          List laser_list = ((Element) laserS_list.get(0)).getChildren("laser");
+                          List <Element>laser_list = laserS_list.get(0).getChildren("laser");
                           if (laser_list != null && laser_list.size()>0){
                               areaScalingValues = new String[laser_list.size()][2];
                               for (int i=0; i < laser_list.size(); i++){
@@ -154,9 +154,9 @@ public class XmlParser {
           Element exp_ele = root.getChild ("experiment");
           int i=0;
           if (exp_ele != null ) {
-              List instrument_list = exp_ele.getChildren ("instrument_settings");
+              List <Element>instrument_list = exp_ele.getChildren ("instrument_settings");
               if (instrument_list != null && instrument_list.size() > 0){
-                  List parameter_list = ((Element) instrument_list.get(0)).getChildren("parameter");
+                  List<Element> parameter_list =  instrument_list.get(0).getChildren("parameter");
                   if (parameter_list != null){
                       Iterator <org.jdom.Element> it =  parameter_list.iterator();
                       while (it.hasNext() ){
@@ -167,9 +167,9 @@ public class XmlParser {
                           //check the detector list
                           if (onDetectorList (att)){
                               String volt = null;
-                              List volt_list = oneparam.getChildren("voltage");
+                              List <Element>volt_list = oneparam.getChildren("voltage");
                               if (volt_list != null && volt_list.size() == 1){
-                                  Element volt_ele = (Element) volt_list.get(0);
+                                  Element volt_ele =  volt_list.get(0);
                                   volt = volt_ele.getText();
 //                                  System.out.println (att + ",  "+ volt);
                               }
@@ -284,9 +284,9 @@ public class XmlParser {
           if (exp_ele != null ) {
               expName = exp_ele.getAttributeValue ("name");
               System.out.println ("Experiment name = "+expName);
-              List instrument_list = exp_ele.getChildren ("instrument_settings");
+              List <Element>instrument_list = exp_ele.getChildren ("instrument_settings");
               if (instrument_list != null && instrument_list.size() > 0){
-                  List parameters = ((Element) instrument_list.get(0)).getChildren ("parameter");
+                  List <Element>parameters =  instrument_list.get(0).getChildren ("parameter");
                   if (parameters != null){
 //                      System.out.println (" Length of parameter list is " + parameters.size());
                       Iterator <org.jdom.Element> it = parameters.iterator();
@@ -312,11 +312,11 @@ public class XmlParser {
                   else {
                       errorMessage.append (" Unable to get the instrument settings from the file.");
                   }
-                  List specimen_list = exp_ele.getChildren ("specimen");
+                  List <Element>specimen_list = exp_ele.getChildren ("specimen");
                   int ith=0;
                   if (specimen_list != null && specimen_list.size() > 0) {
                       for (int i =0; i < specimen_list.size(); i++) {
-                          Element ele_i = (Element) specimen_list.get(i);
+                          Element ele_i =  specimen_list.get(i);
 //                          System.out.println ("Specimen name " + ele_i.getAttribute("name"));
                           ith++;  //where is the comp one in this list?
                           if (ele_i.getAttribute("name").getValue().equals("Compensation Controls")){
@@ -334,12 +334,12 @@ public class XmlParser {
                                       int index =value.indexOf (" Stained Control");
                                       if (index > -1){
                                           value = value.substring(0, index);
-                                          List labels = onetube.getChildren ("labels");
+                                          List <Element>labels = onetube.getChildren ("labels");
                                           for (int p = 0; p < labels.size(); p++){
                                               fl_label = new String[2];
-                                              List fls = ((Element) labels.get(p)).getChildren("fl");
+                                              List <Element>fls =  labels.get(p).getChildren("fl");
                                               for (int q=0; q < fls.size(); q++){
-                                                  Element fl_1 = (Element) fls.get(q);
+                                                  Element fl_1 =  fls.get(q);
                                                   String flname = ((Element) fls.get(q)).getAttribute("name").getValue();
                                                   fl_label[0] = flname;
                                                   System.out.println ("fl name = "+ flname);
@@ -393,12 +393,12 @@ public class XmlParser {
                               
                           } //if specimen is a compensation control
                           else {
-                              List tube_list = ele_i.getChildren ("tube");
+                              List <Element>tube_list = ele_i.getChildren ("tube");
 //                              HashMap tubemap = parseDiVaForTubes (tube_list);
                               if (tube_list != null && tube_list.size() > 0){
                                  for (int j=0; j < tube_list.size(); j++){
                                       Element onetube = (Element) tube_list.get(j);
-                                      List list = onetube.getContent();
+                                      List<Element> list = onetube.getContent();
                                       Element child = onetube.getChild ("data_filename");
                                       if (child != null){
                                           if (child.getContent() != null){
@@ -412,18 +412,18 @@ public class XmlParser {
 //                                      String data_filename = onetube.getAttribute("data_filename").getValue();
 //                                      System.out.println (" filename is "+ data_filename);
                         //  Element onetube = (Element) tube_list.get(j);
-                                      List keys = onetube.getChildren("keywords");
-                                      List keywords = ((Element)keys.get(0)).getChildren("keyword");
+                                      List <Element>keys = onetube.getChildren("keywords");
+                                      List <Element>keywords = keys.get(0).getChildren("keyword");
                                     //  List keywords = ((Element)tube_list.get(j)).getAttribute("keywords").getChildren("keyword");
                                       for (int k=0; k < keywords.size(); k++){
                                           Element ekey = (Element) keywords.get(k);
                                          
                                           if (ekey.getAttribute("name").getValue().startsWith("Compensation-for-")){
                                               String control_name = ekey.getAttribute("name").getValue();
-                                              List children = ekey.getChildren ("value");
+                                              List <Element>children = ekey.getChildren ("value");
                                               if (children.size() == 1){
                                                   Element one = (Element) children.get(0);
-                                                  List contents = one.getContent();
+                                                  List <Element>contents = one.getContent();
                                                   System.out.println (control_name + "  " + contents.get(0));
                                               }
 

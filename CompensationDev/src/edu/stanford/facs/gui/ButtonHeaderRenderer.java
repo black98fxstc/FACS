@@ -7,8 +7,6 @@ package edu.stanford.facs.gui;
 
 import java.awt.Font;
 import java.awt.Insets;
-import java.util.HashMap;
-import java.util.Map;
 import javax.swing.JButton;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
@@ -26,6 +24,8 @@ public class ButtonHeaderRenderer extends JButton implements
     private int pressedCol;
     
     private JTable mytable;
+	private static final long serialVersionUID = 1L;
+
 
     /** Default constructor. */
     public ButtonHeaderRenderer() {

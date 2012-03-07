@@ -57,7 +57,6 @@ import java.awt.event.ItemListener;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -83,7 +82,7 @@ public class CompensationController //extends JFrame
       private CompensationFrame frame; //constructor is title, dataFolder, this.  But it has to have the compensaiton2.
       private CompensationResults results;
       protected FileNameExtensionFilter xmlFilter = new FileNameExtensionFilter ("XML", "xml");
-      private FileNameExtensionFilter joFilter = new FileNameExtensionFilter ("FlowJo","jo", "wsp");
+   //   private FileNameExtensionFilter joFilter = new FileNameExtensionFilter ("FlowJo","jo", "wsp");
 
       protected String experimentName;
       protected Compensation2 compensation2; 
@@ -369,8 +368,8 @@ public class CompensationController //extends JFrame
              dataFolder = new File(divaFile.getParentFile().getPath());
 
         if (tubeMap != null && tubeMap.size() > 0){
-            Collection tubes = tubeMap.values();
-            Iterator it = tubes.iterator();
+            Collection <TubeInfo>tubes = tubeMap.values();
+            Iterator <TubeInfo>it = tubes.iterator();
             if (Compensation2.CATE){
                 System.out.println ("-----------Tube List ------------------");
                 while (it.hasNext()){
@@ -462,10 +461,10 @@ public class CompensationController //extends JFrame
         panel2.setLayout (new GridLayout (controls.length,2));
         Border littleBorder = BorderFactory.createEmptyBorder (2,2,2,2);
         if (tubeMap != null){
-            Collection col = tubeMap.values();
-            Iterator it = col.iterator();
+            Collection <TubeInfo>col = tubeMap.values();
+            Iterator <TubeInfo>it = col.iterator();
             while (it.hasNext()){
-                TubeInfo one = (TubeInfo) it.next();
+                TubeInfo one =  it.next();
                 if (one.isSelected ){
                     JLabel label = new JLabel (one.getTubeName());
                     label.setBorder (littleBorder);
@@ -640,6 +639,7 @@ public class CompensationController //extends JFrame
     //the tandems are still on this list.
 //    for (String ss: controlList)
 //        System.out.println ("stained list "+ ss);
+    
     results = (CompensationResults) frame;
     createUnstainedStainedControls (unstainedFCS, stainedFCS, fl_labels, true, results);
     //it is the controlList that works.
@@ -754,15 +754,25 @@ public class CompensationController //extends JFrame
                                                  String[][]fl_labels, boolean mode, CompensationResults results){
 //      System.out.println (" createUnstainedStainedControls -- DiVA entry point");
       visual = mode;
+      boolean areCells= false;
      if (visual){ //interact or bath
       if (frame == null)
           frame = new CompensationFrame (experimentName, dataFolder, this);
-          results = (CompensationResults) frame;
+          this.results = (CompensationResults) frame;
       } 
-     else
+     else {
+    	
          this.results = results;
-      if (compensation2 == null)
+     }
+      if (compensation2 == null) {
+    	  /**if (results == null){
+    	  if (mode ) {
+      }
+    	  String title, File mydataFolder, CompensationController controller)
+    		results = new CompensationFrame();
+    	  }**/
           compensation2 = new Compensation2(this.results, dataFolder);
+      }
       ArrayList<StainedControl> tempstained = new ArrayList<StainedControl>();
 
       unstainedControls = new UnstainedControl[unstainedFCSFiles.length];
@@ -805,7 +815,8 @@ public class CompensationController //extends JFrame
                   }
                       
                   tempstained.add ( new StainedControl (compensation2, stainedFCSFiles[i],
-                           detectorindex, detectorindex, detectorList[detectorindex], unstainedControls[0]));
+                           detectorindex, detectorindex, detectorList[detectorindex], 
+                           unstainedControls[0], areCells));
                   currow++;
                   if (fl_labels[i][1] == null)
                       PnSreagents[detectorindex]= detectorList[detectorindex];
@@ -826,7 +837,7 @@ public class CompensationController //extends JFrame
                  currow++;
              }
              tempstained.add( new StainedControl (compensation2, stainedFCSFiles[i],
-                      detectorindex, detectorindex, detectorList[detectorindex], unstainedControls[0]));
+                      detectorindex, detectorindex, detectorList[detectorindex], unstainedControls[0], areCells));
              currow++;
          }
       }
@@ -888,7 +899,7 @@ public class CompensationController //extends JFrame
 
   }
   //Not being called
-  private int getReagentIndex (String name){
+  /**private int getReagentIndex (String name){
       int index=-1;
       boolean found = false;
       int i=0;
@@ -906,7 +917,7 @@ public class CompensationController //extends JFrame
 
       return index;
 
-  }
+  }**/
 
   /**
    * this one is called when we are downloading the jo files.  
@@ -934,6 +945,8 @@ public class CompensationController //extends JFrame
     // control fcs file
 
     StainedControl newstained;
+    TubeInfo tone;
+    boolean areCells = false;
     controlList = new String[data.length];
     if (detectorList == null){
         System.out.println ("  The detectorList is empty ......");
@@ -980,7 +993,7 @@ public class CompensationController //extends JFrame
                 unfn = workingDir + File.separator + data[i][2];
             else{
                 
-                TubeInfo tone = tubeMap.get(data[i][2]);
+                tone = tubeMap.get(data[i][2]);
                 unfn = workingDir + File.separator + tone.getFcsFilename();
             }
 
@@ -1001,15 +1014,15 @@ public class CompensationController //extends JFrame
         String stainfn;
         if (data[i][3].endsWith (".fcs")){
             newstained = new StainedControl(compensation2, new FCSFile(workingDir + File.separator
-                + data[i][3]), detectorIndex, stainedControlList.size(), thisreagent, newunstained);
+                + data[i][3]), detectorIndex, stainedControlList.size(), thisreagent, newunstained, areCells);
         }
         else {
-            TubeInfo tone = tubeMap.get(data[i][3]);
+            tone = tubeMap.get(data[i][3]);
             System.out.println ("CompensationController line 998" + tone.getInfo());
             stainfn = tone.getFcsFilename();
             System.out.println ("Name of stain control filename "+ stainfn);
             newstained = new StainedControl (compensation2, new FCSFile (workingDir + File.separator
-                    + stainfn), detectorIndex, stainedControlList.size(), thisreagent, newunstained);
+                    + stainfn), detectorIndex, stainedControlList.size(), thisreagent, newunstained, areCells);
             
         }
 
@@ -1037,7 +1050,7 @@ public class CompensationController //extends JFrame
     
     unstainedControls = new UnstainedControl[unstainedControlList.size()];
     Set<String> keys = unstainedControlList.keySet();
-    Iterator it = keys.iterator();
+    Iterator<String> it = keys.iterator();
     int j = 0;
     while (it.hasNext())   {
       unstainedControls[j++] = unstainedControlList.get((String)it.next());
@@ -1135,7 +1148,7 @@ System.out.println (" ------------------end of list------------------------");
     StainedControl newstained;
     controlList = new String[data.length];
   
-
+    boolean areCells = false;
     for ( i = 0; i < data.length; i++)  {
         
         int detectorIndex = getDetectorIndex (data[i][0], detectorList);
@@ -1184,7 +1197,7 @@ System.out.println (" ------------------end of list------------------------");
         }
 
         newstained = new StainedControl(compensation2, new FCSFile(workingDir + File.separator
-            + data[i][3]), detectorIndex, stainedControlList.size(), thisreagent, newunstained);
+            + data[i][3]), detectorIndex, stainedControlList.size(), thisreagent, newunstained, areCells);
 
        stainedControlList.add (newstained);
 //       System.out.println (i + ". " +newstained.toString());
@@ -1210,7 +1223,7 @@ System.out.println (" ------------------end of list------------------------");
     
     unstainedControls = new UnstainedControl[unstainedControlList.size()];
     Set<String> keys = unstainedControlList.keySet();
-    Iterator it = keys.iterator();
+    Iterator<String> it = keys.iterator();
     int j = 0;
     while (it.hasNext())
     {
@@ -1673,11 +1686,11 @@ if (info != null){
                     System.out.println (dataFolder.getName());
                 //this is null
                 tubeMap = jofile.getTubeMap();
-                ArrayList<String[]> mappings = new ArrayList<String[]>();
-                Collection col = tubeMap.values();
-                Iterator it = col.iterator();
+              //  ArrayList<String[]> mappings = new ArrayList<String[]>();
+                Collection <TubeInfo>col = tubeMap.values();
+                Iterator <TubeInfo>it = col.iterator();
                 while (it.hasNext()){
-                    TubeInfo one = (TubeInfo) it.next();
+                    TubeInfo one =  it.next();
                     if (one.isSelected ){
                         String[] row = new String[4];
                         
@@ -1703,7 +1716,7 @@ if (info != null){
 
     public class Multiples  {
         private String detector;
-        private int col;
+ //       private int col;
         ArrayList<ReagentEntry> reagentlist = new ArrayList<ReagentEntry>();
 
 

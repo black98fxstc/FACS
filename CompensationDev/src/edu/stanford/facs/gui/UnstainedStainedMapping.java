@@ -4,22 +4,19 @@
  */
 package edu.stanford.facs.gui;
 
-import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.text.*;
 import java.awt.datatransfer.*;
 import java.io.File;
 
 import javax.swing.*;
-import javax.swing.text.*;
-import javax.swing.tree.*;
-import javax.swing.table.*;
 
 public class UnstainedStainedMapping extends JPanel {//implements ActionListener {
     private static JFrame frame;
     static JDialog dialog;
     private File mappingFile;
+	private static final long serialVersionUID = 1L;
+
   
     private JList list;
 
@@ -51,6 +48,7 @@ public class UnstainedStainedMapping extends JPanel {//implements ActionListener
         list.getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         list.setDragEnabled(true);
         list.setTransferHandler(new TransferHandler() {
+			private static final long serialVersionUID = 1L;
 
             //override
             public boolean canImport(TransferHandler.TransferSupport info) {

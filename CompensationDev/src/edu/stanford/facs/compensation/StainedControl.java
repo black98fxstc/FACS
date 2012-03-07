@@ -34,6 +34,7 @@ public class StainedControl
   public float[][] fit;
   public boolean[] linearity;
   public boolean[] spilloverNotSignificant;
+  //protected boolean areCells = false is inherited from ScatterGatedControl
 
 
   public Diagnostic.List[] diagnostics;
@@ -47,13 +48,14 @@ public class StainedControl
 
 
   public StainedControl (Compensation2 comp, FCSFile fcsfile, int primary,
-    int reagent, String parameterName, FlowData unstained)
+    int reagent, String parameterName, FlowData unstained, boolean areCells)
   {
     super(comp, fcsfile);
     this.primary = primary;
     this.reagent = reagent;
     this.unstained = (UnstainedControl)unstained;
     this.parameterName =  parameterName;
+    this.areCells = areCells;
    // System.out.println ("  Stained control constructor "+ primary + ",  "+ reagent + "  "+ parameterName);
     
   }
@@ -61,8 +63,10 @@ public class StainedControl
   public StainedControl (Compensation2 comp, FCSFile fcsfile, int primary,
                          int reagent, String parameterName)
   {
-    this(comp, fcsfile, primary, reagent, parameterName, null);
+    this(comp, fcsfile, primary, reagent, parameterName, null, false);
   }
+  
+  
   
 	private void addDiagnostic (double importance, int detector, String message,
 			Object... arguments)

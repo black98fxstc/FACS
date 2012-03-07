@@ -31,11 +31,14 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.DropMode;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
+
+
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
@@ -52,6 +55,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
+import javax.swing.event.ChangeListener;
+//import javax.swing.event.ChangeEvent;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 
@@ -84,6 +89,7 @@ public class FCSFileDialog extends JDialog {
                                "Unstained FCSFile ",
                                "Stained FCSFile", "Cells?"};
    
+	private static final long serialVersionUID = 1L;
 
     private final URL addURL = FCSFileDialog.class.getResource ("/edu/stanford/facs/gui/add.png");
     private final ImageIcon addIcon = new ImageIcon (addURL);
@@ -249,7 +255,7 @@ public class FCSFileDialog extends JDialog {
         list.getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         list.setDragEnabled(true);
         list.setTransferHandler(new TransferHandler() {
-
+            static final long serialVersionUID=123456789;
             public boolean canImport(TransferHandler.TransferSupport info) {
                 // we only import Strings
                 if (!info.isDataFlavorSupported(DataFlavor.stringFlavor)) {
@@ -277,7 +283,7 @@ public class FCSFileDialog extends JDialog {
                 JList.DropLocation dl = (JList.DropLocation)info.getDropLocation();
                 DefaultListModel listModel = (DefaultListModel)list.getModel();
                 int index = dl.getIndex();
-                boolean insert = dl.isInsert();
+              //  boolean insert = dl.isInsert();
                 // Get the current string under the drop.
                 String value = (String)listModel.getElementAt(index);
 System.out.println (" value of element at this index "+ value + ", "+ index);
@@ -352,7 +358,7 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
                                               leftscroll, rightscroll);
         splitPane.setOneTouchExpandable(true);
-        splitPane.setDividerLocation (650);
+        splitPane.setDividerLocation (750);
         panel.add(splitPane, BorderLayout.CENTER);
         if (!jofile)
             panel.add (northpanel, BorderLayout.NORTH);
@@ -401,13 +407,13 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
         panel2.add(cancelButton);
         panel2.add (continueButton );
         panel.add (panel2, BorderLayout.SOUTH);
-        setSize (new Dimension (850, 500));
+        setSize (new Dimension (950, 500));
         if (parent != null)
              setLocationRelativeTo( parent.getFrame());
         else
             setLocation (700, 400);
     }
-
+/**
     private String getTextAttribute (String fname, String key){
         String value = "";
 
@@ -432,7 +438,7 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
 
 
         return value;
-    }
+    }**/
     
     private TubeInfo getTubeFileAttributes (String fname){
         //TubeInfo newone = null;
@@ -771,14 +777,16 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
             bag.setConstraints (tf3, constraints);
             leftPanel.add (tf3);
             JCheckBox cb = new JCheckBox();
+            cb.setSelected (false);
+            cb.addChangeListener(newone);
+            
             constraints.gridwidth = GridBagConstraints.REMAINDER;
             bag.setConstraints (cb, constraints);
             leftPanel.add (cb);         
             addListenersTo (tf1, newone,"tf1");
             addListenersTo (tf2, newone,"tf2");
             addListenersTo (tf3, newone,"tf3");
-             
-            
+           
             allInfo.add (newone);
         }
         
@@ -804,10 +812,10 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
 
          if (Compensation2.CATE){
              if (tubeMap != null && tubeMap.size() > 0){
-                 Collection tubes = tubeMap.values();
-                 Iterator it = tubes.iterator();
+                 Collection <TubeInfo>tubes = tubeMap.values();
+                 Iterator <TubeInfo>it = tubes.iterator();
                  while (it.hasNext()){
-                     TubeInfo tone = (TubeInfo)it.next();
+                     TubeInfo tone = it.next();
                      System.out.println (tone.getInfo());
                  }
 

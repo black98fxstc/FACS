@@ -44,9 +44,9 @@ public class ExploreFCSFile {
 //            int np= file.getParameters();
             List <FCSParameter> list = file.getParameterList();
           //  FCSHandler handler = file.getOutputIterator();
-            Iterator it = list.listIterator();
+            Iterator <FCSParameter>it = list.listIterator();
             while (it.hasNext()){
-                FCSParameter param = (FCSParameter) it.next();
+                FCSParameter param =  it.next();
                 System.out.println (" parameter is " + param.getIndex() + "  " + param.toString());
                
 

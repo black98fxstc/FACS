@@ -34,10 +34,11 @@ import javax.swing.JLabel;
 public class MultipleMatrixDialog extends JDialog {
 
         private Multiples[] multiples;//  0 = primary detector, 1 = reagent.
-        
+		private static final long serialVersionUID = 1L;
+
       
 //        private Color lightBlue = new Color (202, 202, 255);
-        private Color genieBlue = new Color (20, 75, 114);
+     //   private Color genieBlue = new Color (20, 75, 114);
         private JRadioButton []rbs;
         private CompensationController controller;
         private ButtonGroup[] groups;

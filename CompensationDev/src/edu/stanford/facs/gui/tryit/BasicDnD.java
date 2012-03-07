@@ -11,7 +11,8 @@ import javax.swing.*;
 
 public final class BasicDnD extends JPanel {//implements ActionListener {
     private static JFrame frame;
-  
+	private static final long serialVersionUID = 1L;
+
     private JList list;
 
 
@@ -40,6 +41,7 @@ public final class BasicDnD extends JPanel {//implements ActionListener {
         list.getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         list.setDragEnabled(true);
         list.setTransferHandler(new TransferHandler() {
+			private static final long serialVersionUID = 1L;
 
             public boolean canImport(TransferHandler.TransferSupport info) {
                 // we only import Strings

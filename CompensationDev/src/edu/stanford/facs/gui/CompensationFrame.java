@@ -59,10 +59,12 @@ import javax.swing.table.JTableHeader;
 public class CompensationFrame extends JFrame  implements CompensationResults, PropertyChangeListener {
  
 
+  private static final long serialVersionUID = 1L;
   private final SpectrumCellRenderer spectrumRenderer = new SpectrumCellRenderer();
   private JTable spectrumTable = new JTable();
   final Preferences preferences = Preferences.userNodeForPackage(this.getClass());
   private final ButtonHeaderRenderer buttonRenderer = new ButtonHeaderRenderer();
+  
 
  // private String path = "data";
  // private final JFileChooser fileChooser ;
@@ -430,7 +432,9 @@ public class CompensationFrame extends JFrame  implements CompensationResults, P
       errorData = new Float[controlList.length][detectorList.length+1];
 
       TableColumnModel datacm = new DefaultTableColumnModel(){
-          boolean first=true;
+          
+		private static final long serialVersionUID = 1L;
+		boolean first=true;
           public void addColumn (TableColumn tc){
               if (first){
                   first = false;
@@ -442,6 +446,8 @@ public class CompensationFrame extends JFrame  implements CompensationResults, P
           }
       };
       TableColumnModel rowcm = new DefaultTableColumnModel(){
+			private static final long serialVersionUID = 1L;
+
           boolean first=true;
           public void addColumn (TableColumn tc){
               if (first){
@@ -902,6 +908,7 @@ public class CompensationFrame extends JFrame  implements CompensationResults, P
         String sv1 = decimalFormat.format (v1);
        
         v1 = spectrumTable.getValueAt (r+1, col);
+        
         String sv2 = percentFormat.format (v1);
         String allsv2 = new String ("+/--"+sv2);
        
@@ -1038,6 +1045,7 @@ public class CompensationFrame extends JFrame  implements CompensationResults, P
   private final class SpectrumModel
     extends AbstractTableModel
   {
+		private static final long serialVersionUID = 1L;
 
       String[] headers;
       String[] rowHeaders;
@@ -1167,6 +1175,7 @@ public class CompensationFrame extends JFrame  implements CompensationResults, P
   {
     NumberFormat spectrumFormat = NumberFormat.getInstance();
     NumberFormat errorFormat = NumberFormat.getPercentInstance();
+	private static final long serialVersionUID = 1L;
 
     SpectrumCellRenderer ()
     {
@@ -1236,6 +1245,8 @@ public class CompensationFrame extends JFrame  implements CompensationResults, P
   }
 
   class ScatterPlotDialog extends JDialog {
+		private static final long serialVersionUID = 1L;
+
       JPanel panel = new JPanel();
       ScatterPlotDialog (JFrame frame){
           super (frame, false);
@@ -1269,7 +1280,7 @@ public class CompensationFrame extends JFrame  implements CompensationResults, P
      */
     class ProgressListener implements PropertyChangeListener {
         // prevent creation without providing a progress bar
-        private ProgressListener() {}
+        //private ProgressListener() {}
 
         ProgressListener(JProgressBar progressBar) {
             this.progressBar = progressBar;

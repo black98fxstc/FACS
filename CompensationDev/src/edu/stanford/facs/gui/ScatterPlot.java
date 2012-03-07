@@ -38,6 +38,7 @@ public class ScatterPlot extends JPanel implements ItemListener {
     private static int NVALUES=200;
     double[][]data = new double[2][NVALUES];
     double[][]trueData = new double[2][NVALUES];
+	private static final long serialVersionUID = 1L;
 
     private Random random;
     private int xintmin, xintmax, yintmin, yintmax;

@@ -7,10 +7,13 @@ package edu.stanford.facs.gui;
 import edu.stanford.facs.exp_annotation.TubeInfo;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import java.awt.event.TextEvent;
 import java.awt.event.TextListener;
-import java.util.HashMap;
+import javax.swing.JCheckBox;
 import javax.swing.JTextField;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
@@ -21,7 +24,7 @@ import javax.swing.text.Document;
  * @author cate
  */
 
-public class ControlInformation implements ActionListener, TextListener, DocumentListener  {
+public class ControlInformation implements ActionListener, ChangeListener, TextListener, DocumentListener  {
         //0 is the detectorName, 1 is the reagent, 2 is unstained file, 3 is stained file, 4 is the tube name
         String detectorName;
         String reagent;
@@ -31,10 +34,7 @@ public class ControlInformation implements ActionListener, TextListener, Documen
        
         String unstainedTubeName, stainedTubeName;
         
-       
-      
-        
-    
+     
         int nfields=5;
 
         
@@ -274,6 +274,14 @@ public class ControlInformation implements ActionListener, TextListener, Documen
                     //e.printStackTrace();
             }
         }
+
+		@Override
+		public void stateChanged(ChangeEvent e) {
+			if (e.getSource() instanceof JCheckBox) {
+				compensationCells = ((JCheckBox) e.getSource()).isSelected();
+			}
+			
+		}
        
     
 

@@ -39,7 +39,8 @@ public class DiagnosticPanel extends JPanel  {
             "123456 789 10110 11 12 13 141 5 23 34 1819 1919029 29393940 293049"
         };
    
-    
+	private static final long serialVersionUID = 1L;
+
 
 
     DiagnosticPanel(Dimension dim) {
@@ -140,6 +141,8 @@ public class DiagnosticPanel extends JPanel  {
     }
     
     class MyCellRenderer extends JTextArea implements ListCellRenderer {
+		private static final long serialVersionUID = 1L;
+
          public MyCellRenderer() {
              super (4, 32);
              setOpaque(true);

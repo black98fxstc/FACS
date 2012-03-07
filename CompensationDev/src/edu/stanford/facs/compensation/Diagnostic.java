@@ -12,6 +12,8 @@ public class Diagnostic implements Comparable<Diagnostic>
 	public final String message;
     public final Color myorange;
     public final Color mypink;
+	private static final long serialVersionUID = 1L;
+
 	
 	public static class List extends ArrayList<Diagnostic>
 	{	}

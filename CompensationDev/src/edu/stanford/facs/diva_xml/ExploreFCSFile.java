@@ -13,7 +13,6 @@ import org.isac.fcs.FCSTextSegment;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -38,9 +37,9 @@ public class ExploreFCSFile {
         try {
 
 //            int np= file.getParameters();
-            List <FCSParameter> list = file.getParameterList();
-            FCSHandler handler = file.getOutputIterator();
-            Iterator it = list.listIterator();
+            java.util.List <FCSParameter> list = file.getParameterList();
+            FCSHandler handler = file.getOutputIterator();//not used
+            Iterator <FCSParameter>it = list.listIterator();
             for (int i=0; i < detectors.length; i++){
                 FCSParameter p = file.getParameter (detectors[i]);
                 if (p != null){
