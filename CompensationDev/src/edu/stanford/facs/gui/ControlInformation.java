@@ -26,6 +26,7 @@ import javax.swing.text.Document;
 
 public class ControlInformation implements ActionListener, ChangeListener, TextListener, DocumentListener  {
         //0 is the detectorName, 1 is the reagent, 2 is unstained file, 3 is stained file, 4 is the tube name
+	//5 is whether compensationCells are true or false
         String detectorName;
         String reagent;
         String unstainedControlFile, stainedControlFile;
@@ -35,7 +36,7 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
         String unstainedTubeName, stainedTubeName;
         
      
-        int nfields=5;
+        int nfields=6;
 
         
         ControlInformation (String[] tokens ) throws IllegalArgumentException {
@@ -48,7 +49,7 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
             reagent = tokens[1];
             unstainedControlFile = tokens[2];
             stainedControlFile = tokens[3];
-            if (tokens.length == 5)
+            if (tokens.length > 5)
                 stainedTubeName = tokens[4];
           
         }
@@ -85,6 +86,10 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
                 
             copy[3] = stainedControlFile;
             copy[4] = stainedTubeName;
+            
+            copy[5]="F";
+            if (compensationCells)
+            	copy[5]="T";
 
             return copy;
         }
@@ -106,8 +111,10 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
              reagent = tokens[1];
              unstainedControlFile = tokens[2];
              stainedControlFile = tokens[3];
-             if (tokens.length ==5)
+             if (tokens.length >4){
                  stainedTubeName = tokens[4];
+                 
+             }
 
          }
          
@@ -171,13 +178,18 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
 //                else
                     data[3] =stainedControlFile;
                     data[4] = stainedTubeName;
-                   
+                   data[5]="F";
+                   if (compensationCells)
+                	   data[5]="T";
             }
             else{
                 data[1]="";
                 data[2]="";
                 data[3]="";
                 data[4]="";
+                data[5]="F";
+                		
+          
                
             }
             return data;
@@ -278,12 +290,10 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
 		@Override
 		public void stateChanged(ChangeEvent e) {
 			if (e.getSource() instanceof JCheckBox) {
+				System.out.println("compensation cells state change " + compensationCells);
 				compensationCells = ((JCheckBox) e.getSource()).isSelected();
 			}
 			
 		}
        
-    
-
-    
 }

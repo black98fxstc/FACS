@@ -813,7 +813,7 @@ public class CompensationController //extends JFrame
                       tempstained.add  ((StainedControl)null);
                       currow++;
                   }
-                      
+                  unstainedControls[0].setAreCells(areCells);    
                   tempstained.add ( new StainedControl (compensation2, stainedFCSFiles[i],
                            detectorindex, detectorindex, detectorList[detectorindex], 
                            unstainedControls[0], areCells));
@@ -836,6 +836,7 @@ public class CompensationController //extends JFrame
                  tempstained.add((StainedControl) null);
                  currow++;
              }
+             unstainedControls[0].setAreCells(areCells);
              tempstained.add( new StainedControl (compensation2, stainedFCSFiles[i],
                       detectorindex, detectorindex, detectorList[detectorindex], unstainedControls[0], areCells));
              currow++;
@@ -994,6 +995,7 @@ public class CompensationController //extends JFrame
             else{
                 
                 tone = tubeMap.get(data[i][2]);
+                areCells = tone.getAreCells();
                 unfn = workingDir + File.separator + tone.getFcsFilename();
             }
 
@@ -1013,6 +1015,12 @@ public class CompensationController //extends JFrame
         }
         String stainfn;
         if (data[i][3].endsWith (".fcs")){
+        	if (data[i].length ==6 && data[i][5].equalsIgnoreCase("T")){
+        		areCells = true;
+        		
+        	}
+        	System.out.println("new stained control with are cells =  "+ areCells);
+        	newunstained.setAreCells (areCells);
             newstained = new StainedControl(compensation2, new FCSFile(workingDir + File.separator
                 + data[i][3]), detectorIndex, stainedControlList.size(), thisreagent, newunstained, areCells);
         }
@@ -1021,8 +1029,9 @@ public class CompensationController //extends JFrame
             System.out.println ("CompensationController line 998" + tone.getInfo());
             stainfn = tone.getFcsFilename();
             System.out.println ("Name of stain control filename "+ stainfn);
+            newunstained.setAreCells (areCells);
             newstained = new StainedControl (compensation2, new FCSFile (workingDir + File.separator
-                    + stainfn), detectorIndex, stainedControlList.size(), thisreagent, newunstained, areCells);
+                    + stainfn), detectorIndex, stainedControlList.size(), thisreagent, newunstained, tone.getAreCells());
             
         }
 
@@ -1098,6 +1107,7 @@ System.out.println (" ------------------end of list------------------------");
     HashMap<String, UnstainedControl> unstainedControlList = new HashMap<String, UnstainedControl>();
     boolean found = false;
     ArrayList<String> reagentList = new ArrayList<String>();
+    boolean areCells = false;
   
     String fcsfilename= null;
     int i=0;
@@ -1111,9 +1121,12 @@ System.out.println (" ------------------end of list------------------------");
             if (data[i].length > 4 && data[i][4] != null  && data[i][3].equals(data[i][4])){
                 //this is a tube name
                 TubeInfo tube = tubeMap.get(data[i][3]);
+                
                 if (tube != null){
                     fcsfilename = tube.getFcsFilename();
+                   
                 }
+                
             }
             else
                 fcsfilename = data[i][3];
@@ -1148,7 +1161,7 @@ System.out.println (" ------------------end of list------------------------");
     StainedControl newstained;
     controlList = new String[data.length];
   
-    boolean areCells = false;
+    
     for ( i = 0; i < data.length; i++)  {
         
         int detectorIndex = getDetectorIndex (data[i][0], detectorList);
@@ -1176,6 +1189,8 @@ System.out.println (" ------------------end of list------------------------");
       }
 
       if (data[i][3] != null && !data[i][3].equals("")) { // stained control file
+    	  if (data[i].length ==6 && data[i][5].equalsIgnoreCase("T"))
+    		  areCells = true;
         // if there is an unstained one, but doesn't have to have an unstained control
         if (data[i][2] != null && !data[i][2].equals("")) {
           // this is the unstained control
@@ -1195,7 +1210,17 @@ System.out.println (" ------------------end of list------------------------");
       //    boolean hasData = testDetectorForData (newunstained, alldetectors[i]);
   //        System.out.println ("  result for testDetector For Data "+ hasData + "  "+ alldetectors[i]);        
         }
-
+        if (newunstained != null) {
+            newunstained.setAreCells(areCells);
+        }
+        else if(areCells) { // and newunstained == null, issue a warning
+        	JOptionPane.showMessageDialog (this.myframe, "When using cells for stained controls,  unstained cells are required. ", 
+        			"Matrix File IO Error",
+                    JOptionPane.ERROR_MESSAGE);
+        	return;
+        	
+        }
+        System.out.println("Create Stained Control 1 "+ areCells);
         newstained = new StainedControl(compensation2, new FCSFile(workingDir + File.separator
             + data[i][3]), detectorIndex, stainedControlList.size(), thisreagent, newunstained, areCells);
 

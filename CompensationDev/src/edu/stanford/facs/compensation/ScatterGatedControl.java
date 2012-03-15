@@ -18,6 +18,10 @@ public class ScatterGatedControl
   public boolean areCells() {
 	  return areCells;
   }
+  
+  public void setAreCells(boolean areCells){
+	  this.areCells = areCells;
+	  }
 
   //override
   protected void analyze ()

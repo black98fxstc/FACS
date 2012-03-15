@@ -9,15 +9,12 @@ import edu.stanford.facs.exp_annotation.TubeInfo;
 import edu.stanford.facs.compensation.Compensation2;
 import java.awt.BorderLayout;
 import java.io.IOException;
-
 import java.io.File;
-
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-
 import java.awt.Dimension;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
@@ -54,7 +51,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import javax.swing.ImageIcon;
-//import javax.swing.event.ChangeEvent;
+
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 
@@ -695,6 +692,7 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
         constraints.gridwidth= colNames.length;
         constraints.anchor = GridBagConstraints.CENTER;
         constraints.insets = new Insets (1,1,1,1);
+      
         JLabel label0 = new JLabel (colNames[0]);
         bag.setConstraints(label0, constraints);
         leftPanel.add (label0);
@@ -710,7 +708,7 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
         leftPanel.add (label2);
 
         JLabel label3 = new JLabel (colNames[3]);
-        constraints.gridwidth = GridBagConstraints.RELATIVE;
+     //   constraints.gridwidth = GridBagConstraints.RELATIVE;
         bag.setConstraints (label3, constraints);
         leftPanel.add (label3);
         
@@ -767,7 +765,7 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
             bag.setConstraints(tf1, constraints);
             leftPanel.add (tf1);
             JTextField tf2 = new JTextField(12);
-            constraints.gridwidth = GridBagConstraints.RELATIVE;
+           // constraints.gridwidth = GridBagConstraints.RELATIVE;
             bag.setConstraints (tf2, constraints);
             leftPanel.add (tf2);
             JTextField tf3 = new JTextField (12);
@@ -929,7 +927,7 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
          leftPanel.add (label2);
 
          JLabel label3 = new JLabel (colNames[3]);
-       //  constraints3.gridwidth = GridBagConstraints.RELATIVE;
+         constraints3.gridwidth = GridBagConstraints.RELATIVE;
          bag3.setConstraints (label3, constraints3);
          leftPanel.add (label3);
          JLabel label4 = new JLabel (colNames[4]);
@@ -938,6 +936,7 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
          leftPanel.add (label4);
          
          JLabel label5 = new JLabel (colNames[5]);
+         System.out.println(colNames[5]);
          constraints3.gridwidth = GridBagConstraints.REMAINDER;
          bag3.setConstraints (label5, constraints3 );
          leftPanel.add (label5);
@@ -972,6 +971,7 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
              leftPanel.add (button);
 
              String[] data = ci.copyData();
+             
 //             System.out.println (data[0]+ "  "+ data[1] + "  " + data[2]+ "  "+ data[3]);
 
              JLabel label = new JLabel (ci.detectorName);
@@ -993,18 +993,19 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
              JTextField tf3 = new JTextField(12);
              tf3.setText (ci.stainedControlFile);
              addListenersTo (tf3, ci, "tf3");
-             constraints3.gridwidth = GridBagConstraints.RELATIVE;
+             constraints3.gridwidth=GridBagConstraints.RELATIVE;
+             
              bag3.setConstraints (tf3, constraints3);
              leftPanel.add (tf3);
              
              JCheckBox cb = new JCheckBox();
-             cb.setSelected (false);
-             cb.addChangeListener(ci);
-             cb.setSelected (ci.compensationCells);
+             if (ci.compensationCells){
+            	 cb.setSelected(true);
+             }
              constraints3.gridwidth = GridBagConstraints.REMAINDER;
-             bag3.setConstraints (cb, constraints3);
-             leftPanel.add (cb);         
-
+             cb.addChangeListener(ci);
+             
+             leftPanel.add (cb);
 
              }
 

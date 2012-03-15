@@ -56,7 +56,7 @@ public class StainedControl
     this.unstained = (UnstainedControl)unstained;
     this.parameterName =  parameterName;
     this.areCells = areCells;
-   // System.out.println ("  Stained control constructor "+ primary + ",  "+ reagent + "  "+ parameterName);
+    System.out.println ("  Stained control constructor "+ primary + ",  "+ reagent + "  "+ parameterName + "  "+ this.areCells);
     
   }
 
