@@ -38,7 +38,7 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
      
         int nfields=6;
 
-        
+        //tokens are from the mapping file.  there are typically 4 unless the user wants to designate cells as true in 5 token
         ControlInformation (String[] tokens ) throws IllegalArgumentException {
             if (tokens == null || tokens.length < 0 )
                 throw new IllegalArgumentException();
@@ -49,8 +49,10 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
             reagent = tokens[1];
             unstainedControlFile = tokens[2];
             stainedControlFile = tokens[3];
-            if (tokens.length > 5)
+            if (tokens.length > 4)
                 stainedTubeName = tokens[4];
+                
+            	//compensationCells = new Boolean (tokens[4]);
           
         }
 
@@ -107,7 +109,7 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
         }
 
          protected void addValues (String[] tokens){
-             Document doc = null;
+             
              reagent = tokens[1];
              unstainedControlFile = tokens[2];
              stainedControlFile = tokens[3];
@@ -117,6 +119,22 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
              }
 
          }
+         
+         protected void addValuesFromMapping (String[] tokens){
+             
+             reagent = tokens[1];
+             unstainedControlFile = tokens[2];
+             stainedControlFile = tokens[3];
+             if (tokens.length >4){
+                 
+                 if (tokens[4].equalsIgnoreCase("true")){
+                	 compensationCells = true;
+                 }
+    
+             }
+
+         }
+         
          
         public void actionPerformed (ActionEvent e){
 

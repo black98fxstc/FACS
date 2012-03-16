@@ -959,7 +959,7 @@ public class CompensationController //extends JFrame
     }
 
     for (int i = 0; i < data.length; i++)  {
-        
+        areCells = false;
         int detectorIndex = getDetectorIndex (data[i][0], detectorList);
         System.out.println (" createUnstained controls. " + data[i][0] + "  "+ detectorIndex);
         if (detectorIndex < 0){
@@ -1016,8 +1016,7 @@ public class CompensationController //extends JFrame
         String stainfn;
         if (data[i][3].endsWith (".fcs")){
         	if (data[i].length ==6 && data[i][5].equalsIgnoreCase("T")){
-        		areCells = true;
-        		
+        		areCells = true;	
         	}
         	System.out.println("new stained control with are cells =  "+ areCells);
         	newunstained.setAreCells (areCells);
@@ -1163,7 +1162,7 @@ System.out.println (" ------------------end of list------------------------");
   
     
     for ( i = 0; i < data.length; i++)  {
-        
+        areCells = false;
         int detectorIndex = getDetectorIndex (data[i][0], detectorList);
         if (detectorIndex < 0){
 //            System.out.println ("  Skip this one.no detector index for "+ data[i][0]);
@@ -1189,7 +1188,7 @@ System.out.println (" ------------------end of list------------------------");
       }
 
       if (data[i][3] != null && !data[i][3].equals("")) { // stained control file
-    	  if (data[i].length ==6 && data[i][5].equalsIgnoreCase("T"))
+    	  if (data[i].length ==6 && data[i][5].equalsIgnoreCase("T")|| data[i][5].equalsIgnoreCase("true"))
     		  areCells = true;
         // if there is an unstained one, but doesn't have to have an unstained control
         if (data[i][2] != null && !data[i][2].equals("")) {

@@ -527,9 +527,9 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
     private void getMyProperties(File propertyFile)  {
       ArrayList <String> list = new ArrayList<String>();
       String[][] data=null;
-      boolean rebuild = false;
-
-        if (propertyFile == null || ! propertyFile.canRead()){
+      
+      System.out.println("get my properties");
+      if (propertyFile == null || ! propertyFile.canRead()){
             System.out.println ("  Can't read the property file !!");
             JOptionPane.showMessageDialog(this, "Cannot read the property file:"+propertyFile.getName(),
                     "Error reading file ", JOptionPane.WARNING_MESSAGE);
@@ -541,7 +541,7 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
                 String line = in.readLine();
                     while (line != null){
                         String tokens[] = line.split(",");
-                        if (tokens == null || tokens.length<4){
+                        if (tokens == null || tokens.length < 4){
                             System.out.println ("  no tokens " + line);
                             line= in.readLine();
                             continue;
@@ -556,13 +556,12 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
                              ControlInformation ci = findDetector (tokens[0], reagent);
                              list.add (tokens[0]);
                              if (ci != null ){
-                                 ci.addValues (tokens);
+                                 ci.addValuesFromMapping (tokens);
                              }
                              else {
                                  ControlInformation newone = new ControlInformation (tokens);
                                 // list.add (tokens[0]);
                                  allInfo.add (newone);
-                                 rebuild = true;
                              }
                          }
                         
