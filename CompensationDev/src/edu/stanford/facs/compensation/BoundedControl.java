@@ -12,12 +12,12 @@ public class BoundedControl
     super(fcsfile, comp);
   }
 
-  //override
   protected void analyze ()
   {
+  	super.analyze();
+  	
     int Noriginal = exclude.cardinality();
-    int ndetectors = comp.getDetectorLength();
-    for (int j = 0; j < ndetectors; ++j)
+    for (int j = 0; j < X.length; ++j)
     {
       for (int k = 0; k < Nevents; ++k)
       {

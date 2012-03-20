@@ -1,10 +1,12 @@
 package edu.stanford.facs.compensation;
 
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.isac.fcs.FCSException;
 import org.isac.fcs.FCSFile;
 
 import edu.stanford.facs.compensation.Compensation2.Point;
@@ -66,8 +68,6 @@ public class StainedControl
     this(comp, fcsfile, primary, reagent, parameterName, null, false);
   }
   
-  
-  
 	private void addDiagnostic (double importance, int detector, String message,
 			Object... arguments)
 	{
@@ -108,13 +108,15 @@ public class StainedControl
     return buf.toString();
   }
 
-  public int getPrimaryDetector() {
-      return primary;
-  }
-  public String getParameterName() {
-      return parameterName;
-  }
- 
+	public int getPrimaryDetector ()
+	{
+		return primary;
+	}
+
+	public String getParameterName ()
+	{
+		return parameterName;
+	} 
 
   public void markovData (final int i, final List<Point> points)
   {
@@ -136,15 +138,41 @@ public class StainedControl
         }
     }
   }
+  
+  protected void load () throws FCSException, IOException
+  {
+  	super.load();
+  	
+  	if (!areCells() && unstained != null)
+  	{
+  		int Nevents = this.Nevents + unstained.Nevents;
+  		
+  		float[][] X = new float[this.X.length][Nevents];
+  		for (int j = 0; j < X.length; j++)
+			{
+  			System.arraycopy(unstained.X[j], 0, X[j], 0, unstained.Nevents);
+  			System.arraycopy(this.X[j], 0, X[j], unstained.Nevents, this.Nevents);
+			}
+  		
+  		float[][] Y = new float[this.Y.length][Nevents];
+  		for (int j = 0; j < Y.length; j++)
+			{
+  			System.arraycopy(unstained.Y[j], 0, Y[j], 0, unstained.Nevents);
+  			System.arraycopy(this.Y[j], 0, Y[j], unstained.Nevents, this.Nevents);
+			}
+
+  		this.Nevents = Nevents;
+  		this.X = X;
+  		this.Y = Y;
+  	}
+  }
 
   protected void analyze ()
   {
- 
-    if (unstained != null)
+    if (unstained != null && areCells())
       kdtree = unstained.kdtree;
 
     super.analyze();
-//    System.out.println ("  analyze this stained control "+ toString());
 
     censorAutofluorescence(unstained);
     int ndetectors = comp.getDetectorLength();
@@ -182,8 +210,6 @@ public class StainedControl
       int Nincluded = Nevents - exclude.cardinality();
       if (Nincluded < 3)
         break;
-if (Compensation2.CATE)
-    System.out.println ("StainedControl-parameters sent to fitRobustLine "+ residual + ", "+ pass);
       fitRobustLine(residual, pass);
     }
 
@@ -269,12 +295,10 @@ if (Compensation2.CATE)
         for (int k = 0; k < Nevents; ++k)
           if (!censored(k))
           {
+            assert X[primary][k] >= 0 : "Primary channel signal is negative";
             double variance = PolynomialEstimator.evaluate(
               varianceCoefficient[j], X[primary][k]);
-            assert X[primary][k] >= 0;
-            if (variance <= 0)
-              System.out.println();
-            assert variance > 0;
+            assert variance > 0 : "Variance is not positive";
             double weight = 1 / Math.sqrt(variance);
             robustLine.data(X[primary][k], X[j][k], weight);
           }
@@ -296,7 +320,7 @@ if (Compensation2.CATE)
             varianceCoefficient[j], X[primary][k]);
           if (X[primary][k] < 0)
             variance = varianceCoefficient[j][0];
-          assert (variance > 0);
+          assert variance > 0 : "Variance is not positive";
           double error = X[j][k] - estimate;
           double weight = 1 / Math.sqrt(variance);
           assert (!Double.isNaN(weight));
@@ -361,7 +385,7 @@ if (Compensation2.CATE)
           {
             double variance = PolynomialEstimator.evaluate(
               varianceCoefficient[j], X[primary][k]);
-            assert (variance > 0);
+            assert variance > 0 : "Variance is not positive";
             double weight = 1 / Math.sqrt(variance);
             leastSquares.data(X[primary][k], X[j][k], weight);
           }
@@ -394,10 +418,9 @@ if (Compensation2.CATE)
             varianceCoefficient[j], X[primary][k]);
           if (X[primary][k] < 0)
             variance = varianceCoefficient[j][0];
-          assert (variance > 0);
+          assert variance > 0 : "Variance is not positive";
           double error = X[j][k] - estimate;
           double weight = 1 / Math.sqrt(variance);
-          assert (!Double.isNaN(weight));
           residual[j][k] = error * weight;
           if (Compensation2.RECORD_FIT)
             fit[k] = (float)estimate;
@@ -499,9 +522,9 @@ if (Compensation2.CATE)
       if (Compensation2.RECORD_GATES)
         outlier[k] = pass;
     }
-//    if (Compensation2.DEBUG)
-//      System.out.println(exclude.cardinality() - Noriginal
-//        + " rejected at pass " + pass);
+    if (Compensation2.DEBUG)
+      System.out.println(exclude.cardinality() - Noriginal
+        + " rejected at pass " + pass);
   }
 
   private void computeRobustStatistics (double[] mean, double[][] cov,
@@ -611,8 +634,6 @@ if (Compensation2.CATE)
         System.out.print(cov[jx][jx]);
         System.out.print(" ");
       }
-      // varianceSlope[jx] *= cov[jx][jx];
-      // varianceIntercept[jx] *= cov[jx][jx];
     }
     if (Compensation2.DEBUG)
       System.out.println();
@@ -622,7 +643,7 @@ if (Compensation2.CATE)
   {
     int Noriginal = exclude.cardinality();
     float low = 0;
-    if (unstained != null)
+    if (unstained != null && areCells())
     {
       if (unstained.V[primary] > 0)
         low = (float)(unstained.A[primary] + 2 * Math
@@ -630,7 +651,6 @@ if (Compensation2.CATE)
       else
         low = (float)unstained.A[primary];
     }
-
 
     // only use values that are greater than zero on primary channel
     if (low < 0)
