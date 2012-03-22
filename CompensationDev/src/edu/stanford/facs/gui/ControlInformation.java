@@ -32,8 +32,10 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
         String unstainedControlFile, stainedControlFile;
         TubeInfo unstainedTube, stainedTube;
         boolean compensationCells = false;
-       
+        boolean useUnstained = false;
         String unstainedTubeName, stainedTubeName;
+        FCSFileDialog mydialog;
+        Integer rowId;
         
      
         int nfields=6;
@@ -49,10 +51,15 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
             reagent = tokens[1];
             unstainedControlFile = tokens[2];
             stainedControlFile = tokens[3];
-            if (tokens.length > 4)
-                stainedTubeName = tokens[4];
-                
-            	//compensationCells = new Boolean (tokens[4]);
+            if (tokens.length > 5){
+               // stainedTubeName = tokens[4];//reading from mapping file this will fail.
+    //            System.out.println("tokens[5]   " + tokens[5]);
+                compensationCells= new Boolean (tokens[5]);
+                stainedTubeName =  tokens[4];
+            }
+            else if (tokens.length == 5){
+            	compensationCells = new Boolean(tokens[4]);
+            }
           
         }
 
@@ -66,7 +73,9 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
             this.detectorName = detectorName;
         }
         
-        
+        public void setRowId (Integer id){
+        	rowId = id;
+        }
 
         public String[] copyData () {
             String[] copy = new String[nfields];
@@ -89,9 +98,9 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
             copy[3] = stainedControlFile;
             copy[4] = stainedTubeName;
             
-            copy[5]="F";
+            copy[5]="false";
             if (compensationCells)
-            	copy[5]="T";
+            	copy[5]="true";
 
             return copy;
         }
@@ -109,7 +118,10 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
         }
 
          protected void addValues (String[] tokens){
-             
+  //           System.out.println("add values 117 ");
+  //           for (int i = 0; i < tokens.length; i++){
+    //        	 System.out.println(i+ ".  "+ tokens[i]);
+//             }
              reagent = tokens[1];
              unstainedControlFile = tokens[2];
              stainedControlFile = tokens[3];
@@ -121,18 +133,18 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
          }
          
          protected void addValuesFromMapping (String[] tokens){
-             
+        	/** System.out.println("add valuesfromMapping  117 ");
+             for (int i = 0; i < tokens.length; i++){
+            	 System.out.println(i+ ".  "+ tokens[i]);
+             }**/
              reagent = tokens[1];
              unstainedControlFile = tokens[2];
              stainedControlFile = tokens[3];
-             if (tokens.length >4){
-                 
-                 if (tokens[4].equalsIgnoreCase("true")){
+             if (tokens.length >4){                
+                 if (tokens[4].equalsIgnoreCase("true")){ //this will fail because of new rule of adding t/f cells
                 	 compensationCells = true;
-                 }
-    
+                 } 
              }
-
          }
          
          
@@ -177,8 +189,7 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
             //hasData returns true if there is a unstained or stained control file
             if (hasData()){
                 
-                if (reagent ==null || reagent.equals("")){ //fill it in with the detector name
-                    
+                if (reagent ==null || reagent.equals("")){ //fill it in with the detector name                   
                     if (detectorName.startsWith("<") && detectorName.endsWith(">"))
                         detectorName = detectorName.substring (1, detectorName.length()-1);
                         
@@ -196,16 +207,16 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
 //                else
                     data[3] =stainedControlFile;
                     data[4] = stainedTubeName;
-                   data[5]="F";
+                   data[5]="false";
                    if (compensationCells)
-                	   data[5]="T";
+                	   data[5]="true";
             }
             else{
                 data[1]="";
                 data[2]="";
                 data[3]="";
                 data[4]="";
-                data[5]="F";
+                data[5]="false";
                 		
           
                
@@ -239,8 +250,28 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
 
 //        //override
         public void insertUpdate (DocumentEvent de) {
-//            System.out.println (" document event insertUpdate "+ de.getDocument().getProperty(Document.TitleProperty));
+  //          System.out.println (" document event insertUpdate "+ de.getDocument().getProperty(Document.TitleProperty));
             String title = (String)de.getDocument().getProperty (Document.TitleProperty);
+            if (title.equalsIgnoreCase("tf2")){
+            	//System.out.println ("insert update on tf2");
+            	if (useUnstained && unstainedTubeName !=null){
+            		try{
+            		unstainedTubeName = de.getDocument().getText(0, de.getLength());
+            	//	System.out.println("set this unstained for all");
+            		} catch (BadLocationException e){
+                        System.out.println (e.getMessage());
+            		}   
+                     
+            	}
+            }
+            else if (title.equalsIgnoreCase("tf3") && useUnstained ){
+            	if (unstainedTubeName !=null){
+            		System.out.println("fill in the unstained file previously selected. "+ unstainedTubeName);
+            		if (mydialog !=null){
+            			
+            		}
+            	}
+            }
             if (title != null){
                 updateValues (title, de.getDocument());
             }
@@ -249,7 +280,7 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
 
 //        //override
         public void removeUpdate (DocumentEvent de) {
-//            System.out.println (" document event removeUpdate "+ de.getDocument().getProperty (Document.TitleProperty));
+          //  System.out.println (" document event removeUpdate "+ de.getDocument().getProperty (Document.TitleProperty));
             String title = (String)de.getDocument().getProperty (Document.TitleProperty);
             if (title != null){
                 updateValues (title, de.getDocument());
@@ -257,8 +288,8 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
         }
 
 //        //override
-        public void changedUpdate (DocumentEvent de) {
-//            System.out.println (" document event changedUpdate "+ de.getDocument().getProperty (Document.TitleProperty));
+        public void changedUpdate (DocumentEvent de) {            
+      //  	System.out.println (" document event changedUpdate "+ de.getDocument().getProperty (Document.TitleProperty));
             String title = (String)de.getDocument().getProperty (Document.TitleProperty);
             if (title != null){
                 updateValues (title, de.getDocument());
@@ -308,9 +339,21 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
 		@Override
 		public void stateChanged(ChangeEvent e) {
 			if (e.getSource() instanceof JCheckBox) {
-				System.out.println("compensation cells state change " + compensationCells);
-				compensationCells = ((JCheckBox) e.getSource()).isSelected();
+	//			System.out.println("compensation cells state change " + compensationCells);
+				JCheckBox cb = (JCheckBox)e.getSource();
+				String name = (String) cb.getClientProperty("name");
+	//			System.out.println(" checked? "+ cb.isSelected());
+				if (name != null && name.equalsIgnoreCase("cells"))
+				    compensationCells = cb.isSelected();
+				else{
+					useUnstained = cb.isSelected();
+					if (useUnstained){
+					     mydialog = (FCSFileDialog)cb.getClientProperty("dialog");
+					}
+					
+				}
 			}
+		//	System.out.println("compensation cells state change " + compensationCells);
 			
 		}
        

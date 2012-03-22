@@ -58,6 +58,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.text.Document;
 import org.isac.fcs.FCSException;
 import org.isac.fcs.FCSFile;
@@ -93,13 +95,14 @@ public class FCSFileDialog extends JDialog {
     private final ImageIcon addIcon = new ImageIcon (addURL);
     private JLabel message = new JLabel ("Drag and drop the unstained and stained control files to the detector rows.");
     private HashMap<String, TubeInfo> tubeMap = new HashMap <String, TubeInfo>();
-    private HashMap<Integer, ArrayList<String>> detectorMap;
-  
+   // private HashMap<Integer, ArrayList<String>> detectorMap;
+    private JCheckBox useUnstained;
+    private String singleUnstained;
     
     
     /**
      * when Diva file has been read, controls found, but not accepted.
-     * @param parent
+     * @param parent 
      * @param detectors
      * @param workingdir
      * @param comp
@@ -158,7 +161,7 @@ public class FCSFileDialog extends JDialog {
     public FCSFileDialog (MappingInterface parent, HashMap<Integer, ArrayList<String>> detectorList, 
                                                    HashMap<String, TubeInfo> tubeMap){
         this.parent = parent;
-        this.detectorMap = detectorList;
+      //  this.detectorMap = detectorList;
         this.tubeMap = tubeMap;
         System.out.println ("  FCSFile Dialog constructor 3 with the tubeMap");
         createDialog (parent, false);
@@ -174,7 +177,6 @@ public class FCSFileDialog extends JDialog {
     public FCSFileDialog (MappingInterface parent, File workingdir, String[] detectorList, 
                                                                     String[] fluorochromeList){
         super ();
-        System.out.println (" FCSFileDialog constructor with fluorochromeList ");
        
         this.parent = parent;
         this.detectorNames = detectorList;
@@ -284,7 +286,7 @@ public class FCSFileDialog extends JDialog {
               //  boolean insert = dl.isInsert();
                 // Get the current string under the drop.
                 String value = (String)listModel.getElementAt(index);
-System.out.println (" value of element at this index "+ value + ", "+ index);
+//System.out.println (" value of element at this index "+ value + ", "+ index);
                 // Get the string that is being dropped.
                 Transferable t = info.getTransferable();
                 String data;
@@ -528,7 +530,7 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
       ArrayList <String> list = new ArrayList<String>();
       String[][] data=null;
       
-      System.out.println("get my properties");
+     // System.out.println("get my properties");
       if (propertyFile == null || ! propertyFile.canRead()){
             System.out.println ("  Can't read the property file !!");
             JOptionPane.showMessageDialog(this, "Cannot read the property file:"+propertyFile.getName(),
@@ -542,7 +544,7 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
                     while (line != null){
                         String tokens[] = line.split(",");
                         if (tokens == null || tokens.length < 4){
-                            System.out.println ("  no tokens " + line);
+//                            System.out.println ("  no tokens " + line);
                             line= in.readLine();
                             continue;
                         }
@@ -650,7 +652,7 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
                 
                 if (tone != null){
                     listModel.addElement (tone.getTubeName());
-                    System.out.println ("  Add to list model " + tone.getTubeName());
+                    //System.out.println ("  Add to list model " + tone.getTubeName());
                 }
                 else
                     listModel.addElement (files[i]);
@@ -699,7 +701,7 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
         leftPanel.add (label0);
 
         JLabel label1  = new JLabel (colNames[1]);
-        constraints.anchor = GridBagConstraints.EAST;
+        constraints.anchor = GridBagConstraints.WEST;  //changed from east
         bag.setConstraints (label1, constraints);
         leftPanel.add (label1);
 
@@ -737,10 +739,11 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
                     ControlInformation info = null;
                     JButton b = (JButton) e.getSource();
                     Integer rowid = (Integer) b.getClientProperty ("rowid");
-                    System.out.println ("Add Row Action " + rowid + " = row id");
+//                    System.out.println ("Add Row Action " + rowid + " = row id");
                     ControlInformation ci = allInfo.get(rowid);
                     if (ci != null) {
                         info = new ControlInformation(ci.detectorName);
+                        info.setRowId(rowid);
                         allInfo.add (rowid, info);
                     }
                     else{
@@ -755,7 +758,7 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
             bag.setConstraints (button, constraints);
             leftPanel.add (button);
             JLabel label = new JLabel (detectors[i]);
-            constraints.anchor = GridBagConstraints.EAST;
+           // constraints.anchor = GridBagConstraints.EAST;
             bag.setConstraints (label, constraints);
             leftPanel.add (label);
             JTextField tf1 = new JTextField (12);
@@ -774,6 +777,7 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
             bag.setConstraints (tf3, constraints);
             leftPanel.add (tf3);
             JCheckBox cb = new JCheckBox();
+            cb.putClientProperty("name", "cells");
             cb.setSelected (false);
             cb.addChangeListener(newone);
             
@@ -786,9 +790,37 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
            
             allInfo.add (newone);
         }
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.gridwidth = 4;
+        for (int i=0; i < 4; i++){
+        		JLabel la = new JLabel("              ");
+        		bag.setConstraints(la, constraints);
+        		leftPanel.add(la);
+        }	
         
-
-    }
+        JCheckBox useUnstained = new JCheckBox("Use one unstained control for all stained controls.");
+        useUnstained.putClientProperty("name","useUnstained");
+        useUnstained.putClientProperty("dialog", this);
+        useUnstained.setSelected(false);
+        for (ControlInformation ci: allInfo){
+        	useUnstained.addChangeListener (ci);
+        }
+       /** useUnstained.addChangeListener (new ChangeListener() {
+        	public void stateChanged(ChangeEvent e){
+        		
+        	}
+        });**/
+         constraints.gridwidth = GridBagConstraints.REMAINDER;
+         bag.setConstraints(useUnstained, constraints);
+        leftPanel.add(useUnstained);
+        	
+        	
+        
+      /*  JLabel la = new JLabel("    ");
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+		bag.setConstraints(la, constraints);
+		leftPanel.add(la);*/
+          }
     /**
      * for each textfield, add the Control Information as a listener
      * @param tf
@@ -797,6 +829,13 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
      */
      private void addListenersTo (JTextField tf, ControlInformation ci, String name){
 //        System.out.println (" add listeners to "+ name);
+    	 
+    	/** if (useUnstained.isSelected() && singleUnstained == null){
+    		 if (name.equalsIgnoreCase("tf2")){
+    			 
+    	 }
+    	 }**/
+    		 
         tf.addActionListener (ci);
         Document doc = tf.getDocument();
         doc.putProperty (Document.TitleProperty, name);
@@ -813,7 +852,7 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
                  Iterator <TubeInfo>it = tubes.iterator();
                  while (it.hasNext()){
                      TubeInfo tone = it.next();
-                     System.out.println (tone.getInfo());
+                    // System.out.println (tone.getInfo());
                  }
 
              }
@@ -846,7 +885,7 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
                  
              
              data[i] = one.getData();
-             System.out.println (data[i][0] + ", "+ data[i][1]+", "+data[i][2]+", "+data[i][3]);
+           //  System.out.println (data[i][0] + ", "+ data[i][1]+", "+data[i][2]+", "+data[i][3]);
          }
         
          return data;
@@ -956,6 +995,7 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
                      ControlInformation ci = allInfo.get(rowid);
                      if (ci != null) {
                         ci = new ControlInformation(ci.detectorName);
+                        ci.setRowId(rowid);
                         allInfo.add (rowid, ci);
                     }
                     else{
@@ -1006,6 +1046,29 @@ System.out.println (" value of element at this index "+ value + ", "+ index);
 
 
              }
+         constraints3.anchor = GridBagConstraints.WEST;
+         constraints3.gridwidth = 4;
+         for (int i=0; i < 4; i++){
+         		JLabel la = new JLabel("              ");
+         		bag3.setConstraints(la, constraints3);
+         		leftPanel.add(la);
+         }	
+         
+         JCheckBox useUnstained = new JCheckBox("Use one unstained control for all stained controls.");
+         useUnstained.putClientProperty("name","useUnstained");
+        // useUnstained.setClient
+         for (ControlInformation ci: allInfo){
+         	useUnstained.addChangeListener (ci);
+         }
+        /** useUnstained.addChangeListener (new ChangeListener() {
+         	public void stateChanged(ChangeEvent e){
+         		
+         	}
+         });**/
+          constraints3.gridwidth = GridBagConstraints.REMAINDER;
+          bag3.setConstraints(useUnstained, constraints3);
+         leftPanel.add(useUnstained);
+         
 
              //leftPanel.validate();
              leftPanel.repaint();

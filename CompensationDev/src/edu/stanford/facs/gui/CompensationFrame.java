@@ -218,7 +218,7 @@ public class CompensationFrame extends JFrame  implements CompensationResults, P
 
 
   public void  errorDialogToExit (String msg){
-     System.out.println ("----  Is this being called? CompensaJOptionPanetionFrame "+ msg);
+   //  System.out.println ("----  Is this being called? CompensaJOptionPanetionFrame "+ msg);
       JOptionPane.showMessageDialog (this, msg,"Fatal Error ", JOptionPane.ERROR_MESSAGE);
       System.exit(1);
   }
@@ -253,8 +253,8 @@ public class CompensationFrame extends JFrame  implements CompensationResults, P
 
   public void showMessageDialog (String msg){
       
-      System.out.println ("  Is this being called?  Compensation Frame " + msg);
-      System.out.println (" why not? ");
+  //    System.out.println ("  Is this being called?  Compensation Frame " + msg);
+    //  System.out.println (" why not? ");
       JOptionPane.showMessageDialog (this, msg, " Computation Status ", JOptionPane.INFORMATION_MESSAGE);
 //      scatterDialog.setVisible(true);
 

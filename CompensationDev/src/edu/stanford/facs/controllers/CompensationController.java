@@ -220,7 +220,7 @@ public class CompensationController //extends JFrame
               String[] reagentNames = null;
               //I'd like to get the detectorList
               if (dataFolder != null && dataFolder.isDirectory()){
-                  System.out.println ("  Data Folder is "+ dataFolder.getName());
+                 
                   File []filelist = dataFolder.listFiles (new FileFilter() {
                       public boolean accept (File f){
                           if (f.getName().endsWith ("fcs"))
@@ -523,7 +523,7 @@ public class CompensationController //extends JFrame
         
     }
     public void returnFromDownload (HashMap<String, TubeInfo> tubeMap, File savedFilesDirectory){
-        System.out.println ("CompensationController.returnFromDownload");
+    //    System.out.println ("CompensationController.returnFromDownload");
        this.tubeMap = tubeMap;
        tempJoFolder = savedFilesDirectory;
        dataFolder = savedFilesDirectory;
@@ -535,7 +535,7 @@ public class CompensationController //extends JFrame
   
     
     private void findStainSets () {
-            System.out.println ("Find Stain Sets ");
+       //     System.out.println ("Find Stain Sets ");
 //         int n=1;            
 //        Collection tubes = tubeMap.values();
 //        Iterator it = tubes.iterator();
@@ -1107,6 +1107,10 @@ System.out.println (" ------------------end of list------------------------");
     boolean found = false;
     ArrayList<String> reagentList = new ArrayList<String>();
     boolean areCells = false;
+    boolean skip = false;
+    if (detectorList != null && detectorList.length > 0 && data !=null && data.length >0){
+    	skip = true;
+    }
   
     String fcsfilename= null;
     int i=0;
@@ -1114,6 +1118,7 @@ System.out.println (" ------------------end of list------------------------");
         System.out.println (" createUnstainedStainedControls.  Data is null.");
         return;
     }
+    if (!skip){
     while (!found && i < data.length){
         if (data[i][3] != null && !data[i][3].equals("")){  //this could be the tube name and not the name
             found = true;                                   //of the file.  
@@ -1145,6 +1150,7 @@ System.out.println (" ------------------end of list------------------------");
         String msg = " Error -- could not find any fcs files! ";
 //        JOptionPane.showOptionDialog(this, msg, msg, JOptionPane.WARNING_MESSAGE);
 
+    }
     }
     if (visual){
      if (frame == null)
@@ -1653,6 +1659,10 @@ System.out.println (" ------------------end of list------------------------");
     public void putMappingData (String[][] info, File dataFolder) {
         System.out.println (" accept Mapping Information !! in the CompensationController." );
         this.dataFolder = dataFolder;
+        for (int i=0; i < info.length; i++){
+        	for (int j=0; j < info[i].length; j++)
+               System.out.println(i + " "+j+". "+info[i][j]);
+        }
 
 if (info != null){
         controlMappings = new String[info.length][];
