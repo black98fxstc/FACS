@@ -450,24 +450,25 @@ public class FCSFileDialog extends JDialog {
         try {        
     
             FCSTextSegment segment = fcsfile.getTextSegment();
-            String filename = segment.getAttribute ("$FIL");
+            String altfilename = segment.getAttribute ("$FIL");
             String tubename = segment.getAttribute ("TUBE NAME");
+            System.out.println (altfilename +" $FIL,  tubename  "+ tubename+ " fcsfile"+ fname);
          
             
             if (!tubeMap.containsKey (tubename)){
               //  tone = new TubeInfo (tubename, fcsfile, segment.getAttribute("$CELLS
-                tone = new TubeInfo (tubename);
+                tone = new TubeInfo (tubename, f, altfilename);
             }
                  
             else {
                 tone = tubeMap.get(tubename);
                 
             }
-            if (tone != null){
-                tone.addFcsFilename (fname);
-                tone.addAlternativeFilename(filename);
+            //if (tone != null){
+              //  tone.addFcsFilename (fname);
+              //  tone.addAlternativeFilename(altfilename);
                 tubeMap.put (tubename, tone);
-            }
+            //}
             
 
         } catch (FCSException fcse){
@@ -501,10 +502,47 @@ public class FCSFileDialog extends JDialog {
                     ci.getData();
                     //first check to see if this ci has any information
                     if (ci.hasData()){
-                        ci.trimSpaces();
+                    	System.out.println(ci.toString());
+                    	ci.trimSpaces();
                         buf.append (ci.detectorName).append(",").append(ci.reagent).append(",");
-                        buf.append(ci.unstainedControlFile).append(",").append(ci.stainedControlFile);
+                      //  buf.append(ci.unstainedControlFile).append(",").append(ci.stainedControlFile);
+                    //    buf.append (System.getProperty ("line.separator"));
+                        System.out.println(buf.toString());
+                        System.out.println("\nStained control name: " +ci.stainedTubeName);
+                      String unstainedfcsfn="", stainedfcsfn="";
+                        if (!ci.stainedControlFile.endsWith(".fcs")){
+                            if (tubeMap.containsKey(ci.stainedControlFile)){
+                            	TubeInfo tone = tubeMap.get(ci.stainedControlFile);
+                            	ci.addStainedTube(tone);
+                            	System.out.println (ci.compensationCells+ ","+tone.getAreCells());
+                            	tone.setAreCells(ci.compensationCells);
+                            	
+                            	
+                            	stainedfcsfn = tone.getFcsFilename();
+                            	System.out.println ("Tube : "+tone.getInfo());
+                            	
+                            }
+                        }
+                        else stainedfcsfn = ci.stainedControlFile;
+                        if (ci.unstainedControlFile !=null&& !ci.unstainedControlFile.equals("")){
+                        	if (!ci.unstainedControlFile.endsWith(".fcs")){
+                        		if (tubeMap.containsKey(ci.unstainedControlFile)){
+                        			TubeInfo tone = tubeMap.get(ci.unstainedControlFile);
+                                	ci.addStainedTube(tone);
+                                	unstainedfcsfn = tone.getFcsFilename();
+                        		}
+                        	}
+                        	
+                        }
+                        else unstainedfcsfn = ci.unstainedControlFile;
+                        buf.append(unstainedfcsfn).append(",").append(stainedfcsfn);
+                        
+                        if (ci.compensationCells ){
+                        	buf.append(",").append(ci.compensationCells);
+                        }
                         buf.append (System.getProperty ("line.separator"));
+
+                        
                     }
 //                    writer.write (ci.detectorName+","+ci.reagent+","+ ci.unstainedControlFile+","+ci.stainedControlFile);
 //                    writer.write (System.getProperty ("line.separator"));
@@ -641,7 +679,7 @@ public class FCSFileDialog extends JDialog {
     
     private void getFCSList (File workingdir){
 
-
+System.out.println ("get fcslist");
         if (workingdir != null && workingdir.exists() && workingdir.isDirectory()){
             MyFilenameFilter filter = new MyFilenameFilter ("fcs");
             String[] files = workingdir.list(filter );
@@ -1037,7 +1075,7 @@ public class FCSFileDialog extends JDialog {
              leftPanel.add (tf3);
              
              JCheckBox cb = new JCheckBox();
-             cb.setSelected (false);
+            // cb.setSelected (false);
              cb.addChangeListener(ci);
              cb.setSelected (ci.compensationCells);
              constraints3.gridwidth = GridBagConstraints.REMAINDER;

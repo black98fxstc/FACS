@@ -27,13 +27,13 @@ import javax.swing.text.Document;
 public class ControlInformation implements ActionListener, ChangeListener, TextListener, DocumentListener  {
         //0 is the detectorName, 1 is the reagent, 2 is unstained file, 3 is stained file, 4 is the tube name
 	//5 is whether compensationCells are true or false
-        String detectorName;
-        String reagent;
-        String unstainedControlFile, stainedControlFile;
+        String detectorName="";
+        String reagent="";
+        String unstainedControlFile="", stainedControlFile="";
         TubeInfo unstainedTube, stainedTube;
         boolean compensationCells = false;
         boolean useUnstained = false;
-        String unstainedTubeName, stainedTubeName;
+        String unstainedTubeName="", stainedTubeName="";
         FCSFileDialog mydialog;
         Integer rowId;
         
@@ -133,10 +133,10 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
          }
          
          protected void addValuesFromMapping (String[] tokens){
-        	/** System.out.println("add valuesfromMapping  117 ");
+        	 System.out.println("add valuesfromMapping  117 ");
              for (int i = 0; i < tokens.length; i++){
             	 System.out.println(i+ ".  "+ tokens[i]);
-             }**/
+             }
              reagent = tokens[1];
              unstainedControlFile = tokens[2];
              stainedControlFile = tokens[3];
@@ -179,6 +179,11 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
             buf.append (" Reagent: " ).append(reagent);
             buf.append (" Unstained Control:  ").append(unstainedControlFile );
             buf.append (" Stained Control ").append( stainedControlFile);
+            buf.append("\n Tube name: ").append( stainedTubeName);
+            if (stainedTube != null){
+            	buf.append("\n tube info: ").append(stainedTube.getInfo());
+            }
+            buf.append("\n ");
 
             return buf.toString();
         }
@@ -342,7 +347,7 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
 	//			System.out.println("compensation cells state change " + compensationCells);
 				JCheckBox cb = (JCheckBox)e.getSource();
 				String name = (String) cb.getClientProperty("name");
-	//			System.out.println(" checked? "+ cb.isSelected());
+				System.out.println(" checked? "+ cb.isSelected());
 				if (name != null && name.equalsIgnoreCase("cells"))
 				    compensationCells = cb.isSelected();
 				else{

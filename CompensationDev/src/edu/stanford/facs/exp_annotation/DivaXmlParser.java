@@ -624,8 +624,7 @@ public class DivaXmlParser {
                    
              }
           }
-        //printTubeMap (tubemap);
-        
+       
         
     }
     

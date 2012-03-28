@@ -48,7 +48,7 @@ public class TubeInfo {
         this.tubeName = tubename;
     }
     
-    TubeInfo (String tubename, File fcsfile, String altfilename){
+    public TubeInfo (String tubename, File fcsfile, String altfilename){
        this.tubeName = tubename;
        this.fcsfile = fcsfile; 
        this.altFcsFilename = altfilename;
@@ -86,6 +86,9 @@ public class TubeInfo {
     public boolean getAreCells() {
     	return areCells;
     }
+    public void setAreCells(boolean cells){
+    	areCells = cells;
+    }
     
     public ArrayList<String[]> getLabelInfo() {
         return label_for;
@@ -117,6 +120,8 @@ public class TubeInfo {
     
     public void setTubeType (String type){
         System.out.println ("  add tube type "+ type);
+        if (type == null || type.equals(""))
+        	return;
         for (int i=0; i < tubeTypes.length; i++){
             if (tubeTypes[i].equalsIgnoreCase (type)){
                 tube_type = i;
@@ -164,11 +169,13 @@ public class TubeInfo {
 
             }
         }
+        if (compensations_for != null){
          for (int i=0; i < compensations_for.size(); i++){
             String[] one = compensations_for.get(i);
             buf.append ("\t compensations ").append (one[0]).append("  ").append (one[1]).append ("\n");
             
-      }
+          }
+        }
         
         buf.append ("Compensation tube is ").append( compensationId);
         
@@ -270,6 +277,9 @@ public class TubeInfo {
     public void setAntibody (String antibody){
         this.antibody = antibody;
     }
+    /**
+     * called from DivaXmlParser but don't know what it means..
+    */
     public void setSelected (boolean is){
         isSelected = is;
     }

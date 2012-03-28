@@ -896,7 +896,7 @@ public class JoFile  extends SwingWorker<Exception, String[]>
 //            tempFolder.deleteOnExit();
             boolean b = tempFolder.mkdir();
             savedFilesDirectory = tempFolder; //this is funky here.  Don't need both.
-//            System.out.println (" temp folder has been created "+ tempFolder.getName());
+            System.out.println (b + " temp folder has been created "+ tempFolder.getName());
         }
 //        System.out.println (tempFolder.getName() + "  "+ tempFolder.getPath());
         boolean flag = tempFolder.mkdir();
