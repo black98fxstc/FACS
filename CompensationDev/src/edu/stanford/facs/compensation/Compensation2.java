@@ -302,7 +302,7 @@ public class Compensation2
   public void setDetectorsAndControls (String[] detectors, String[] controls){
       this.detector = detectors;
       this.reagent = controls;
-      System.out.println ("  Compensation2 setDetectors and Controls");
+    
   }
 
   public String[] getDetectorList () {
@@ -324,7 +324,7 @@ public class Compensation2
       float[] data = null;
 
       if (row < stainedControl.length && stainedControl[row] != null){
-//          System.out.println (" getDataX "+ row + ", "+ col + " "+ stainedControl[row].getPrimaryDetector());
+          System.out.println (" getDataX "+ row + ", "+ col + " "+ stainedControl[row].getPrimaryDetector());
 
           if (col < stainedControl[row].X.length && stainedControl[row].X[col] != null)
           data = stainedControl[row].X[col];
@@ -558,6 +558,7 @@ System.out.println (stainedControl[index].getFCSFile().getFile().getName() + "  
             continue;
       //    ui.setFailsSignificanceTest(control.reagent, j, control.slope[j] < control.slopeSigma[j]);
  System.out.println ("Compensation2 process "+ control.reagent + ", "+ j + ", "+ control.slope[j]);
+ System.out.println("StainedControl in process "+ control.toString());
  if (compResults == null){
      System.out.println (" compResults are null ");
  }

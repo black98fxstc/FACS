@@ -58,8 +58,10 @@ public class StainedControl
     this.unstained = (UnstainedControl)unstained;
     this.parameterName =  parameterName;
     this.areCells = areCells;
-    System.out.println ("  Stained control constructor "+ primary + ",  "+ reagent + "  "+ parameterName + "  "+ this.areCells);
-    
+    if (Compensation2.CATE){
+        System.out.println ("  Stained control constructor "+ primary + ",  "+ reagent + "  "+ parameterName + "  "+ this.areCells);
+        System.out.println("fcs file = "+ fcsfile.getFile().getName());
+    }
   }
 
   public StainedControl (Compensation2 comp, FCSFile fcsfile, int primary,
@@ -67,7 +69,9 @@ public class StainedControl
   {
     this(comp, fcsfile, primary, reagent, parameterName, null, false);
   }
-  
+    
+	  
+	  
 	private void addDiagnostic (double importance, int detector, String message,
 			Object... arguments)
 	{
