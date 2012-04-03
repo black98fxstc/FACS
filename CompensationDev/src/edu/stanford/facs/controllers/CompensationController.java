@@ -49,6 +49,7 @@ import edu.stanford.facs.compensation.UnstainedControl;
 //import edu.stanford.facs.diva_xml.FlowJoFiles;
 import edu.stanford.facs.gui.CompensationFrame;
 import edu.stanford.facs.gui.CompensationResults;
+import edu.stanford.facs.gui.ControlInformation;
 import edu.stanford.facs.gui.FCSFileDialog;
 import edu.stanford.facs.gui.MultipleMatrixDialog;
 import edu.stanford.facs.compensation.Diagnostic;
@@ -282,7 +283,7 @@ public class CompensationController //extends JFrame
       runButton.setEnabled(false);
       runButton.addActionListener (new ActionListener() {
           public void actionPerformed (ActionEvent e){
-              //pass information back to the comprensation frame for further processing?
+              //pass information back to the compensation frame for further processing?
               //setVisible (false);
               runAnalysis();
             
@@ -340,12 +341,20 @@ public class CompensationController //extends JFrame
         if (detectorList == null || detectorList.length == 0)
             System.out.println (" dtector list is empty");
 
+        int[]primaryDet = new int[stainedControls.length];
+        for (int i=0; i < primaryDet.length;i++){
+        	if (stainedControls[i] !=null)
+        	    primaryDet[i] = stainedControls[i].getPrimaryDetector();
+        	else primaryDet[i]=-1;
+        }
         
         if (visual){
-            if (PnSreagents.length < detectorList.length)            
-                frame.initialize (detectorList, detectorList);
-            else
-                frame.initialize (PnSreagents, detectorList);
+            if (PnSreagents.length < detectorList.length) {           
+                frame.initialize (detectorList, detectorList, primaryDet);
+            }
+            else{
+                frame.initialize (PnSreagents, detectorList, primaryDet);
+            }
     //                frame.initialize (detectorList, detectorList);
         }
 
@@ -886,6 +895,7 @@ public class CompensationController //extends JFrame
   }
 
   // Not being called
+  /**
   private String[] uniqueDetectorList (String[] detect){
       String[] uniquelist;
       ArrayList<String> list = new ArrayList<String>();
@@ -898,7 +908,7 @@ public class CompensationController //extends JFrame
       uniquelist = list.toArray (uniquelist);
       return uniquelist;
 
-  }
+  }**/
   //Not being called
   /**private int getReagentIndex (String name){
       int index=-1;
@@ -953,15 +963,15 @@ public class CompensationController //extends JFrame
         System.out.println ("  The detectorList is empty ......");
         detectorList = new String[data.length];
         for (int i=0; i < data.length; i++){
-            detectorList[i] = data[i][0];
-            System.out.println (detectorList[i] + "  detectors in createUnstained  "+ data[i][0]);
+            detectorList[i] = data[i][ControlInformation.DETECTOR];
+            System.out.println (detectorList[i] + "  detectors in createUnstained  "+ data[i][ControlInformation.DETECTOR]);
         }
     }
 
     for (int i = 0; i < data.length; i++)  {
         areCells = false;
-        int detectorIndex = getDetectorIndex (data[i][0], detectorList);
-        System.out.println (" createUnstained controls. " + data[i][0] + "  "+ detectorIndex);
+        int detectorIndex = getDetectorIndex (data[i][ControlInformation.DETECTOR], detectorList);
+        System.out.println (" createUnstained controls. " + data[i][ControlInformation.DETECTOR] + "  "+ detectorIndex);
         if (detectorIndex < 0){
 //            System.out.println ("  Skip this one.no detector index for "+ data[i][0]);
             continue;
@@ -975,9 +985,9 @@ public class CompensationController //extends JFrame
       //that matches.
 
 
-      if (data[i][1] != null && !data[i][1].equals("")){
+      if (data[i][1] != null && !data[i][ControlInformation.REAGENT].equals("")){
         
-         thisreagent = data[i][1];
+         thisreagent = data[i][ControlInformation.REAGENT];
       }
       else {
 //             PnSreagents[detectorIndex] = new String (detectorList[detectorIndex]);
@@ -985,46 +995,46 @@ public class CompensationController //extends JFrame
           thisreagent = detectorList[detectorIndex];
       }
 
-      if (data[i][3] != null && !data[i][3].equals("")) { // stained control file
+      if (data[i][ControlInformation.STAINED] != null && !data[i][ControlInformation.STAINED].equals("")) { // stained control file
         // if there is an unstained one, but doesn't have to have an unstained control
-        if (data[i][2] != null && !data[i][2].equals("")) {
+        if (data[i][ControlInformation.UNSTAINED] != null && !data[i][ControlInformation.UNSTAINED].equals("")) {
             //is the information stored here an fcs filename or a tubename?
-            if (data[i][2].endsWith(".fcs"))
+            if (data[i][ControlInformation.STAINED].endsWith(".fcs"))
           // this is the unstained control
-                unfn = workingDir + File.separator + data[i][2];
+                unfn = workingDir + File.separator + data[i][ControlInformation.STAINED];
             else{
                 
-                tone = tubeMap.get(data[i][2]);
+                tone = tubeMap.get(data[i][ControlInformation.STAINED]);
                 areCells = tone.getAreCells();
                 unfn = workingDir + File.separator + tone.getFcsFilename();
             }
 
-          if (!unstainedControlList.containsKey(data[i][2]))
+          if (!unstainedControlList.containsKey(data[i][ControlInformation.STAINED]))
           {
               
               newunstained = new UnstainedControl(compensation2, new FCSFile(unfn));
-              unstainedControlList.put(data[i][2], newunstained);
+              unstainedControlList.put(data[i][ControlInformation.STAINED], newunstained);
           }
           else
           {
-            newunstained = unstainedControlList.get(data[i][2]);
+            newunstained = unstainedControlList.get(data[i][ControlInformation.STAINED]);
           }
           //test this detector for data collection again the unstained control.
       //    boolean hasData = testDetectorForData (newunstained, alldetectors[i]);
   //        System.out.println ("  result for testDetector For Data "+ hasData + "  "+ alldetectors[i]);        
         }
         String stainfn;
-        if (data[i][3].endsWith (".fcs")){
-        	if (data[i].length ==6 && data[i][5].equalsIgnoreCase("T")){
+        if (data[i][ControlInformation.STAINED].endsWith (".fcs")){
+        	if (data[i].length ==5 && data[i][ControlInformation.CELLS].equalsIgnoreCase("TRUE")){
         		areCells = true;	
         	}
         	System.out.println("new stained control with are cells =  "+ areCells);
         	newunstained.setAreCells (areCells);
             newstained = new StainedControl(compensation2, new FCSFile(workingDir + File.separator
-                + data[i][3]), detectorIndex, stainedControlList.size(), thisreagent, newunstained, areCells);
+                + data[i][ControlInformation.STAINED]), detectorIndex, stainedControlList.size(), thisreagent, newunstained, areCells);
         }
         else {
-            tone = tubeMap.get(data[i][3]);
+            tone = tubeMap.get(data[i][ControlInformation.STAINED]);
             System.out.println ("CompensationController line 998" + tone.getInfo());
             stainfn = tone.getFcsFilename();
             System.out.println ("Name of stain control filename "+ stainfn);
@@ -1120,8 +1130,9 @@ System.out.println (" ------------------end of list------------------------");
     }
     if (!skip){
     while (!found && i < data.length){
-        if (data[i][3] != null && !data[i][3].equals("")){  //this could be the tube name and not the name
-            found = true;                                   //of the file.  
+        if (data[i][ControlInformation.STAINED] != null && !data[i][ControlInformation.STAINED].equals("")){  //this could be the tube name and not the name
+            found = true;   
+            /**   
             if (data[i].length > 4 && data[i][4] != null  && data[i][3].equals(data[i][4])){
                 //this is a tube name
                 TubeInfo tube = tubeMap.get(data[i][3]);
@@ -1131,9 +1142,9 @@ System.out.println (" ------------------end of list------------------------");
                    
                 }
                 
-            }
-            else
-                fcsfilename = data[i][3];
+            }   WEIRDNESS HERE
+            else**/
+                fcsfilename = data[i][ControlInformation.STAINED];
             
         }
         else i++;
@@ -1169,7 +1180,7 @@ System.out.println (" ------------------end of list------------------------");
     
     for ( i = 0; i < data.length; i++)  {
         areCells = false;
-        int detectorIndex = getDetectorIndex (data[i][0], detectorList);
+        int detectorIndex = getDetectorIndex (data[i][ControlInformation.DETECTOR], detectorList);
         if (detectorIndex < 0){
 //            System.out.println ("  Skip this one.no detector index for "+ data[i][0]);
             continue;
@@ -1183,9 +1194,9 @@ System.out.println (" ------------------end of list------------------------");
       //that matches.
 
 
-      if (data[i][1] != null && !data[i][1].equals("")){
+      if (data[i][ControlInformation.REAGENT] != null && !data[i][ControlInformation.REAGENT].equals("")){
         
-         thisreagent = data[i][1];
+         thisreagent = data[i][ControlInformation.REAGENT];
       }
       else {
 //             PnSreagents[detectorIndex] = new String (detectorList[detectorIndex]);
@@ -1193,15 +1204,15 @@ System.out.println (" ------------------end of list------------------------");
           thisreagent = detectorList[detectorIndex];
       }
 
-      if (data[i][3] != null && !data[i][3].equals("")) { // stained control file
-    	  if (data[i].length ==6 && data[i][5].equalsIgnoreCase("T")|| data[i][5].equalsIgnoreCase("true"))
+      if (data[i][ControlInformation.STAINED] != null && !data[i][ControlInformation.STAINED].equals("")) { // stained control file
+    	  if (data[i].length ==5 && data[i][ControlInformation.CELLS].equalsIgnoreCase("T")|| data[i][ControlInformation.CELLS].equalsIgnoreCase("true"))
     		  areCells = true;
         // if there is an unstained one, but doesn't have to have an unstained control
-        if (data[i][2] != null && !data[i][2].equals("")) {
+        if (data[i][ControlInformation.UNSTAINED] != null && !data[i][ControlInformation.UNSTAINED].equals("")) {
           // this is the unstained control
-          unfn = workingDir + File.separator + data[i][2];
+          unfn = workingDir + File.separator + data[i][ControlInformation.UNSTAINED];
 
-          if (!unstainedControlList.containsKey(data[i][2]))
+          if (!unstainedControlList.containsKey(data[i][ControlInformation.UNSTAINED]))
           {
               
               newunstained = new UnstainedControl(compensation2, new FCSFile(unfn));
@@ -1209,7 +1220,7 @@ System.out.println (" ------------------end of list------------------------");
           }
           else
           {
-            newunstained = unstainedControlList.get(data[i][2]);
+            newunstained = unstainedControlList.get(data[i][ControlInformation.UNSTAINED]);
           }
           //test this detector for data collection again the unstained control.
       //    boolean hasData = testDetectorForData (newunstained, alldetectors[i]);
@@ -1227,7 +1238,7 @@ System.out.println (" ------------------end of list------------------------");
         }
         System.out.println("Create Stained Control 1 "+ areCells);
         newstained = new StainedControl(compensation2, new FCSFile(workingDir + File.separator
-            + data[i][3]), detectorIndex, stainedControlList.size(), thisreagent, newunstained, areCells);
+            + data[i][ControlInformation.STAINED]), detectorIndex, stainedControlList.size(), thisreagent, newunstained, areCells);
 
        stainedControlList.add (newstained);
 //       System.out.println (i + ". " +newstained.toString());
@@ -1661,7 +1672,8 @@ System.out.println (" ------------------end of list------------------------");
         this.dataFolder = dataFolder;
         for (int i=0; i < info.length; i++){
         	for (int j=0; j < info[i].length; j++)
-               System.out.println(i + " "+j+". "+info[i][j]);
+               System.out.print(i + " "+j+". "+info[i][j]+ " ");
+        	System.out.println();
         }
 
 if (info != null){

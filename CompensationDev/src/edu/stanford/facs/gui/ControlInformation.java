@@ -25,8 +25,9 @@ import javax.swing.text.Document;
  */
 
 public class ControlInformation implements ActionListener, ChangeListener, TextListener, DocumentListener  {
-        //0 is the detectorName, 1 is the reagent, 2 is unstained file, 3 is stained file, 4 is the tube name
-	//5 is whether compensationCells are true or false
+
+		//0 is the detectorName, 1 is the reagent, 2 is unstained file, 3 is stained file, 
+	//4 is whether compensationCells are true or false
         String detectorName="";
         String reagent="";
         String unstainedControlFile="", stainedControlFile="";
@@ -36,29 +37,33 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
         String unstainedTubeName="", stainedTubeName="";
         FCSFileDialog mydialog;
         Integer rowId;
-        
+        public static final int DETECTOR=0;
+        public static final int REAGENT = 1;
+        public static final int UNSTAINED =2;
+        public static final int STAINED=3;
+        public static final int CELLS=4;
      
-        int nfields=6;
+        int nfields=5;
 
         //tokens are from the mapping file.  there are typically 4 unless the user wants to designate cells as true in 5 token
         ControlInformation (String[] tokens ) throws IllegalArgumentException {
             if (tokens == null || tokens.length < 0 )
                 throw new IllegalArgumentException();
-            if (tokens[0] != null)
-                this.detectorName = tokens[0];
+            if (tokens[DETECTOR] != null)
+                this.detectorName = tokens[DETECTOR];
 
 
-            reagent = tokens[1];
-            unstainedControlFile = tokens[2];
-            stainedControlFile = tokens[3];
-            if (tokens.length > 5){
-               // stainedTubeName = tokens[4];//reading from mapping file this will fail.
-    //            System.out.println("tokens[5]   " + tokens[5]);
-                compensationCells= new Boolean (tokens[5]);
-                stainedTubeName =  tokens[4];
-            }
-            else if (tokens.length == 5){
-            	compensationCells = new Boolean(tokens[4]);
+            reagent = tokens[REAGENT];
+            if (tokens[UNSTAINED].endsWith("fcs"))
+                unstainedControlFile = tokens[UNSTAINED];
+            else unstainedTubeName = tokens[UNSTAINED];
+            
+            if (tokens[STAINED].endsWith("fcs"))
+                stainedControlFile = tokens[STAINED];
+            else stainedTubeName = tokens[STAINED];
+            
+             if (tokens.length == nfields){
+            	compensationCells = new Boolean(tokens[CELLS]);
             }
           
         }
@@ -81,9 +86,9 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
             String[] copy = new String[nfields];
 
             if (detectorName != null)
-                copy[0] = detectorName;
-            else copy[0] = "";
-            copy[1] = reagent;
+                copy[DETECTOR] = detectorName;
+            else copy[DETECTOR] = "";
+            copy[REAGENT] = reagent;
             
 //            if (tubeMap.containsKey (unstainedControlFile))
 //                copy[2] = tubeMap.get(unstainedControlFile).getFcsFilename();
@@ -91,16 +96,16 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
 //                copy[2] = unstainedControlFile;
          //   copy[2] = tubeAndFiles.get(unstainedControl);
             
-            copy[2] = unstainedControlFile;
+            copy[UNSTAINED] = unstainedControlFile;
            // if (tubeAndFiles.containsKey (stainedControlFile))
                 
                 
-            copy[3] = stainedControlFile;
-            copy[4] = stainedTubeName;
+            copy[STAINED] = stainedControlFile;
+           // copy[4] = stainedTubeName;
             
-            copy[5]="false";
+            copy[CELLS]="false";
             if (compensationCells)
-            	copy[5]="true";
+            	copy[CELLS]="true";
 
             return copy;
         }
@@ -122,13 +127,14 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
   //           for (int i = 0; i < tokens.length; i++){
     //        	 System.out.println(i+ ".  "+ tokens[i]);
 //             }
-             reagent = tokens[1];
-             unstainedControlFile = tokens[2];
-             stainedControlFile = tokens[3];
-             if (tokens.length >4){
-                 stainedTubeName = tokens[4];
-                 
-             }
+             reagent = tokens[REAGENT];
+             if (tokens[UNSTAINED].endsWith("fcs"))
+                  unstainedControlFile = tokens[UNSTAINED];
+             else unstainedTubeName=tokens[UNSTAINED];
+             if (tokens[STAINED].endsWith("fcs"))
+                 stainedControlFile = tokens[STAINED];
+             else stainedTubeName=tokens[STAINED];
+            
 
          }
          
@@ -137,11 +143,17 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
              for (int i = 0; i < tokens.length; i++){
             	 System.out.println(i+ ".  "+ tokens[i]);
              }
-             reagent = tokens[1];
-             unstainedControlFile = tokens[2];
-             stainedControlFile = tokens[3];
-             if (tokens.length >4){                
-                 if (tokens[4].equalsIgnoreCase("true")){ //this will fail because of new rule of adding t/f cells
+             reagent = tokens[REAGENT];
+             if (tokens[UNSTAINED].endsWith("fcs"))
+                 unstainedControlFile = tokens[UNSTAINED];
+             else
+            	 unstainedTubeName=tokens[UNSTAINED];
+             if (tokens[STAINED].endsWith("fcs"))
+                  stainedControlFile = tokens[STAINED];
+             else stainedTubeName=tokens[STAINED];
+             
+             if (tokens.length ==nfields){                
+                 if (tokens[CELLS].equalsIgnoreCase("true")){ //this will fail because of new rule of adding t/f cells
                 	 compensationCells = true;
                  } 
              }
@@ -190,7 +202,7 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
 
         public String[] getData() {
             String[] data = new String[nfields];
-            data[0] = detectorName;
+            data[DETECTOR] = detectorName;
             //hasData returns true if there is a unstained or stained control file
             if (hasData()){
                 
@@ -203,27 +215,23 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
                     else reagent = detectorName;
                     
                 }
-                data[1]= reagent;
+                data[REAGENT]= reagent;
 //                if ()
                
-                data[2] = unstainedControlFile;
+                data[UNSTAINED] = unstainedControlFile;
 //                if (stainedControl != null)
 //                    data[3] = stainedControl.filename;
 //                else
-                    data[3] =stainedControlFile;
-                    data[4] = stainedTubeName;
-                   data[5]="false";
+                    data[STAINED] =stainedControlFile;
+                    
+                   data[CELLS]="false";
                    if (compensationCells)
-                	   data[5]="true";
+                	   data[CELLS]="true";
             }
             else{
-                data[1]="";
-                data[2]="";
-                data[3]="";
-                data[4]="";
-                data[5]="false";
-                		
-          
+            	for (int i=0; i < nfields-1; i++)
+                data[i]="";
+            data[nfields-1]="false";
                
             }
             return data;

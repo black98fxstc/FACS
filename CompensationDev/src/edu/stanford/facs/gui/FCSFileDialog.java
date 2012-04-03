@@ -6,10 +6,9 @@
 package edu.stanford.facs.gui;
 
 import edu.stanford.facs.exp_annotation.TubeInfo;
-import edu.stanford.facs.compensation.Compensation2;
+//import edu.stanford.facs.compensation.Compensation2;
 import java.awt.BorderLayout;
 import java.io.IOException;
-
 import java.io.File;
 
 import javax.swing.JButton;
@@ -473,12 +472,12 @@ public class FCSFileDialog extends JDialog {
 
         } catch (FCSException fcse){
             System.out.println (" FCSException " + fcse.getMessage());
-            String msg = "No values were found for "+ fname + " in the fcs file";
+           // String msg = "No values were found for "+ fname + " in the fcs file";
 //            JOptionPane.showMessageDialog (null, msg, "FCSFile Error", JOptionPane.INFORMATION_MESSAGE);
 //            return value;
         } catch (IOException ioe){
             System.out.println (" IOException (1)"+ ioe.getMessage());
-            String msg = "Error reading the file " + fname;
+           // String msg = "Error reading the file " + fname;
 //            JOptionPane.showMessageDialog (null, msg, "FCSFile Error", JOptionPane.INFORMATION_MESSAGE);
 //            return value; 
         }
@@ -491,7 +490,13 @@ public class FCSFileDialog extends JDialog {
         }
         return tone;
     }
-
+/**
+ * there needs to be a sync betwwen the control information and the tube map
+ * more consistently this is saving 4 fields, except if there areCells.  No 
+ * tubeName. if I was using a tube name for the stained control, then I should also be
+ * having a field for the tube name for the unstained tube.  this is a bit of overkill
+ * because I want to make this a container for tubes.  
+ */
     private void saveMyProperties(File file) {
         
         if (file != null ){
@@ -513,17 +518,18 @@ public class FCSFileDialog extends JDialog {
                         if (!ci.stainedControlFile.endsWith(".fcs")){
                             if (tubeMap.containsKey(ci.stainedControlFile)){
                             	TubeInfo tone = tubeMap.get(ci.stainedControlFile);
+                            	tone.setTubeType("compensation");
                             	ci.addStainedTube(tone);
                             	System.out.println (ci.compensationCells+ ","+tone.getAreCells());
                             	tone.setAreCells(ci.compensationCells);
-                            	
                             	
                             	stainedfcsfn = tone.getFcsFilename();
                             	System.out.println ("Tube : "+tone.getInfo());
                             	
                             }
                         }
-                        else stainedfcsfn = ci.stainedControlFile;
+                        else 
+                        	stainedfcsfn = ci.stainedControlFile;
                         if (ci.unstainedControlFile !=null&& !ci.unstainedControlFile.equals("")){
                         	if (!ci.unstainedControlFile.endsWith(".fcs")){
                         		if (tubeMap.containsKey(ci.unstainedControlFile)){
@@ -573,6 +579,13 @@ public class FCSFileDialog extends JDialog {
             System.out.println ("  Can't read the property file !!");
             JOptionPane.showMessageDialog(this, "Cannot read the property file:"+propertyFile.getName(),
                     "Error reading file ", JOptionPane.WARNING_MESSAGE);
+            /**
+             *   int DETECTOR=0;
+         int REAGENT = 1;
+        int UNSTAINED =2;
+         int STAINED=3;
+         int CELLS=4;
+             */
 
         }
         else {
@@ -590,13 +603,14 @@ public class FCSFileDialog extends JDialog {
                              //find this record by detector name.
                              String reagent="";
                              
-                             if (tokens[1] != null)
-                                  reagent = tokens[1];
+                             if (tokens[ControlInformation.REAGENT] != null)
+                                  reagent = tokens[ControlInformation.REAGENT];
 
-                             ControlInformation ci = findDetector (tokens[0], reagent);
-                             list.add (tokens[0]);
+                             ControlInformation ci = findDetector (tokens[ControlInformation.DETECTOR], reagent);
+                             list.add (tokens[ControlInformation.DETECTOR]);
                              if (ci != null ){
                                  ci.addValuesFromMapping (tokens);
+                                 
                              }
                              else {
                                  ControlInformation newone = new ControlInformation (tokens);
@@ -614,9 +628,18 @@ public class FCSFileDialog extends JDialog {
                         line = in.readLine();
                     }
 
-                     data = new String[allInfo.size()][4];
+                     data = new String[allInfo.size()][5];
                     int i=0;
                     for (ControlInformation ci: allInfo){
+                    	if (!tubeMap.isEmpty()){
+                    		TubeInfo tone = tubeMap.get(ci.stainedTubeName);
+                    		if (tone !=null)
+                    			ci.stainedTube = tone;
+                    		if (ci.stainedControlFile.endsWith("fcs")){
+                    			
+                    		}
+                    			
+                    	}
                        data[i]=ci.getData();
                        i++;
                     }
@@ -648,12 +671,12 @@ public class FCSFileDialog extends JDialog {
 //        System.out.println ("  find Detector " + detector + ", "+ reagent);
         //in the case of multiples, we can have more than entry for a detector
         //because there is a different reagent.
-        int n=0;
+       // int n=0;
         for (ControlInformation ci: allInfo){
 //             System.out.println ("  find detector ci = "+ ci.toString());
             if (ci.detectorName.equalsIgnoreCase (detector)){
                 //does this one have data in it and we might have a duplicate?
-                n++;
+               // n++;
                if (ci.hasData() )
                    continue;
                 ci.reagent = new String (reagent);
@@ -883,27 +906,30 @@ System.out.println ("get fcslist");
    
      
      public String[][] getMappingInfo () {
-
-         if (Compensation2.CATE){
+System.out.println("FCSDialog get mapping info");
+      //   if (Compensation2.CATE){
+//tubemap exists,but not continually.  but control info does not have the tube name.  
              if (tubeMap != null && tubeMap.size() > 0){
                  Collection <TubeInfo>tubes = tubeMap.values();
                  Iterator <TubeInfo>it = tubes.iterator();
                  while (it.hasNext()){
                      TubeInfo tone = it.next();
-                    // System.out.println (tone.getInfo());
+                     System.out.println ("Tube "  +tone.getInfo());
                  }
 
              }
-         }
+      //   }
          int n = allInfo.size();
          int m = allInfo.get(0).nfields;
          String[][] data = new String[n][m];
       
          for (int i=0; i < n; i++){
              ControlInformation one = allInfo.get(i);
-//             System.out.println ("getMappingInfo "+ allInfo.size() + "  "+ one.toString());
+             System.out.println ("getMappingInfo "+ allInfo.size() + "  "+ one.toString());
              TubeInfo tone = tubeMap.get (one.stainedTubeName);
              if (tone != null){
+                 System.out.println("tube = "+ tone.getInfo());
+//if the tube is null, 
 //             if (one.stainedTube == null && one.stainedControlFile == null){
                  if (one.stainedControlFile == null || !one.stainedControlFile.endsWith (".fcs")){
                     one.stainedControlFile = tone.getFcsFilename();
@@ -918,12 +944,16 @@ System.out.println ("get fcslist");
                      }
                  }
                    
-                 
+             }
+             else{
+            	 //let's create the tube info now.
              }
                  
              
              data[i] = one.getData();
-           //  System.out.println (data[i][0] + ", "+ data[i][1]+", "+data[i][2]+", "+data[i][3]);
+             for (int j=0; j <data[i].length; j++)
+            	 System.out.print (data[i][j] + ", ");
+             System.out.println();
          }
         
          return data;
@@ -1048,7 +1078,7 @@ System.out.println ("get fcslist");
              bag3.setConstraints (button, constraints3);
              leftPanel.add (button);
 
-             String[] data = ci.copyData();
+            // String[] data = ci.copyData();
 //             System.out.println (data[0]+ "  "+ data[1] + "  " + data[2]+ "  "+ data[3]);
 
              JLabel label = new JLabel (ci.detectorName);

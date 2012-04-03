@@ -404,8 +404,7 @@ public class CompensationFrame extends JFrame  implements CompensationResults, P
    * @param fluorochrome
    * @param detector
    */
-  public void initialize (String[] fluorochrome, String[] detector)
-  {
+  public void initialize (String[] fluorochrome, String[] detector, int[]primaryDet) {
 //      Exception e = new Exception();
 //      System.out.println ("<--------- Initialize -------->");
 //      e.printStackTrace();
@@ -414,6 +413,11 @@ public class CompensationFrame extends JFrame  implements CompensationResults, P
       this.detectorList = detector;
       this.controlList = fluorochrome;
       
+      for (int i=0; i< primaryDet.length; i++){
+    	  if (primaryDet[i] >-1)
+    	  System.out.println (primaryDet[i] + ", "+ detector[primaryDet[i]]);
+      }
+    	       
 
 /*changing the size of these arrays */
       failsLinearityTest = new boolean[controlList.length][detectorList.length+1];
@@ -423,9 +427,15 @@ public class CompensationFrame extends JFrame  implements CompensationResults, P
 
       sensitivityData = new Float[6][controlList.length+1];
       spectrumData = new Float[controlList.length][detectorList.length+1];
+      for (int i=0; i<primaryDet.length; i++){
+    	  System.out.println("Initialize   :: "+ i + ". " + primaryDet[i] + "," + detectorList[primaryDet[i]]);
+    	  
+      }
       for (int i=0; i < controlList.length; i++) {
           for (int j=0; j < detectorList.length; j++){
-              if (i == j) spectrumData[i][j]= (float)1.0;
+        	//  if (controlList[i].equalsIgnoreCase(detectorList[primaryDet[i]]))
+        		  System.out.println(controlList[i] + "  "+ detectorList[primaryDet[i]]);
+              if (primaryDet[i] == j) spectrumData[i][j]= (float)1.0;
               else spectrumData[i][j]=(float)0.0;
           }
       }
