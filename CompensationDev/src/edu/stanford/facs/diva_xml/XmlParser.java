@@ -520,10 +520,15 @@ public class XmlParser {
         
         return tubemap;
     } **/
-
+    
+    
+/*
+this has been moved to exp_annotation.DivaXmlParser
+ * */
     public void printFlowJoMatrixforPC(File fn, Float[][]data, String[] detectorNames, String exname){
 
-      //  System.out.println (" fn path =" + fn.getPath() +  "   name "+ fn.getName() );
+        System.out.println (" fn path =" + fn.getPath() +  "   name "+ fn.getName() );
+    
         String myprefix="comp";
         if (exname == null)
             exname = "Experiment";

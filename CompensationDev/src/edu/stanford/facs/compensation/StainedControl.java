@@ -11,6 +11,7 @@ import org.isac.fcs.FCSFile;
 
 import edu.stanford.facs.compensation.Compensation2.Point;
 import edu.stanford.facs.data.FlowData;
+import edu.stanford.facs.gui.FCSFileDialog.TubeContents;
 
 public class StainedControl
   extends ScatterGatedControl
@@ -36,7 +37,8 @@ public class StainedControl
   public float[][] fit;
   public boolean[] linearity;
   public boolean[] spilloverNotSignificant;
-  //protected boolean areCells = false is inherited from ScatterGatedControl
+  
+  //protected TubeContents tubeContentType = TubeContents.BEADS_1 is inherited from ScatterGatedControl
 
 
   public Diagnostic.List[] diagnostics;
@@ -50,16 +52,16 @@ public class StainedControl
 
 
   public StainedControl (Compensation2 comp, FCSFile fcsfile, int primary,
-    int reagent, String parameterName, FlowData unstained, boolean areCells)
+    int reagent, String parameterName, FlowData unstained, TubeContents type)
   {
     super(comp, fcsfile);
     this.primary = primary;
     this.reagent = reagent;
     this.unstained = (UnstainedControl)unstained;
     this.parameterName =  parameterName;
-    this.areCells = areCells;
+    this.tubeContentType = type;
     if (Compensation2.CATE){
-        System.out.println ("  Stained control constructor "+ primary + ",  "+ reagent + "  "+ parameterName + "  "+ this.areCells);
+        System.out.println ("  Stained control constructor "+ primary + ",  "+ reagent + "  "+ parameterName + "  "+ this.tubeContentType);
         System.out.println("fcs file = "+ fcsfile.getFile().getName());
     }
   }
@@ -67,7 +69,7 @@ public class StainedControl
   public StainedControl (Compensation2 comp, FCSFile fcsfile, int primary,
                          int reagent, String parameterName)
   {
-    this(comp, fcsfile, primary, reagent, parameterName, null, false);
+    this(comp, fcsfile, primary, reagent, parameterName, null, TubeContents.BEADS_1);
   }
     
 	  
@@ -147,7 +149,7 @@ public class StainedControl
   {
   	super.load();
   	
-  	if (!areCells() && unstained != null)
+  	if (getContentType() == TubeContents.BEADS_1 && unstained != null)//not sure if this is correct
   	{
   		int Nevents = this.Nevents + unstained.Nevents;
   		
@@ -173,7 +175,7 @@ public class StainedControl
 
   protected void analyze ()
   {
-    if (unstained != null && areCells())
+    if (unstained != null && getContentType()!=TubeContents.BEADS_1)
       kdtree = unstained.kdtree;
 
     super.analyze();
@@ -647,7 +649,7 @@ public class StainedControl
   {
     int Noriginal = exclude.cardinality();
     float low = 0;
-    if (unstained != null && areCells())
+    if (unstained != null && getContentType() == TubeContents.CELLS)
     {
       if (unstained.V[primary] > 0)
         low = (float)(unstained.A[primary] + 2 * Math

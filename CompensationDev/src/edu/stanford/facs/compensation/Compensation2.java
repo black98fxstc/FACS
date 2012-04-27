@@ -324,7 +324,7 @@ public class Compensation2
       float[] data = null;
 
       if (row < stainedControl.length && stainedControl[row] != null){
-          System.out.println (" getDataX "+ row + ", "+ col + " "+ stainedControl[row].getPrimaryDetector());
+          //System.out.println (" getDataX "+ row + ", "+ col + " "+ stainedControl[row].getPrimaryDetector());
 
           if (col < stainedControl[row].X.length && stainedControl[row].X[col] != null)
           data = stainedControl[row].X[col];
@@ -411,19 +411,19 @@ public class Compensation2
      * the results on the dispatch thread. When finished or an exception is
      * thrown done() will be called on the dispatch thread to shut down.
      */
-      
-      System.out.println (detector.length + "  "+ reagent.length);
-      for (int i=0; i < detector.length; i++){
-          System.out.print  (detector[i] + "   ");
-          if (i < reagent.length){
-              System.out.println (reagent[i]);
+      if (Compensation2.CATE){
+          System.out.println (detector.length + "  "+ reagent.length);
+          for (int i=0; i < detector.length; i++){
+              System.out.print  (detector[i] + "   ");
+              if (i < reagent.length){
+                  System.out.println (reagent[i]);
+              }
           }
       }
               
       int s0=0;
       if (unstainedControl == null ){
            System.out.println (" oh dear the unstained control is null");
-
       }
       else {
 //          System.out.println (unstainedControl.length);
@@ -464,7 +464,7 @@ public class Compensation2
       scatterRange = new double[2];
 //      System.out.println (stainedControl[index].getFCSFile().getFile().getName());
       if (stainedControl[index].getFCSFile().getFile().exists()){
-          System.out.println ("  Yes the file exists " + stainedControl[index].getFCSFile().getFile().getName());
+          //System.out.println ("  Yes the file exists " + stainedControl[index].getFCSFile().getFile().getName());
           if (stainedControl[index].getFCSFile().getFile().canRead()){
               System.out.println (" yes it can also be read");
           }
@@ -510,7 +510,7 @@ System.out.println (stainedControl[index].getFCSFile().getFile().getName() + "  
           if (stainedControl[i] != null){
                 stainedControl[i].load();
                 stainedControl[i].analyze();
-                System.out.println ("------------ Publish this stained control --"+i+"----------");
+                
                 publish(stainedControl[i]);
                 if (RECORD_ANY)
                 {
@@ -557,8 +557,8 @@ System.out.println (stainedControl[index].getFCSFile().getFile().getName() + "  
           if (j == control.primary)
             continue;
       //    ui.setFailsSignificanceTest(control.reagent, j, control.slope[j] < control.slopeSigma[j]);
- System.out.println ("Compensation2 process "+ control.reagent + ", "+ j + ", "+ control.slope[j]);
- System.out.println("StainedControl in process "+ control.toString());
+ //System.out.println ("Compensation2 process "+ control.reagent + ", "+ j + ", "+ control.slope[j]);
+ //System.out.println("StainedControl in process "+ control.toString());
  if (compResults == null){
      System.out.println (" compResults are null ");
  }

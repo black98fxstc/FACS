@@ -31,12 +31,12 @@ import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.DropMode;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
-
 
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
@@ -57,8 +57,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+//import javax.swing.event.ChangeEvent;
+//import javax.swing.event.ChangeListener;
 import javax.swing.text.Document;
 import org.isac.fcs.FCSException;
 import org.isac.fcs.FCSFile;
@@ -77,8 +77,9 @@ import org.isac.fcs.FCSTextSegment;
 public class FCSFileDialog extends JDialog {
     private File workingDir;
     static File propertyFile;
-    private MappingInterface parent;
+  //  private MappingInterface parent;
     private JList list;
+    
     private String[] detectorNames;
     private String[] fluorochromeList;
     private JPanel leftPanel;
@@ -86,7 +87,7 @@ public class FCSFileDialog extends JDialog {
     private ArrayList<ControlInformation> allInfo = new ArrayList<ControlInformation>();
     private String[] colNames={"Add Row", "Detector", "Reagent",
                                "Unstained FCSFile ",
-                               "Stained FCSFile", "Cells?"};
+                               "Stained FCSFile", "Tube Contents"};
    
 	private static final long serialVersionUID = 1L;
 
@@ -94,9 +95,76 @@ public class FCSFileDialog extends JDialog {
     private final ImageIcon addIcon = new ImageIcon (addURL);
     private JLabel message = new JLabel ("Drag and drop the unstained and stained control files to the detector rows.");
     private HashMap<String, TubeInfo> tubeMap = new HashMap <String, TubeInfo>();
-   // private HashMap<Integer, ArrayList<String>> detectorMap;
-    private JCheckBox useUnstained;
-    private String singleUnstained;
+    private JCheckBox useUnstained = new JCheckBox("Use one unstained control for all stained controls.");
+   
+    
+    public enum TubeContents  {
+    	 BEADS_1(1), CELLS(2), CELLS_BEADS_1(3);
+    	public int code;
+
+        private TubeContents (int code) {
+            this.code = code;
+        }
+        
+        public static final int ncodes=4;
+        public String toString() {
+        	String value;
+            switch (this) {             
+              case CELLS:
+                   value="CELLS";
+                   break;
+              case BEADS_1:
+                   value="BEADS_1";
+                   break;
+              case CELLS_BEADS_1:
+                   value="CELLS_BEADS_1";
+                   break;
+             default:
+            	  value="BEADS_1";
+             }
+       return value;
+      };
+      
+      public static TubeContents valueOf (int i){
+    	  TubeContents contents;
+    	  switch (i) {
+    	  case 1:
+              contents= TubeContents.BEADS_1;
+              break;
+          case 2:
+               contents = TubeContents.CELLS;
+               break;
+          
+          case 3:
+               contents = TubeContents.CELLS_BEADS_1;
+               break;
+         default:
+        	 contents= TubeContents.BEADS_1;
+        	 break;
+         }
+    	  return contents;
+      }
+      
+      public static TubeContents myValueOf (String s){
+    	  TubeContents  contents = TubeContents.BEADS_1;
+    	  String[] values = stringValues();
+    	  if (s.equalsIgnoreCase(values[2]))
+    		  contents = TubeContents.CELLS;
+    	  else if (s.equalsIgnoreCase(values[3]))
+    		  contents = TubeContents.CELLS_BEADS_1;
+    	  
+    	  return contents;
+      }
+        
+      
+      public static String[] stringValues(){
+    	  String []values ={"", "BEADS_1","CELLS", "CELLS_BEADS_1"};
+    	  return values;
+    	  
+      }
+            
+    }
+    
     
     
     /**
@@ -109,7 +177,7 @@ public class FCSFileDialog extends JDialog {
     public FCSFileDialog (MappingInterface parent, String[] detectors, String workingdir){
 
         super();
-        this.parent = parent;
+ //       this.parent = parent;
        
         this.detectorNames = detectors;
         this.workingDir = new File (workingdir);
@@ -144,10 +212,12 @@ public class FCSFileDialog extends JDialog {
     public FCSFileDialog (MappingInterface parent, ArrayList<String[]> mappingInfo){
 
         super ();
-        this.parent = parent;
+   //     this.parent = parent;
        
         for ( String[]s : mappingInfo){
-            allInfo.add (new ControlInformation (s));
+        	ControlInformation ci = new ControlInformation (s);
+            allInfo.add (ci);
+            ci.passDialog(this);
         }
         createDialog (parent, false);
     }
@@ -159,10 +229,10 @@ public class FCSFileDialog extends JDialog {
      */
     public FCSFileDialog (MappingInterface parent, HashMap<Integer, ArrayList<String>> detectorList, 
                                                    HashMap<String, TubeInfo> tubeMap){
-        this.parent = parent;
+   //     this.parent = parent;
       //  this.detectorMap = detectorList;
         this.tubeMap = tubeMap;
-        System.out.println ("  FCSFile Dialog constructor 3 with the tubeMap");
+  //      System.out.println ("  FCSFile Dialog constructor 3 with the tubeMap");
         createDialog (parent, false);
     }
    
@@ -177,7 +247,7 @@ public class FCSFileDialog extends JDialog {
                                                                     String[] fluorochromeList){
         super ();
        
-        this.parent = parent;
+  //      this.parent = parent;
         this.detectorNames = detectorList;
         this.workingDir = workingdir;
         this.fluorochromeList = fluorochromeList;
@@ -188,6 +258,7 @@ public class FCSFileDialog extends JDialog {
 
     private void createDialog(final MappingInterface parent, boolean jofile) {
         
+    	
         setDefaultCloseOperation (JDialog.HIDE_ON_CLOSE);
         JComponent panel = new JPanel();
         panel.setOpaque(true); //content panes must be opaque
@@ -345,7 +416,7 @@ public class FCSFileDialog extends JDialog {
 
         JPanel rightPanel = createVerticalBoxPanel();
         rightPanel.add (list);
-        Dimension dimleft = new Dimension (650, 500);
+        Dimension dimleft = new Dimension (950, 500);
         Dimension dimright = new Dimension (60, 500);
         JScrollPane rightscroll = new JScrollPane (rightPanel);
         rightscroll.setMinimumSize(dimright);
@@ -357,7 +428,7 @@ public class FCSFileDialog extends JDialog {
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
                                               leftscroll, rightscroll);
         splitPane.setOneTouchExpandable(true);
-        splitPane.setDividerLocation (750);
+        splitPane.setDividerLocation (950);
         panel.add(splitPane, BorderLayout.CENTER);
         if (!jofile)
             panel.add (northpanel, BorderLayout.NORTH);
@@ -406,11 +477,14 @@ public class FCSFileDialog extends JDialog {
         panel2.add(cancelButton);
         panel2.add (continueButton );
         panel.add (panel2, BorderLayout.SOUTH);
-        setSize (new Dimension (950, 500));
+        setSize (new Dimension (1050, 500));
         if (parent != null)
              setLocationRelativeTo( parent.getFrame());
         else
             setLocation (700, 400);
+    }
+    public void getCommonUnstainedTube(){
+    	
     }
 /**
     private String getTextAttribute (String fname, String key){
@@ -492,7 +566,7 @@ public class FCSFileDialog extends JDialog {
     }
 /**
  * there needs to be a sync betwwen the control information and the tube map
- * more consistently this is saving 4 fields, except if there areCells.  No 
+ * more consistently this is saving 4 fields, except if there contentType.  No 
  * tubeName. if I was using a tube name for the stained control, then I should also be
  * having a field for the tube name for the unstained tube.  this is a bit of overkill
  * because I want to make this a container for tubes.  
@@ -520,8 +594,8 @@ public class FCSFileDialog extends JDialog {
                             	TubeInfo tone = tubeMap.get(ci.stainedControlFile);
                             	tone.setTubeType("compensation");
                             	ci.addStainedTube(tone);
-                            	System.out.println (ci.compensationCells+ ","+tone.getAreCells());
-                            	tone.setAreCells(ci.compensationCells);
+                            	System.out.println (ci.tubeContents+ ","+tone.getContentType());
+                            	tone.setContentType(ci.tubeContents);
                             	
                             	stainedfcsfn = tone.getFcsFilename();
                             	System.out.println ("Tube : "+tone.getInfo());
@@ -543,9 +617,9 @@ public class FCSFileDialog extends JDialog {
                         else unstainedfcsfn = ci.unstainedControlFile;
                         buf.append(unstainedfcsfn).append(",").append(stainedfcsfn);
                         
-                        if (ci.compensationCells ){
-                        	buf.append(",").append(ci.compensationCells);
-                        }
+                       // if (ci.compensationCells ){
+                        	buf.append(",").append(ci.tubeContents.toString());
+                      //  }
                         buf.append (System.getProperty ("line.separator"));
 
                         
@@ -614,6 +688,7 @@ public class FCSFileDialog extends JDialog {
                              }
                              else {
                                  ControlInformation newone = new ControlInformation (tokens);
+                                 newone.passDialog(this);
                                 // list.add (tokens[0]);
                                  allInfo.add (newone);
                              }
@@ -621,6 +696,7 @@ public class FCSFileDialog extends JDialog {
                         
                          else {
                              ControlInformation newone = new ControlInformation (tokens);
+                             newone.passDialog(this);
                              allInfo.add (newone);
                              
                          }
@@ -662,6 +738,7 @@ public class FCSFileDialog extends JDialog {
 
     for (int i=0; i < detectorNames.length; i++){
             ControlInformation newone = new ControlInformation (detectorNames[i]);
+            newone.passDialog(this);
            
             allInfo.add (newone);
     }
@@ -742,6 +819,7 @@ System.out.println ("get fcslist");
      */
     public void createDetectorPanel (JPanel leftPanel, String[] detectors){
 
+    	
         GridBagLayout bag = new GridBagLayout();
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.gridwidth = 1;
@@ -786,12 +864,14 @@ System.out.println ("get fcslist");
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         bag.setConstraints (label5, constraints );
         leftPanel.add (label5);
-        
+     //   contentTypeList = new JList[detectors.length];
         
         for (int i=0; i < detectors.length; i++){
+        	
             if (detectors[i].startsWith("<") && detectors[i].endsWith(">"))
                 detectors[i] = detectors[i].substring (1, detectors[i].length()-1);
             ControlInformation newone = new ControlInformation (detectors[i]);
+            newone.passDialog(this);
             JButton button = new JButton (addIcon);
             button.setSize (29, 29);
             button.putClientProperty ("rowid", new Integer(i));
@@ -805,6 +885,7 @@ System.out.println ("get fcslist");
                     if (ci != null) {
                         info = new ControlInformation(ci.detectorName);
                         info.setRowId(rowid);
+                        info.passDialog(FCSFileDialog.this);
                         allInfo.add (rowid, info);
                     }
                     else{
@@ -837,14 +918,19 @@ System.out.println ("get fcslist");
             constraints.gridwidth = GridBagConstraints.RELATIVE;
             bag.setConstraints (tf3, constraints);
             leftPanel.add (tf3);
-            JCheckBox cb = new JCheckBox();
-            cb.putClientProperty("name", "cells");
-            cb.setSelected (false);
-            cb.addChangeListener(newone);
+           
             
+            JComboBox contents = new JComboBox(TubeContents.stringValues());
+          
+            contents.setSelectedIndex(1);
+            contents.putClientProperty ("rowid", new Integer(i));
+            contents.addActionListener(newone);
+           
             constraints.gridwidth = GridBagConstraints.REMAINDER;
-            bag.setConstraints (cb, constraints);
-            leftPanel.add (cb);         
+            
+            bag.setConstraints(contents, constraints);
+            leftPanel.add (contents);  
+
             addListenersTo (tf1, newone,"tf1");
             addListenersTo (tf2, newone,"tf2");
             addListenersTo (tf3, newone,"tf3");
@@ -858,21 +944,37 @@ System.out.println ("get fcslist");
         		bag.setConstraints(la, constraints);
         		leftPanel.add(la);
         }	
+        constraints.gridwidth=GridBagConstraints.REMAINDER;
         
-        JCheckBox useUnstained = new JCheckBox("Use one unstained control for all stained controls.");
         useUnstained.putClientProperty("name","useUnstained");
-        useUnstained.putClientProperty("dialog", this);
+       // useUnstained.putClientProperty("dialog", this);
         useUnstained.setSelected(false);
+        useUnstained.setEnabled(false);
+        
+        
+        if (tubeMap != null ){
+        	{
+        		Collection <TubeInfo>tubes = tubeMap.values();
+                Iterator <TubeInfo>it = tubes.iterator();
+                while (it.hasNext()){
+                    TubeInfo tone = it.next();
+                    useUnstained.addChangeListener(tone);
+                }	
+        	}
+        }
         for (ControlInformation ci: allInfo){
         	useUnstained.addChangeListener (ci);
+        	ci.passDialog (this);
         }
-       /** useUnstained.addChangeListener (new ChangeListener() {
+        /**
+        useUnstained.addChangeListener (new ChangeListener() {
         	public void stateChanged(ChangeEvent e){
         		
         	}
         });**/
-         constraints.gridwidth = GridBagConstraints.REMAINDER;
+       //  constraints.gridwidth = GridBagConstraints.REMAINDER;
          bag.setConstraints(useUnstained, constraints);
+
         leftPanel.add(useUnstained);
         	
         	
@@ -882,6 +984,11 @@ System.out.println ("get fcslist");
 		bag.setConstraints(la, constraints);
 		leftPanel.add(la);*/
           }
+    
+   public void enableCheckbox(boolean flag){
+	   useUnstained.setEnabled(flag);
+	   
+   }
     /**
      * for each textfield, add the Control Information as a listener
      * @param tf
@@ -951,9 +1058,9 @@ System.out.println("FCSDialog get mapping info");
                  
              
              data[i] = one.getData();
-             for (int j=0; j <data[i].length; j++)
+            /** for (int j=0; j <data[i].length; j++)
             	 System.out.print (data[i][j] + ", ");
-             System.out.println();
+             System.out.println();**/
          }
         
          return data;
@@ -1063,6 +1170,7 @@ System.out.println("FCSDialog get mapping info");
                      ControlInformation ci = allInfo.get(rowid);
                      if (ci != null) {
                         ci = new ControlInformation(ci.detectorName);
+                        ci.passDialog(FCSFileDialog.this);
                         ci.setRowId(rowid);
                         allInfo.add (rowid, ci);
                     }
@@ -1103,14 +1211,22 @@ System.out.println("FCSDialog get mapping info");
              constraints3.gridwidth = GridBagConstraints.RELATIVE;
              bag3.setConstraints (tf3, constraints3);
              leftPanel.add (tf3);
+             JComboBox contents = new JComboBox(TubeContents.stringValues());
+            // contents.setVisibleRowCount(-1);
+             contents.setSelectedIndex(1);
+             contents.putClientProperty ("rowid", new Integer(ii));
+         //    contents.setSelectionMode(ListSelectionModel.SINGLE_SELECTION );
+             constraints3.gridwidth = GridBagConstraints.REMAINDER;
+             bag3.setConstraints(contents, constraints3);
+             leftPanel.add (contents);  
              
-             JCheckBox cb = new JCheckBox();
+             /**JCheckBox cb = new JCheckBox();
             // cb.setSelected (false);
              cb.addChangeListener(ci);
              cb.setSelected (ci.compensationCells);
              constraints3.gridwidth = GridBagConstraints.REMAINDER;
              bag3.setConstraints (cb, constraints3);
-             leftPanel.add (cb);         
+             leftPanel.add (cb);**/         
 
 
              }
@@ -1122,9 +1238,8 @@ System.out.println("FCSDialog get mapping info");
          		leftPanel.add(la);
          }	
          
-         JCheckBox useUnstained = new JCheckBox("Use one unstained control for all stained controls.");
+      //   JCheckBox useUnstained = new JCheckBox("Use one unstained control for all stained controls.");
          useUnstained.putClientProperty("name","useUnstained");
-        // useUnstained.setClient
          for (ControlInformation ci: allInfo){
          	useUnstained.addChangeListener (ci);
          }
@@ -1135,12 +1250,9 @@ System.out.println("FCSDialog get mapping info");
          });**/
           constraints3.gridwidth = GridBagConstraints.REMAINDER;
           bag3.setConstraints(useUnstained, constraints3);
-         leftPanel.add(useUnstained);
-         
-
-             //leftPanel.validate();
-             leftPanel.repaint();
-             leftPanel.revalidate();
+          leftPanel.add(useUnstained);
+          leftPanel.repaint();
+          leftPanel.revalidate();
         }
 
 

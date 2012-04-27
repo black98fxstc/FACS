@@ -881,7 +881,6 @@ public class JoFile  extends SwingWorker<Exception, String[]>
         DataStoreAuthenticator dataStore = new DataStoreAuthenticator();
         DataStoreAuthenticator.setDefault (dataStore);
         byte[] buffer = new byte[BUFFER_SIZE];
-        int bytesCopied=0;
         InputStream is = null;
         FileOutputStream os = null;
 //        if (jofile.exists()  ){
@@ -899,11 +898,11 @@ public class JoFile  extends SwingWorker<Exception, String[]>
             System.out.println (b + " temp folder has been created "+ tempFolder.getName());
         }
 //        System.out.println (tempFolder.getName() + "  "+ tempFolder.getPath());
-        boolean flag = tempFolder.mkdir();
+       // boolean flag = tempFolder.mkdir();
 //        tempFolder.deleteOnExit();
-        System.out.println (flag + " tempfolder mkdir returned this flag ");
+    //    System.out.println (flag + " tempfolder mkdir returned this flag ");
 
-        System.out.println (" size of downloadURLS?  "+ downloadURLS.size());
+   //     System.out.println (" size of downloadURLS?  "+ downloadURLS.size());
 
        //look for a
         //add the diva xml file to the list
@@ -940,7 +939,6 @@ public class JoFile  extends SwingWorker<Exception, String[]>
                        if (n < 0)
                            break;
                        os.write (buffer, 0, n);
-                       bytesCopied += n;
                    }
                }
                else {

@@ -7,6 +7,15 @@ package edu.stanford.facs.exp_annotation;
 import java.io.File;
 import java.util.ArrayList;
 
+import javax.swing.JCheckBox;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+import edu.stanford.facs.gui.FCSFileDialog;
+import edu.stanford.facs.gui.FCSFileDialog.TubeContents;
+
+
+
 /**
  * $Id: TubeInfo.java,v 1.2 2012/01/31 01:19:01 beauheim Exp $
  * @author cate
@@ -17,7 +26,7 @@ import java.util.ArrayList;
  * and put up a FCSFileDialog-type UI to verify that these are the FCS files that
  * the user wants to download.  
  */
-public class TubeInfo {
+public class TubeInfo implements ChangeListener {
     private String url;
     private String tubeName="";
     
@@ -36,12 +45,14 @@ public class TubeInfo {
     private ArrayList<String[]> label_for ;
     private ArrayList<String[]> compensations_for ; // this is the stain set Tube type is analysis
     public boolean isSelected = false;
-    private boolean areCells = false;
+  //  private boolean areCells = false;
     //collection of detector id and the antibody name.  
     private ArrayList<String[]>PnS = new ArrayList<String[]>(); 
     
     private static final String [] tubeTypes= 
                 {"calibration", "analysis", "cells unstained", "compensation", "beads unstained"};
+    
+    private FCSFileDialog.TubeContents contentType;
     
     
     public TubeInfo (String tubename){
@@ -83,11 +94,11 @@ public class TubeInfo {
         }
     }
     
-    public boolean getAreCells() {
-    	return areCells;
+    public TubeContents  getContentType() {
+    	return contentType;
     }
-    public void setAreCells(boolean cells){
-    	areCells = cells;
+    public void setContentType(TubeContents cells){
+    	contentType = cells;
     }
     
     public ArrayList<String[]> getLabelInfo() {
@@ -127,8 +138,7 @@ public class TubeInfo {
                 tube_type = i;
                 break;
             }
-            if (type.equals(tubeTypes[tubeTypes.length-1]))
-            	areCells = true;
+            
         }
        
         
@@ -283,5 +293,20 @@ public class TubeInfo {
     public void setSelected (boolean is){
         isSelected = is;
     }
+
+	@Override
+	public void stateChanged(ChangeEvent e) {
+	
+		//useUnstained.putClientProperty("name","useUnstained");
+      //  useUnstained.putClientProperty("dialog", this);
+		if (e.getSource() instanceof JCheckBox) {
+			//			System.out.println("compensation cells state change " + compensationCells);
+			JCheckBox cb = (JCheckBox)e.getSource();
+			String name = (String) cb.getClientProperty("name");
+			System.out.println(" checked? "+ cb.isSelected());
+							
+		}
+	
+	}
     
 }

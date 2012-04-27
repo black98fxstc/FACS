@@ -1,6 +1,7 @@
 package edu.stanford.facs.compensation;
 
 import org.isac.fcs.FCSFile;
+import edu.stanford.facs.gui.FCSFileDialog.TubeContents;
 
 public class ScatterGatedControl
   extends BoundedControl
@@ -8,18 +9,27 @@ public class ScatterGatedControl
   public int NscatterGated;
   
   protected KDTree kdtree;
-  protected boolean areCells = false;
+  protected TubeContents areCells = TubeContents.BEADS_1;
+  protected TubeContents tubeContentType = TubeContents.BEADS_1;
 
   ScatterGatedControl (Compensation2 comp, FCSFile fcsfile)
   {
     super(comp, fcsfile);
   }
   
-  public boolean areCells() {
+  public TubeContents getContentType(){
+	  return tubeContentType;
+  }
+  
+  public TubeContents areCells() {
 	  return areCells;
   }
   
-  public void setAreCells(boolean areCells){
+  public void setContentType(TubeContents areCells){
+	  this.tubeContentType = areCells;
+	  }
+  
+  public void setAreCells(TubeContents areCells){
 	  this.areCells = areCells;
 	  }
 

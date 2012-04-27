@@ -408,15 +408,18 @@ public class CompensationFrame extends JFrame  implements CompensationResults, P
 //      Exception e = new Exception();
 //      System.out.println ("<--------- Initialize -------->");
 //      e.printStackTrace();
+	  System.out.println("initialize frame  ");
+	  System.out.println ("\t"+fluorochrome.length +", "+ detector.length + ", "+primaryDet.length);
+	  
+	  for (int i = 0; i < fluorochrome.length; i++){
+		  
+	  }
     try
     {
       this.detectorList = detector;
       this.controlList = fluorochrome;
       
-      for (int i=0; i< primaryDet.length; i++){
-    	  if (primaryDet[i] >-1)
-    	  System.out.println (primaryDet[i] + ", "+ detector[primaryDet[i]]);
-      }
+     
     	       
 
 /*changing the size of these arrays */
@@ -427,14 +430,16 @@ public class CompensationFrame extends JFrame  implements CompensationResults, P
 
       sensitivityData = new Float[6][controlList.length+1];
       spectrumData = new Float[controlList.length][detectorList.length+1];
-      for (int i=0; i<primaryDet.length; i++){
-    	  System.out.println("Initialize   :: "+ i + ". " + primaryDet[i] + "," + detectorList[primaryDet[i]]);
+      //this doesn't work when these lists are different or something.  go back to this.
+     /**for (int i=0; i<primaryDet.length; i++){
+    	  if (primaryDet[i] > -1)
+    	    System.out.println("Initialize   :: "+ i + ". " + primaryDet[i] + "," + detectorList[primaryDet[i]]);
     	  
-      }
+      }**/
       for (int i=0; i < controlList.length; i++) {
           for (int j=0; j < detectorList.length; j++){
         	//  if (controlList[i].equalsIgnoreCase(detectorList[primaryDet[i]]))
-        		  System.out.println(controlList[i] + "  "+ detectorList[primaryDet[i]]);
+//        		  System.out.println(controlList[i] + "  "+ detectorList[primaryDet[i]]);
               if (primaryDet[i] == j) spectrumData[i][j]= (float)1.0;
               else spectrumData[i][j]=(float)0.0;
           }
@@ -522,7 +527,7 @@ public class CompensationFrame extends JFrame  implements CompensationResults, P
           w = 300;
       else
           w -= w - (5 * 5);
-      System.out.println (" dimensions " + wdim.width + "  "+ w);
+      
           
       Dimension panelDim = new Dimension (w, w);
       scatterPlot = new ScatterPlot(panelDim.width, panelDim.height);
@@ -1001,8 +1006,6 @@ public class CompensationFrame extends JFrame  implements CompensationResults, P
          dataPanel.setLayout (new BorderLayout ());
          dataPanel.add (statPanel, BorderLayout.CENTER);
      }
-//     else{  //update the values based on what I checked on.
-//System.out.println ("************************** "+ row + ", "+ col);
     if ( statPanel.getComponentCount()> 8) {
          JLabel label = (JLabel) statPanel.getComponent (1);
 //         System.out.println (" label 1 = "+ label.getText() + "  new "+ controlList[row]);

@@ -110,7 +110,7 @@ public class DivaXmlParser {
           if (exp_ele != null ) {
               List<Element> spec_list = exp_ele.getChildren ("specimen");
               if (spec_list !=null && spec_list.size() > 0){
-                  List <Element> tube_list = ((Element) spec_list.get(0)).getChildren ("tube");
+                  List <Element> tube_list =  ((Element)spec_list.get(0)).getChildren ("tube");
                   if (tube_list != null && tube_list.size() > 0){
                       List <Element>laserS_list = ((Element) tube_list.get(0)).getChildren ("lasers");
                       if (laserS_list != null && laserS_list.size() > 0){
@@ -702,7 +702,7 @@ public class DivaXmlParser {
 
     public void printFlowJoMatrixforPC(File fn, Float[][]data, String[] detectorNames, String exname){
 
-      //  System.out.println (" fn path =" + fn.getPath() +  "   name "+ fn.getName() );
+        System.out.println (" fn path =" + fn.getPath() +  "   name "+ fn.getName() );
         String myprefix="comp";
         if (exname == null)
             exname = "Experiment";

@@ -51,6 +51,7 @@ import edu.stanford.facs.gui.CompensationFrame;
 import edu.stanford.facs.gui.CompensationResults;
 import edu.stanford.facs.gui.ControlInformation;
 import edu.stanford.facs.gui.FCSFileDialog;
+import edu.stanford.facs.gui.FCSFileDialog.TubeContents;
 import edu.stanford.facs.gui.MultipleMatrixDialog;
 import edu.stanford.facs.compensation.Diagnostic;
 import java.awt.BorderLayout;
@@ -340,12 +341,25 @@ public class CompensationController //extends JFrame
         //do we have a detectorList?
         if (detectorList == null || detectorList.length == 0)
             System.out.println (" dtector list is empty");
+        
+        else{
+        	for (int i=0; i < detectorList.length; i++)
+        	System.out.println("detectorList " +detectorList[i]	);
+        }
 
         int[]primaryDet = new int[stainedControls.length];
+        int nd=0;
         for (int i=0; i < primaryDet.length;i++){
-        	if (stainedControls[i] !=null)
+        	
+        	if (stainedControls[i] !=null){
         	    primaryDet[i] = stainedControls[i].getPrimaryDetector();
-        	else primaryDet[i]=-1;
+        	    if (i >0 && primaryDet[i] == primaryDet[i-1]){
+        	       nd = primaryDet[i];	
+        	    }
+        	}
+        	else primaryDet[i]=nd;
+        	    nd++;
+            
         }
         
         if (visual){
@@ -353,6 +367,8 @@ public class CompensationController //extends JFrame
                 frame.initialize (detectorList, detectorList, primaryDet);
             }
             else{
+            	//for (int i=0; i < PnSreagents.length; i++)
+            		//System.out.println (i + ". " + PnSreagents[i] + " " + primaryDet[i]);
                 frame.initialize (PnSreagents, detectorList, primaryDet);
             }
     //                frame.initialize (detectorList, detectorList);
@@ -763,7 +779,7 @@ public class CompensationController //extends JFrame
                                                  String[][]fl_labels, boolean mode, CompensationResults results){
 //      System.out.println (" createUnstainedStainedControls -- DiVA entry point");
       visual = mode;
-      boolean areCells= false;
+      TubeContents  contentType= TubeContents.BEADS_1;
      if (visual){ //interact or bath
       if (frame == null)
           frame = new CompensationFrame (experimentName, dataFolder, this);
@@ -822,10 +838,10 @@ public class CompensationController //extends JFrame
                       tempstained.add  ((StainedControl)null);
                       currow++;
                   }
-                  unstainedControls[0].setAreCells(areCells);    
+                  unstainedControls[0].setContentType(contentType);    
                   tempstained.add ( new StainedControl (compensation2, stainedFCSFiles[i],
                            detectorindex, detectorindex, detectorList[detectorindex], 
-                           unstainedControls[0], areCells));
+                           unstainedControls[0], contentType));
                   currow++;
                   if (fl_labels[i][1] == null)
                       PnSreagents[detectorindex]= detectorList[detectorindex];
@@ -845,9 +861,9 @@ public class CompensationController //extends JFrame
                  tempstained.add((StainedControl) null);
                  currow++;
              }
-             unstainedControls[0].setAreCells(areCells);
+             unstainedControls[0].setContentType(contentType);
              tempstained.add( new StainedControl (compensation2, stainedFCSFiles[i],
-                      detectorindex, detectorindex, detectorList[detectorindex], unstainedControls[0], areCells));
+                      detectorindex, detectorindex, detectorList[detectorindex], unstainedControls[0], contentType));
              currow++;
          }
       }
@@ -957,7 +973,7 @@ public class CompensationController //extends JFrame
 
     StainedControl newstained;
     TubeInfo tone;
-    boolean areCells = false;
+    TubeContents contentType = TubeContents.BEADS_1;
     controlList = new String[data.length];
     if (detectorList == null){
         System.out.println ("  The detectorList is empty ......");
@@ -967,9 +983,11 @@ public class CompensationController //extends JFrame
             System.out.println (detectorList[i] + "  detectors in createUnstained  "+ data[i][ControlInformation.DETECTOR]);
         }
     }
-
+/* the bug is right in here.  when the row of control information is blank, the detector index comes back as
+ * 0, which is always then FITC or whatever 0 is.  But this info is somewhere, in the detectorList,...*/ 
     for (int i = 0; i < data.length; i++)  {
-        areCells = false;
+        contentType = TubeContents.BEADS_1;
+        System.out.println("detector :"+ data[i][0] );
         int detectorIndex = getDetectorIndex (data[i][ControlInformation.DETECTOR], detectorList);
         System.out.println (" createUnstained controls. " + data[i][ControlInformation.DETECTOR] + "  "+ detectorIndex);
         if (detectorIndex < 0){
@@ -1005,7 +1023,7 @@ public class CompensationController //extends JFrame
             else{
                 
                 tone = tubeMap.get(data[i][ControlInformation.STAINED]);
-                areCells = tone.getAreCells();
+                contentType = tone.getContentType();
                 unfn = workingDir + File.separator + tone.getFcsFilename();
             }
 
@@ -1025,22 +1043,23 @@ public class CompensationController //extends JFrame
         }
         String stainfn;
         if (data[i][ControlInformation.STAINED].endsWith (".fcs")){
-        	if (data[i].length ==5 && data[i][ControlInformation.CELLS].equalsIgnoreCase("TRUE")){
-        		areCells = true;	
+        	contentType = TubeContents.BEADS_1;
+        	if (data[i].length ==5 && data[i][ControlInformation.CELLS] !=null){
+        		contentType = TubeContents.myValueOf(data[i][ControlInformation.CELLS]);	
         	}
-        	System.out.println("new stained control with are cells =  "+ areCells);
-        	newunstained.setAreCells (areCells);
+        	System.out.println("new stained control with are cells =  "+ contentType);
+        	newunstained.setContentType (contentType);
             newstained = new StainedControl(compensation2, new FCSFile(workingDir + File.separator
-                + data[i][ControlInformation.STAINED]), detectorIndex, stainedControlList.size(), thisreagent, newunstained, areCells);
+                + data[i][ControlInformation.STAINED]), detectorIndex, stainedControlList.size(), thisreagent, newunstained, contentType);
         }
         else {
             tone = tubeMap.get(data[i][ControlInformation.STAINED]);
             System.out.println ("CompensationController line 998" + tone.getInfo());
             stainfn = tone.getFcsFilename();
             System.out.println ("Name of stain control filename "+ stainfn);
-            newunstained.setAreCells (areCells);
+            newunstained.setContentType (contentType);
             newstained = new StainedControl (compensation2, new FCSFile (workingDir + File.separator
-                    + stainfn), detectorIndex, stainedControlList.size(), thisreagent, newunstained, tone.getAreCells());
+                    + stainfn), detectorIndex, stainedControlList.size(), thisreagent, newunstained, tone.getContentType());
             
         }
 
@@ -1116,7 +1135,7 @@ System.out.println (" ------------------end of list------------------------");
     HashMap<String, UnstainedControl> unstainedControlList = new HashMap<String, UnstainedControl>();
     boolean found = false;
     ArrayList<String> reagentList = new ArrayList<String>();
-    boolean areCells = false;
+    TubeContents contentType = TubeContents.BEADS_1;
     boolean skip = false;
     if (detectorList != null && detectorList.length > 0 && data !=null && data.length >0){
     	skip = true;
@@ -1179,7 +1198,7 @@ System.out.println (" ------------------end of list------------------------");
   
     
     for ( i = 0; i < data.length; i++)  {
-        areCells = false;
+        contentType = TubeContents.BEADS_1;
         int detectorIndex = getDetectorIndex (data[i][ControlInformation.DETECTOR], detectorList);
         if (detectorIndex < 0){
 //            System.out.println ("  Skip this one.no detector index for "+ data[i][0]);
@@ -1192,7 +1211,7 @@ System.out.println (" ------------------end of list------------------------");
       //I need to know what the index in the detectorList of this data[i][0].  That is
       //what is the primaryDetector, given this String, what is the index in the detectorList
       //that matches.
-
+/*here bug here with detectorIndex*/
 
       if (data[i][ControlInformation.REAGENT] != null && !data[i][ControlInformation.REAGENT].equals("")){
         
@@ -1205,8 +1224,9 @@ System.out.println (" ------------------end of list------------------------");
       }
 
       if (data[i][ControlInformation.STAINED] != null && !data[i][ControlInformation.STAINED].equals("")) { // stained control file
-    	  if (data[i].length ==5 && data[i][ControlInformation.CELLS].equalsIgnoreCase("T")|| data[i][ControlInformation.CELLS].equalsIgnoreCase("true"))
-    		  areCells = true;
+    	  TubeContents cells = TubeContents.CELLS;
+    	  if (data[i].length ==5 && data[i][ControlInformation.CELLS].equalsIgnoreCase(cells.toString()))
+    		  contentType = TubeContents.CELLS;
         // if there is an unstained one, but doesn't have to have an unstained control
         if (data[i][ControlInformation.UNSTAINED] != null && !data[i][ControlInformation.UNSTAINED].equals("")) {
           // this is the unstained control
@@ -1227,18 +1247,18 @@ System.out.println (" ------------------end of list------------------------");
   //        System.out.println ("  result for testDetector For Data "+ hasData + "  "+ alldetectors[i]);        
         }
         if (newunstained != null) {
-            newunstained.setAreCells(areCells);
+            newunstained.setContentType(contentType);
         }
-        else if(areCells) { // and newunstained == null, issue a warning
+        else if(contentType == TubeContents.CELLS) { // and newunstained == null, issue a warning
         	JOptionPane.showMessageDialog (this.myframe, "When using cells for stained controls,  unstained cells are required. ", 
         			"Matrix File IO Error",
                     JOptionPane.ERROR_MESSAGE);
         	return;
         	
         }
-        System.out.println("Create Stained Control 1 "+ areCells);
+        System.out.println("Create Stained Control 1 "+ contentType);
         newstained = new StainedControl(compensation2, new FCSFile(workingDir + File.separator
-            + data[i][ControlInformation.STAINED]), detectorIndex, stainedControlList.size(), thisreagent, newunstained, areCells);
+            + data[i][ControlInformation.STAINED]), detectorIndex, stainedControlList.size(), thisreagent, newunstained, contentType);
 
        stainedControlList.add (newstained);
 //       System.out.println (i + ". " +newstained.toString());
@@ -1471,7 +1491,7 @@ System.out.println (" ------------------end of list------------------------");
     * @param expName
     */
    public void printFlowJoMatrix ( Float[][] spectrumData, String[] detectorNames, String expName){
-       File fn = null;
+       File fnpc=null, fnmac = null;
 
 //System.out.println (" print FlowJo Matrix "+ experimentName + " vs "+ expName);
        if (visual){
@@ -1480,33 +1500,43 @@ System.out.println (" ------------------end of list------------------------");
            chooser.setFileFilter (makeFilterForOS());
            int ans = chooser.showSaveDialog (frame);
            if (ans == JFileChooser.APPROVE_OPTION){
-               fn = chooser.getSelectedFile();
+        	   File fn =chooser.getSelectedFile();
+        	   
+        	   String path = fn.getAbsolutePath();
+        	  if (!path.endsWith(".mtx") && !path.endsWith(".txt")){ 
+        		 fnpc = new File(path+".mtx");
+        		 fnmac = new File(path+".txt");	 
+        	  }
+        	  else if (path.endsWith(".mtx") || path.endsWith(".txt")){
+        		  String fname = path.substring(0, path.lastIndexOf("."));
+        		  fnpc = new File(fname+".mtx");
+        		  fnmac = new File(fname+".txt");
+        	  }
+               
            }
        }
        else{
-           fn = new File (dataFolder + File.separator + expName+"_matrix");
+           fnpc = new File (dataFolder + File.separator + expName+"_matrix.mtx");
+           fnmac = new File (dataFolder + File.separator + expName+"_matrix.txt");
        }
-           String os = System.getProperty ("os.name");
- // printFlowJoMatrixForPC (fn, spectrumData, detectorNames, experimentName);
-      if (!os.equalsIgnoreCase ("Mac OS X")){
+          // String os = System.getProperty ("os.name");
+           printFlowJoMatrixForPC (fnpc, spectrumData, detectorNames, experimentName);
+     /** if (!os.equalsIgnoreCase ("Mac OS X")){
           if (!fn.getName().endsWith (".mtx"))
               fn = new File (fn.getPath() +".mtx");
           printFlowJoMatrixForPC (fn, spectrumData, detectorNames, experimentName);
           return;
-      }
+      }**/
 
 //        String nl = System.getProperty ("line.separator");
         String nl = "\r";
 
         String split = "\t";
-        if (fn != null){
-            if (!fn.getName().endsWith (".txt")){
-                fn = new File (fn.getPath() +".txt");
-
-            }
+        if (fnmac != null){
+            
 
             try {
-                PrintWriter fw = new PrintWriter (new BufferedWriter(new FileWriter(fn)));
+                PrintWriter fw = new PrintWriter (new BufferedWriter(new FileWriter(fnmac)));
                 if (expName == null)expName="";
                 fw.print(expName);
 
@@ -1536,11 +1566,12 @@ System.out.println (" ------------------end of list------------------------");
                     fw.print (nl);
                 }
                 fw.close();
-                os = System.getProperty ("os.name");
+                
+                String os = System.getProperty ("os.name");
                 if (os.equalsIgnoreCase ("Mac OS X")){
                     int t = makeOSType ("TEXT");
                     int c = makeOSType ("ttxt");  
-                    FileManager.setFileTypeAndCreator (fn.getPath(), t, c);
+                    FileManager.setFileTypeAndCreator (fnmac.getPath(), t, c);
                 }
 
             } catch (IOException e){
@@ -1632,10 +1663,10 @@ System.out.println (" ------------------end of list------------------------");
   private FileNameExtensionFilter makeFilterForOS() {
       String os = System.getProperty ("os.name");
       FileNameExtensionFilter filter;
-      if (os.equalsIgnoreCase ("Mac OS X")){
+    /**  if (os.equalsIgnoreCase ("Mac OS X")){
           filter = new FileNameExtensionFilter ("FlowJo Matrix", "txt");
       }
-      else
+      else**/
           filter = new FileNameExtensionFilter ("FlowJo Matrix", "mtx");
       return filter;
   }

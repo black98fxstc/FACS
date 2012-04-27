@@ -5,12 +5,15 @@
 package edu.stanford.facs.gui;
 
 import edu.stanford.facs.exp_annotation.TubeInfo;
+import edu.stanford.facs.gui.FCSFileDialog.TubeContents;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import java.awt.event.TextEvent;
 import java.awt.event.TextListener;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -27,16 +30,17 @@ import javax.swing.text.Document;
 public class ControlInformation implements ActionListener, ChangeListener, TextListener, DocumentListener  {
 
 		//0 is the detectorName, 1 is the reagent, 2 is unstained file, 3 is stained file, 
-	//4 is whether compensationCells are true or false
+	//4 is whether tubeContents are true or false
         String detectorName="";
         String reagent="";
         String unstainedControlFile="", stainedControlFile="";
         TubeInfo unstainedTube, stainedTube;
-        boolean compensationCells = false;
+        TubeContents tubeContents = TubeContents.BEADS_1;
         boolean useUnstained = false;
         String unstainedTubeName="", stainedTubeName="";
         FCSFileDialog mydialog;
         Integer rowId;
+        private TubeContents contentType;
         public static final int DETECTOR=0;
         public static final int REAGENT = 1;
         public static final int UNSTAINED =2;
@@ -63,7 +67,7 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
             else stainedTubeName = tokens[STAINED];
             
              if (tokens.length == nfields){
-            	compensationCells = new Boolean(tokens[CELLS]);
+            	tubeContents = TubeContents.myValueOf(tokens[nfields-1]);
             }
           
         }
@@ -76,6 +80,10 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
         //picking my own controls leads me here
         ControlInformation (String detectorName){
             this.detectorName = detectorName;
+        }
+        
+        public void passDialog (FCSFileDialog d){
+        	mydialog = d;
         }
         
         public void setRowId (Integer id){
@@ -103,9 +111,8 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
             copy[STAINED] = stainedControlFile;
            // copy[4] = stainedTubeName;
             
-            copy[CELLS]="false";
-            if (compensationCells)
-            	copy[CELLS]="true";
+            copy[CELLS]= contentType.toString();
+           
 
             return copy;
         }
@@ -152,10 +159,9 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
                   stainedControlFile = tokens[STAINED];
              else stainedTubeName=tokens[STAINED];
              
-             if (tokens.length ==nfields){                
-                 if (tokens[CELLS].equalsIgnoreCase("true")){ //this will fail because of new rule of adding t/f cells
-                	 compensationCells = true;
-                 } 
+             if (tokens.length ==nfields){   
+            	 contentType = TubeContents.myValueOf(tokens[CELLS]);
+               
              }
          }
          
@@ -168,15 +174,31 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
                 String title = (String) tf.getDocument().getProperty (Document.TitleProperty);
                 if (title.equals ("tf1"))
                     reagent = tf.getText().trim();
-                else if (title.equals ("tf2"))
+                else if (title.equals ("tf2")){
                     unstainedControlFile = tf.getText().trim();
-                else if (title.equals ("tf3"))
+                    
+                }
+                else if (title.equals ("tf3")){
                     stainedControlFile = tf.getText().trim();
+                    if (useUnstained ){
+                        
+                    }
+                }
                 else
                     System.out.println (" Unknown title in actionPerformed "+ title);
                 }
+             else if (e.getSource() instanceof JComboBox){
+            	 JComboBox cb = (JComboBox)e.getSource();
+            	 int i = cb.getSelectedIndex();
+            	 contentType = TubeContents.valueOf(i);
+            	 
+             }
 
 
+        }
+        
+        public TubeContents getContentType(){
+        	return contentType;
         }
 
 
@@ -225,11 +247,11 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
                     data[STAINED] =stainedControlFile;
                     
                    data[CELLS]="false";
-                   if (compensationCells)
-                	   data[CELLS]="true";
+                   if (contentType != null)
+                	   data[CELLS]= contentType.toString();
             }
             else{
-            	for (int i=0; i < nfields-1; i++)
+            	for (int i=1; i < nfields-1; i++)
                 data[i]="";
             data[nfields-1]="false";
                
@@ -263,31 +285,46 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
 
 //        //override
         public void insertUpdate (DocumentEvent de) {
-  //          System.out.println (" document event insertUpdate "+ de.getDocument().getProperty(Document.TitleProperty));
+            System.out.println (" document event insertUpdate "+ de.getDocument().getProperty(Document.TitleProperty));
             String title = (String)de.getDocument().getProperty (Document.TitleProperty);
+            try{
             if (title.equalsIgnoreCase("tf2")){
             	//System.out.println ("insert update on tf2");
             	if (useUnstained && unstainedTubeName !=null){
-            		try{
+            		
             		unstainedTubeName = de.getDocument().getText(0, de.getLength());
+            		
             	//	System.out.println("set this unstained for all");
-            		} catch (BadLocationException e){
-                        System.out.println (e.getMessage());
-            		}   
+            		   
                      
+            	}
+            	else if (!useUnstained && unstainedTubeName == null){
+            		System.out.println("else useunstained is false and unstained tube name is null");
+            		
+            		    unstainedTubeName = de.getDocument().getText(0, de.getLength());
+            		    mydialog.enableCheckbox(true);
+            		   
+            	}
+            	else if (useUnstained && unstainedTubeName == null){
+            		System.out.println("supposed to be using the same unstained");
             	}
             }
             else if (title.equalsIgnoreCase("tf3") && useUnstained ){
             	if (unstainedTubeName !=null){
             		System.out.println("fill in the unstained file previously selected. "+ unstainedTubeName);
             		if (mydialog !=null){
-            			
+            			mydialog.getCommonUnstainedTube();
+            			System.out.println("useunstained is true --insertUpdate");
+            			//mydialog.enableCheckbox();
             		}
             	}
             }
             if (title != null){
                 updateValues (title, de.getDocument());
             }
+            } catch (BadLocationException e){
+                System.out.println (e.getMessage());
+    		}
 
         }
 
@@ -302,7 +339,7 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
 
 //        //override
         public void changedUpdate (DocumentEvent de) {            
-      //  	System.out.println (" document event changedUpdate "+ de.getDocument().getProperty (Document.TitleProperty));
+        	System.out.println (" document event changedUpdate "+ de.getDocument().getProperty (Document.TitleProperty));
             String title = (String)de.getDocument().getProperty (Document.TitleProperty);
             if (title != null){
                 updateValues (title, de.getDocument());
@@ -319,27 +356,16 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
                     unstainedTubeName = text;
                     if (text != null){
                         unstainedControlFile = text;
-//                        if (tubeMap.containsKey (text)){ 
-//                            
-//                            TubeInfo tone = tubeMap.get(text);
-//                            System.out.println ("--------unstained control file " + tone.getFcsFilename());
-//                            unstainedControlFile = tone.getFcsFilename();
-//                        }
+
                     }
                     
-//                    System.out.println ("  unstained control file after removeupdate "+ unstainedControlFile);
                 }
                 else {
                     //stainedControlFile = text;
                     stainedTubeName = text;
                     if (text != null) {
                         stainedControlFile = text;
-//                       if (tubeMap.containsKey(text)){
-//                           
-//                           TubeInfo tone = tubeMap.get(text);
-//                           System.out.println ("-------stained control file "+ tone.getFcsFilename());
-//                           stainedControlFile = tone.getFcsFilename();
-//                       } 
+
                     }
                     
                 }
@@ -351,22 +377,18 @@ public class ControlInformation implements ActionListener, ChangeListener, TextL
 
 		@Override
 		public void stateChanged(ChangeEvent e) {
-			if (e.getSource() instanceof JCheckBox) {
-	//			System.out.println("compensation cells state change " + compensationCells);
-				JCheckBox cb = (JCheckBox)e.getSource();
-				String name = (String) cb.getClientProperty("name");
-				System.out.println(" checked? "+ cb.isSelected());
-				if (name != null && name.equalsIgnoreCase("cells"))
-				    compensationCells = cb.isSelected();
-				else{
-					useUnstained = cb.isSelected();
-					if (useUnstained){
-					     mydialog = (FCSFileDialog)cb.getClientProperty("dialog");
-					}
-					
+			 if (e.getSource() instanceof JComboBox){
+				
+				JComboBox box = (JComboBox) e.getSource();
+				String name = (String) box.getClientProperty("name");
+				if (name.equalsIgnoreCase("useUnstained")){
+					System.out.println("use unstained is checked");
+					useUnstained = true;
 				}
+				else{
+				   tubeContents = TubeContents.valueOf(box.getSelectedIndex());
+			   }
 			}
-		//	System.out.println("compensation cells state change " + compensationCells);
 			
 		}
        

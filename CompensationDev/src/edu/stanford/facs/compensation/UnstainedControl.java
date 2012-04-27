@@ -84,7 +84,7 @@ public class UnstainedControl
           cov[jy][jx] = cov[jx][jy];
         }
       }
-      if (false)
+      if (Compensation2.CATE)
       {
         System.out.println("---------how many detectors?----------"
           + ndetectors);
