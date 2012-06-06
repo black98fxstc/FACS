@@ -476,11 +476,13 @@ public class Compensation2
       }
 
       p = stainedControl[index].getFCSFile().getParameter("FSC-A");
-      if (p == null){
-          System.out.println (" the parameter is null for the FSC ");
-          System.out.println (index + "  index of the stainedControl that doesn't have the FSC-A parameter.  ");
-System.out.println (stainedControl[index].getFCSFile().getFile().getName() + "  " + stainedControl[index].getFCSFile().getFile().getPath());
+      if (CATE){
+          if (p == null){
+              System.out.println (" the parameter is null for the FSC ");
+              System.out.println (index + "  index of the stainedControl that doesn't have the FSC-A parameter.  ");
+              System.out.println (stainedControl[index].getFCSFile().getFile().getName() + "  " + stainedControl[index].getFCSFile().getFile().getPath());
 
+          }
       }
       scatterRange[0] = p.getMaximum();
       p = stainedControl[index].getFCSFile().getParameter("SSC-A");

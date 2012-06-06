@@ -1,6 +1,6 @@
 package edu.stanford.facs.compensation;
 
-public class ERF {
+public class ERF extends CumulativeDistFunction{
 
 	/**
 	 * @param args
@@ -23,6 +23,11 @@ public class ERF {
 		mu=x;
 		sig = y;
 	}
+	
+	protected double func (double p){
+		return erf(p);
+	}
+	
 	
 	protected static double erf (double x){
 		if (x>=0.)

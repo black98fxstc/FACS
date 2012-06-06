@@ -2,6 +2,7 @@ package edu.stanford.facs.compensation;
 
 public class KSDist {
 	private static double ooe = 0.367879441171442322;
+	
 	double invxlogx(double y) {
 		
 		double t,u,to=0.;
@@ -19,6 +20,7 @@ public class KSDist {
 		} while (Math.abs(t/u) > 1.e-15);	
 		return Math.exp(u);
 	}
+	
 	double pks(double z) {
 		if (z < 0.) {
 			throw new IllegalArgumentException("KSDist.pks z is less than 0.");
@@ -33,6 +35,7 @@ public class KSDist {
 			return 1. - 2.*(x - Math.pow(x,4) + Math.pow(x,9));
 		}
 	}
+	
 	double qks(double z) {
 		if (z < 0.) {
 			throw new IllegalArgumentException("KSDist.qks z is less than 0."); 
@@ -42,6 +45,7 @@ public class KSDist {
 		double x = Math.exp(-2.*(z*z));
 		return 2.*(x - Math.pow(x,4) + Math.pow(x,9));
 	}
+	
 	double invqks(double q) {
 		double y,logy,yp,x,xp,f,ff,u,t;
 		if (q <= 0. || q > 1.){
@@ -60,7 +64,8 @@ public class KSDist {
 				y = y - (t=u/Math.max(0.5,1.-0.5*u/(y*(1.+logy))));
 			} while (Math.abs(t/y)>1.e-15);
 			return 1.57079632679489662/Math.sqrt(-Math.log(y));
-		} else {
+		} 
+		else {
 			x = 0.03;
 			do {
 				xp = x;
@@ -70,7 +75,9 @@ public class KSDist {
 			return Math.sqrt(-0.5*Math.log(x));
 		}
 	}
-	double invpks(double p) {return invqks(1.-p);}
+	double invpks(double p) {
+		return invqks(1.-p);
+		}
 
 
 	/**

@@ -11,7 +11,7 @@ public class KSTest {
 	}
 	//void ksone(double[] data, double func(const double), double d, double prob)
 
-	void ksone(double[] data,  double d, double prob)
+	void ksone(double[] data,  CumulativeDistFunction func, double d, double prob)
 	{
 		int j,n=data.length;
 		double dt,en,ff,fn,fo=0.0;
@@ -21,7 +21,7 @@ public class KSTest {
 		d=0.0;
 		for (j=0;j<n;j++) {
 			fn=(j+1)/en;
-			ff=func(data[j]);  
+			ff=func.func(data[j]);  
 			dt=Math.max(Math.abs(fo-ff),Math.abs(fn-ff));
 			if (dt > d) d=dt;
 			fo=fn;
@@ -30,9 +30,7 @@ public class KSTest {
 		prob=ks.qks((en+0.12+0.11/en)*d);
 	}
 	
-	private double func (final double ff){
-		return 1.0;
-	}
+	
 	void kstwo(double[] data1, double[] data2, double d, double prob)
 	{
 		int j1=0,j2=0,n1=data1.length,n2=data2.length;
