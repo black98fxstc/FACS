@@ -1,6 +1,6 @@
 package edu.stanford.facs.compensation;
 
-public class ERF extends CumulativeDistFunction{
+public class ERF {
 
 	/**
 	 * @param args
@@ -17,6 +17,8 @@ public class ERF extends CumulativeDistFunction{
 	double mu, sig;
 
 	public ERF(){
+		mu=0;
+		sig=1.0;
 		
 	}
 	public ERF (double x, double y){
@@ -116,6 +118,7 @@ public class ERF extends CumulativeDistFunction{
 		}
 
 	}
+
 	
 	class Lognormaldist extends ERF{
 		
@@ -150,5 +153,6 @@ public class ERF extends CumulativeDistFunction{
 			return Math.exp(-1.41421356237309505*sig*inverfc(2.*p)+mu);
 		}
 	}
-
 }
+
+

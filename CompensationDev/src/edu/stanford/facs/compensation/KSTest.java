@@ -1,17 +1,55 @@
 package edu.stanford.facs.compensation;
 import java.util.Arrays;
+import java.util.Random;
+import edu.stanford.facs.compensation.ERF.Normaldist;
 
 public class KSTest {
-
+    
+	double[] gaussData;
+	double d=0, prob=0;
 	/**
 	 * @param args
 	 */
 	public KSTest(){
+		gaussData = generateGaussianData();
+       ERF erf = new ERF();		
+		ERF.Normaldist  nerf = erf.new Normaldist(0.0, 1.0);
+		ksone (gaussData, nerf);
+		System.out.println ("Gaussian data against Normal dist d=  "+d + ", prob= " + prob);
+		double[] randata = generateRandomData();
+		ksone (randata, nerf);
+		System.out.println ("Random data against Normal dist  d="+d + ", prob  " + prob);
+
+		
+	}
+	
+	private double[] generateRandomData(){
+		double[] mydata = new double[10000];
+		Random random = new Random();
+		for (int i=0; i < mydata.length; i++){
+			mydata[i] = random.nextFloat();
+			//if (i %1000 == 0)
+			//	System.out.println (mydata[i]);
+		}
+		return mydata;
+	}
+	
+	private double[] generateGaussianData(){
+		
+		double[] mydata = new double[10000];
+		Random random = new Random();
+		for (int i=0; i < mydata.length; i++){
+			mydata[i] = random.nextGaussian();
+			//if (i %1000 == 0)
+			//	System.out.println (mydata[i]);
+		}
+		return mydata;
 		
 	}
 	//void ksone(double[] data, double func(const double), double d, double prob)
+//	void ksone(double[] data,  CumulativeDistFunction func, double d, double prob)
 
-	void ksone(double[] data,  CumulativeDistFunction func, double d, double prob)
+	void ksone(double[] data,  Normaldist func)
 	{
 		int j,n=data.length;
 		double dt,en,ff,fn,fo=0.0;
@@ -19,15 +57,16 @@ public class KSTest {
 		Arrays.sort(data);
 		en=n;
 		d=0.0;
-		for (j=0;j<n;j++) {
+		for (j=0; j<n; j++) {
 			fn=(j+1)/en;
-			ff=func.func(data[j]);  
+			ff=func.cdf(data[j]);  
 			dt=Math.max(Math.abs(fo-ff),Math.abs(fn-ff));
 			if (dt > d) d=dt;
 			fo=fn;
 		}
 		en=Math.sqrt(en);
 		prob=ks.qks((en+0.12+0.11/en)*d);
+		System.out.println("\t--------" +d + " "+ prob);
 	}
 	
 	
@@ -57,6 +96,8 @@ public class KSTest {
 	}
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
+		
+		KSTest tryit = new KSTest();
 
 	}
 
