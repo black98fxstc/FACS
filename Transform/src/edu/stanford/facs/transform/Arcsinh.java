@@ -6,9 +6,10 @@ package edu.stanford.facs.transform;
  * Maps a data value onto the interval [0,1] such that:
  * <ul>
  *   <li>data value T is mapped to 1</li>
- *   <li>large data values are mapped to locations similar to an M + A decade logarithmic scale
- *   <li>A decades of negative data are brought on scale
+ *   <li>large data values are mapped to locations similar to an M + A decade logarithmic scale</li>
+ *   <li>A decades of negative data are brought on scale.</li>
  * </ul>
+ * Equivalent to Logicle(T,0,M,A)
  * 
  * @author wmoore
  *
