@@ -271,6 +271,15 @@ public class Hyperlog
    */
   public double scale (double value)
   {
+    // handle true zero separately
+    if (value == 0)
+      return x1;
+
+    // reflect negative values
+    boolean negative = value < 0;
+    if (negative)
+      value = -value;
+
     // initial guess at solution
     double x;
     if (value < f)
@@ -306,7 +315,11 @@ public class Hyperlog
 
       // if we've reached the desired precision we're done
       if (Math.abs(delta) < tolerance)
-        return x;
+        // handle negative arguments
+        if (negative)
+          return 2 * x1 - x;
+        else
+          return x;
     }
 
     throw new IllegalStateException("scale() didn't converge");
@@ -323,6 +336,11 @@ public class Hyperlog
    */
   public double inverse (double scale)
   {
+    // reflect negative scale regions
+    boolean negative = scale < x1;
+    if (negative)
+      scale = 2 * x1 - scale;
+
     double inverse;
     if (scale < xTaylor)
       // near x1, i.e., data zero use the series expansion
@@ -330,7 +348,12 @@ public class Hyperlog
     else
       // this formulation has better roundoff behavior
       inverse = (a * Math.exp(b * scale) + c * scale) - f;
-    return inverse;
+
+    // handle scale for negative values
+    if (negative)
+      return -inverse;
+    else
+      return inverse;
   }
 
   /**
