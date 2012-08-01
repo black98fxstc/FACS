@@ -1,9 +1,0 @@
-Now I need to mark the points with levels.  
-1.  start with the outer triangle.  Locate the 'other' endpoint for the points in the outer triangle.
-2.  These endpoints are the next level.  
-3.  Build some kind of tree to maintain this information.
-4.  Keep building in assigning points to a level that have not already assigned.  
-5.  At some point, there will be a 'cluster' that part of it will continue descending, thus
-forming two clusters and a set of points that is the division or divitrix or something between
-these two clusters.  
-6.  similar to annealing.
