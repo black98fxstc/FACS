@@ -149,6 +149,7 @@ public  class Delaunay {
         
             //create an artificial bounding box based on these values
         MyPoint[] trifp = createBoundingBox (minx, maxx, miny,  maxy);
+        
       //  MyPoint[] trifp = createBoundingBox();
         for (int i=0; i < trifp.length; i++){
             if (trifp[i].getX() < minx) minx=trifp[i].getX();
@@ -188,15 +189,18 @@ public  class Delaunay {
         float x1 = (float)0.5 * (minx + maxx);
         float y1 = maxy + bigscale * dely;
         boundingtri[0] = new MyPoint (x1, y1 );
+        boundingtri[0].setName("A");
         
         
        float x2 =minx- (float)0.5* bigscale*delx;
        float y2 = miny- (float)0.5*bigscale*dely;
         boundingtri[1] = new MyPoint (x2, y2);
+        boundingtri[1].setName("B");
         
         float x3 = maxx + (float) 0.5*bigscale * delx;
         float y3 = miny - (float) 0.5*bigscale * dely;
         boundingtri[2] = new MyPoint (x3, y3);
+        boundingtri[2].setName("C");
         
         
         
@@ -700,30 +704,30 @@ System.out.println( "distance is "+ distance);
         FileOutputStream fw = null;
        // printDataFrame
         try{
-	        	fw= new FileOutputStream (f);
-	        	String h = "x1\ty1\tLevel1\tx2\ty2\tLevel2\n";
-	        	//System.out.print(h);
-	            fw.write(h.getBytes());
-	            //include the bounding triangle
-	            while(it.hasNext()){
-	            	Long key = it.next();
-	            	if (allLines.containsKey(key)){
-		        		MyPoint[] pts = allLines.get(key);
-		        		if (pts != null && inBounds(pts)){
-		        			MyPoint pt1=pointlevelList.get(pts[0].getId());
-		        			MyPoint pt2=pointlevelList.get(pts[1].getId());
-		        			//System.out.println (pt1.getLevel() + "-"+pts[0].getLevel() + ", "+ pt2.getLevel() + "-" +pts[1].getLevel() );
-		        		    StringBuilder buf = new StringBuilder (pts[0].getX()+"\t"+pts[0].getY());
-		        		    buf.append("\t").append(pts[0].getLevel());
-			        		buf.append("\t").append(pts[1].getX()).append("\t").append(pts[1].getY());
-			        		buf.append("\t").append(pts[1].getLevel()).append("\n");
-			        		
-			                fw.write(buf.toString().getBytes());
-		        		}
-	            	}
-	            }
-	        
-	        	fw.close();
+        	fw= new FileOutputStream (f);
+        	String h = "x1\ty1\tLevel1\tx2\ty2\tLevel2\n";
+        	//System.out.print(h);
+            fw.write(h.getBytes());
+            //include the bounding triangle
+            while(it.hasNext()){
+            	Long key = it.next();
+            	if (allLines.containsKey(key)){
+	        		MyPoint[] pts = allLines.get(key);
+	        		if (pts != null && inBounds(pts)){
+	        		 	
+	        			//System.out.println (pt1.getLevel() + "-"+pts[0].getLevel() + ", "+ pt2.getLevel() + "-" +pts[1].getLevel() );
+	        		    StringBuilder buf = new StringBuilder (pts[0].getX()+"\t"+pts[0].getY());
+	        		    buf.append("\t").append(pts[0].getLevel());
+		        		buf.append("\t").append(pts[1].getX()).append("\t").append(pts[1].getY());
+		        		buf.append("\t").append(pts[1].getLevel()).append("\n");
+		        		
+		                fw.write(buf.toString().getBytes());
+	        		 		
+	        		}
+            	}
+            }
+        
+        	fw.close();
         	
         } catch (IOException e){
             System.out.println (" file io exception ");
