@@ -1,0 +1,40 @@
+package edu.stanford.facs.data;
+
+import java.io.IOException;
+
+import org.isac.fcs.FCSException;
+import org.isac.fcs.FCSFile;
+import org.isac.fcs.FCSHandler;
+
+public class FlowData
+{
+  protected int Nevents;
+  protected FCSFile fcs;
+
+  protected FlowData ()
+  {
+    super();
+  }
+
+  protected float[][] read (FCSFile fcs)
+    throws FCSException, IOException
+  {
+    this.fcs = fcs;
+
+    Nevents = fcs.getTotal();
+    int Nparameters = fcs.getParameters();
+    float[][] data = new float[Nparameters][Nevents];
+
+    FCSHandler ii = fcs.getInputIterator();
+    for (int k = 0; k < Nevents; ++k)
+      for (int j = 0; j < Nparameters; ++j)
+        data[j][k] = ii.readFloat();
+
+    return data;
+  }
+
+  public int getNevents ()
+  {
+    return Nevents;
+  }
+}

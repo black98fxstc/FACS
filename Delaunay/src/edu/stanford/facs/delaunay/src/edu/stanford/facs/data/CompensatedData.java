@@ -1,0 +1,59 @@
+package edu.stanford.facs.data;
+
+import java.io.IOException;
+
+import org.isac.fcs.FCSException;
+import org.isac.fcs.FCSFile;
+import org.isac.fcs.FCSParameter;
+
+public class CompensatedData
+  extends AnalyzedData
+{
+  protected FluorescenceCompensation fc;
+  protected float[][] X;
+  protected float[][] Y;
+
+  public CompensatedData (FCSFile fcsfile, String tag)
+  {
+    super(fcsfile, tag);
+  }
+
+  protected void read (FCSFile fcs, FluorescenceCompensation fc)
+    throws FCSException, IOException
+  {
+    this.fc = fc;
+
+    float[][] data = super.read();
+    String[] detector = fc.getDetectorNames();
+
+    X = new float[detector.length][];
+    for (int j = 0; j < detector.length; ++j)
+    {
+      FCSParameter p = fcs.getParameter(detector[j]);
+      X[j] = data[p.getIndex() - 1];
+
+    }
+  }
+
+  @Override
+  protected void analyze ()
+  {
+    String[] detector = fc.getDetectorNames();
+    double[][] C = fc.getCompensationMatrix();
+    int rank = detector.length;
+
+    Y = new float[rank][];
+    for (int i = 0; i < rank; ++i)
+    {
+      String name = detector[i];
+      if (name.endsWith("-A"))
+        name = name.substring(0, name.length() - "-A".length());
+      Y[i] = addFloatAnalysis(name + "-C");
+    }
+
+    for (int i = 0; i < rank; ++i)
+      for (int j = 0; j < rank; ++j)
+        for (int k = 0; k < Nevents; ++k)
+          Y[j][k] += X[i][k] * C[i][j];
+  }
+}

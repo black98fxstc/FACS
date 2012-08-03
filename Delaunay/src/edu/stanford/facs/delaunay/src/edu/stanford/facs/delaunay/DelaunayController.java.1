@@ -1,0 +1,143 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package edu.stanford.facs.delaunay;
+
+import edu.stanford.facs.drawing.FloatingPoint;
+import java.io.File;
+import org.isac.fcs.FCSFile;
+import edu.stanford.facs.drawing.DrawingFrame;
+import java.util.Random;
+
+/**
+ * $Id: Exp $
+ * @author cate
+ */
+public class DelaunayController {
+
+    private float[][] data;
+    private DrawingFrame frame;
+    private Delaunay delaunay;
+    private String[] detectors;
+  //  private FloatingPoint[] initialPoints = new FloatingPoint[4];
+    private TriangleTree tree;
+
+    DelaunayController() {
+
+    }
+    DelaunayController (FCSFile fcs) {
+
+       DelaunayData dataReader = new DelaunayData (fcs);
+       frame = new DrawingFrame();
+       if (fcs != null && fcs.getFile().canRead()) {
+          data = dataReader.read();
+          System.out.println (data.length + ",  "+ data[0].length);
+//          FloatingPoint[] asFP = dataReader.getAsFloatingPoints(data, 8, 13);
+//          FloatingPoint[] uniqueFP = dataReader.getUniqueSamples (asFP);
+
+//          detectors = dataReader.getDetectors(fcs);
+       }
+//       if (data == null || data.length == 0){
+//           System.out.println ("  Error reading the file");
+//           System.exit(1);
+//       }
+////       System.out.println (data.length + " "+ data[0].length);
+//       if (data == null){
+//           System.out.println (" Reading the FCS data failed");
+//           System.exit(1);
+//       }
+//       // 19 x 3000
+//       //Get a unique list also.  Make unique first, then get a random sample.
+//       FloatingPoint[] asFP = dataReader.getAsFloatingPoints(data, 8, 13);
+//       float[][] floatdata = dataReader.getUniqueSamples (asFP);
+//       //it isn't necessarily sorted at this point.
+//       
+//       System.out.println ("  how many data points?  "+ floatdata.length + "  "+ floatdata[0].length);
+       
+    //   float[][] unique = dataReader.getUniqueSamples (data, 8, 13);
+       
+//       float[][] rsamples = dataReader.getRandomSample ( uniqueFP);
+//       
+        float[][]mydata = new float[50][2];
+       
+        Random random = new Random (314128759);
+        for (int i=0; i < 50; i++){
+            mydata[i][0] = random.nextInt(100);
+            mydata[i][1] = random.nextInt(100);
+        }
+        
+      
+    //   float [][] sample = dataReader.getRandomSample(data, 8, 13);
+         delaunay = new Delaunay (frame, mydata);
+       
+//       delaunay = new Delaunay (frame, floatdata);
+  
+       //delaunay = new Delaunay (frame, rsamples);
+       frame.setModel (delaunay);
+//       setUp();
+//
+    }
+
+//    private void processData (float[][] data){
+//        for (int i=0; i < 10; i++){
+//            FloatingPoint fp = new FloatingPoint (data[0][i], data[1][i]);
+//          //  fp = frame.transformPoint(fp);
+//            delaunay.addNewPoint (fp);
+//        }
+//    }
+
+  /**  private void setUp() {
+        initialPoints[0] = new FloatingPoint ((float)0, (float)0);
+      //  initialPoints[0] = frame.transformPoint (initialPoints[0]);
+        initialPoints[1] = new FloatingPoint ((float)1,(float)0);
+     //   initialPoints[1] = frame.transformPoint (initialPoints[1]);
+        initialPoints[2] = new FloatingPoint ((float)1,(float)1);
+    //    initialPoints[2] = frame.transformPoint (initialPoints[2]);
+        initialPoints[3] = new FloatingPoint ((float)0,(float)1);
+    //    initialPoints[3] = frame.transformPoint (initialPoints[3]);
+
+        float[] x = {initialPoints[0].xf, initialPoints[1].xf, initialPoints[3].xf};
+        float[]y = {initialPoints[0].yf, initialPoints[1].yf, initialPoints[3].yf};
+        Triangle tri = new Triangle (x, y);
+        tree = new TriangleTree(tri, frame, delaunay);
+        frame.addTree (tree); //the frame does not need to know about the tree
+        frame.addPoint (initialPoints[0]);
+        frame.addPoint (initialPoints[1]);
+        frame.addPoint (initialPoints[3]);
+        delaunay.hashATriangle (tri);
+
+
+//A = 0, B = 1, C = 2
+        frame.addLine (initialPoints[0], initialPoints[1]);
+        frame.addLine (initialPoints[1], initialPoints[3]);
+        frame.addLine (initialPoints[3], initialPoints[0]);
+       // dumpLineHash();
+        float[] x2 = {initialPoints[1].xf, initialPoints[2].xf, initialPoints[3].xf};
+        float[] y2 = {initialPoints[1].yf, initialPoints[2].yf, initialPoints[3].yf};
+        Triangle tri2 = new Triangle (x2, y2);
+//        tree = new TriangleTree(tri2, frame, delaunay);
+//        frame.addTree (tree); //the frame does not need to know about the tree
+        frame.addPoint (initialPoints[1]);
+        frame.addPoint (initialPoints[2]);
+        frame.addPoint (initialPoints[3]);
+        delaunay.hashATriangle (tri2);
+
+
+//A = 0, B = 1, C = 2
+        frame.addLine (initialPoints[1], initialPoints[2]);
+        frame.addLine (initialPoints[2], initialPoints[3]);
+        frame.addLine (initialPoints[3], initialPoints[1]);
+
+    }**/
+
+    public static void main (String[] args){
+        String fn = "/Users/cate/Delaunay/Delaunay/data/1_ip_C.fcs";//or 5_ivC.fcs
+        File file = new File (fn);
+        FCSFile fcs = new FCSFile (fn);
+        DelaunayController controller = new DelaunayController (fcs);
+
+    }
+
+}
