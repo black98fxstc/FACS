@@ -5,13 +5,17 @@
 
 package edu.stanford.facs.delaunay;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileReader;
 import java.io.IOException;
 
 import org.isac.fcs.FCSFile;
 import edu.stanford.facs.drawing.DrawingFrame;
+
+import java.util.ArrayList;
 import java.util.Random;
+import java.util.StringTokenizer;
 
 /**
  * $Id: Exp $
@@ -52,23 +56,30 @@ public class DelaunayController {
      * points.  So I want to keep track of how many points are the same for each representation in
      * MyPoint
      */
-    DelaunayController (FCSFile fcs) {
-
-       DelaunayData dataReader = new DelaunayData (fcs);
+    DelaunayController (String fn) {
+        float[][] mydata;
+    	if (fn.endsWith(".fcs")){
+    	    FCSFile fcs = new FCSFile(fn);
+            DelaunayData dataReader = new DelaunayData (fcs);
  //      frame = new DrawingFrame();
-       float[][] mydata= null;
-       if (fcs != null && fcs.getFile().canRead()) {
-          mydata = dataReader.read();
+	       mydata= null;
+	       if (fcs != null && fcs.getFile().canRead()) {
+	          mydata = dataReader.read();
+	          System.out.println(" how many data points "+ mydata.length + ",  "+ mydata[0].length);
+	          MyPoint[] mypts = dataReader.getUniqueSamples (mydata, 14, 15);
+	                   
+	       
+	            delaunay = new Delaunay ( mypts);
+	       }
+	       
          //make it transformed
-          
-          //print data to file, just parameters 14 and 15.
-           float[][]logicle = dataReader.transformToLogicle (mydata, 14, 15);
-           String fn = "/User/cate2/Eclipse/workspace/Delaunay/dataLogicle.txt";
-           writeDataToFile (logicle, fn);
-          //then transform into Logical and print to file.
  
-          detectors = dataReader.getDetectors(fcs);
        }
+    	else {
+    		//just a data file
+    		mydata = readFile (fn);
+    		delaunay = new Delaunay (mydata );
+    	}
        if (mydata == null || mydata.length == 0){
            System.out.println ("  Error reading the file");
           System.exit(1);
@@ -80,30 +91,36 @@ public class DelaunayController {
 //       float[][] floatdata = dataReader.getUniqueSamples (asFP);
 //       //it isn't necessarily sorted at this point.
 //       
-//       System.out.println ("  how many data points?  "+ floatdata.length + "  "+ floatdata[0].length);
-       System.out.println(" how many data points "+ mydata.length + ",  "+ mydata[0].length);
-       MyPoint[] mypts = dataReader.getUniqueSamples (mydata, 14, 15);
-       
-//       float[][] rsamples = dataReader.getRandomSample ( uniqueFP);
-//       
-       
-         delaunay = new Delaunay ( mypts);
+//      
        
 
     }
     
-    private void writeDataToFile (float[][] data, String fn){
+    private float[][] readFile(String fn){
+    	File file = new File (fn);
+    	ArrayList<float[]> adata = new ArrayList<float[]>();
     	
-    	try{
-    		File f = new File (fn);
-    		FileWriter fw = new FileWriter(f);
-    		for (int i=0; i < data.length; i++){
-    			fw.write(data[i][0] + "\t"+ data[i][1]+ "\n");
+    	try {
+    		BufferedReader r = new BufferedReader (new FileReader (file));
+    		String line = r.readLine();
+    		
+    		while (line != null){
+    			String []tokens = line.split("\t");
+    			if (tokens.length == 2){
+    				float[] oneline = new float[2];
+    				oneline[0]= new Float(tokens[0]).floatValue();
+    				oneline[1] = new Float (tokens[1]).floatValue();
+    				adata.add(oneline);
+    				line = r.readLine();
+    			}
     		}
-    		fw.close();
-    	}catch (IOException e){
-    		System.out.println (e.getMessage());
+    		r.close();
+    	} catch (IOException e){
+    		
     	}
+    	float[][] data = new float[adata.size()][];
+    	data = adata.toArray(data);
+    	return data;
     }
 
 
@@ -111,10 +128,16 @@ public class DelaunayController {
  
 
     public static void main (String[] args){
-        String fn = "/Users/cate2/Eclipse/workspace/Delaunay/data/1_ip_C.fcs";//or 5_ivC.fcs
-        File file = new File (fn);
-        FCSFile fcs = new FCSFile (fn);
-        DelaunayController controller = new DelaunayController (fcs);
+    	String fn;
+    	
+    	if (args.length > 0){
+    		 fn = args[0];
+    	}
+    	else {
+         fn = "/Users/cate2/Eclipse/workspace/Delaunay/data/1_ip_C.fcs";//or 5_ivC.fcs
+    	}
+       
+        DelaunayController controller = new DelaunayController (fn);
         //  DelaunayController controller = new DelaunayController();
     }
 
