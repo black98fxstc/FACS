@@ -1,7 +1,9 @@
 package edu.stanford.facs.transform;
 
+import sun.rmi.runtime.Log;
+
 /**
- * Logarithmic display transform
+ * Logarithmic display transform.
  * 
  * Maps a data value onto the interval [0,1] such that:
  * <ul>
@@ -9,8 +11,8 @@ package edu.stanford.facs.transform;
  *   <li>M decades of data are mapped into the interval
  * </ul>
  * 
- * @author wmoore
- *
+ * @author Wayne A. Moore
+ * @version 1.0
  */
 public class Logarithmic
 		extends Transform
@@ -40,6 +42,16 @@ public class Logarithmic
     b = M * LN_10;
     a = T / Math.exp(b);
   }
+  
+	public Logarithmic(double T, double M)
+	{
+		this(T, M, 0);
+	}
+
+	public Logarithmic(double T)
+	{
+		this(T, DEFAULT_DECADES, 0);
+	}
 
 	@Override
 	public double scale (double value)

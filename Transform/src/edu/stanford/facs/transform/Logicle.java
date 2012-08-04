@@ -1,12 +1,17 @@
 package edu.stanford.facs.transform;
 
 /**
- * Implements the Logicle data {@link Logicle#scale(double) scale} and its
- * {@link Logicle#inverse(double) inverse}. This is a reference implementation,
- * accurate to <code>double</code> precision. It is reasonably fast but not
- * suitable for real time applications. See
- * {@link edu.stanford.facs.logicle.FastLogicle} for a fast lower precision
- * version.
+ * Logicle display transform.
+ * 
+ * Maps a data value onto the interval [0,1] such that:
+ * <ul>
+ *   <li>data value T is mapped to 1</li>
+ *   <li>large data values are mapped to locations similar to an M + A decade logarithmic scale</li>
+ *   <li>A decades of negative data are brought on scale.</li>
+ * </ul>
+ * This is a reference implementation, accurate to <code>double</code> precision.
+ * It's reasonably efficient but highly tuned less accurate implementations can be
+ * several times faster. 
  * 
  * @author Wayne A. Moore
  * @version 1.0

@@ -1,7 +1,7 @@
 package edu.stanford.facs.transform;
 
 /**
- * Thrown by constructors to indicate that the parameters of the Logicle scale
+ * Thrown by constructors to indicate that the parameters of the scale
  * requested are not valid.
  * 
  * @author Wayne A. Moore

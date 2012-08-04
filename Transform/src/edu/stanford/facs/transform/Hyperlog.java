@@ -1,9 +1,17 @@
 package edu.stanford.facs.transform;
 
 /**
- * Implements the Hyperlog data {@link Hyperlog#scale(double) scale} and its
- * {@link Hyperlog#inverse(double) inverse}. This is a reference implementation,
- * accurate to <code>double</code> precision. 
+ * Hyperlog display transform.
+ * 
+ * Maps a data value onto the interval [0,1] such that:
+ * <ul>
+ *   <li>data value T is mapped to 1</li>
+ *   <li>large data values are mapped to locations similar to an M + A decade logarithmic scale</li>
+ *   <li>A decades of negative data are brought on scale.</li>
+ * </ul>
+ * This is a reference implementation, accurate to <code>double</code> precision.
+ * It's reasonably efficient but highly tuned less accurate implementations can be
+ * several times faster. 
  * 
  * @author Wayne A. Moore
  * @version 1.0
@@ -20,7 +28,7 @@ public class Hyperlog
   /**
    * Actual parameter of the Hyperlog scale as implemented
    */
-  public final double a, b, c, d, f, w, x0, x1, x2;
+  public final double a, b, c, f, w, x0, x1, x2;
 
   /**
    * Scale value below which Taylor series is used
@@ -31,6 +39,8 @@ public class Hyperlog
    * Coefficients of Taylor series expansion
    */
   protected final double[] taylor;
+  
+  private final double twice_e2bx0;
 
   /**
    * Real constructor that does all the work. Called only from implementing
@@ -82,10 +92,9 @@ public class Hyperlog
     x1 = x2 + w;
     x0 = x2 + 2 * w;
     b = (M + A) * LN_10;
-    d = solve(b, w);
-    double c_a = Math.exp(x0 * (b + d));
-    double dy = b * Math.exp(b * x1) + d * c_a / Math.exp(d * x1);
-    c_a = b * Math.exp(b * x1) - c_a;
+    double e2bx0 = Math.exp(b * x0);
+    twice_e2bx0 = 2 * e2bx0;
+    double c_a = e2bx0 / w;
     double f_a = Math.exp(b * x1) + c_a * x1;
     a = T / ((Math.exp(b) + c_a) - f_a);
     c = c_a * a;
@@ -154,100 +163,6 @@ public class Hyperlog
   }
 
   /**
-   * Solve f(d;w,b) = 2 * (ln(d) - ln(b)) + w * (d + b) = 0 for d, given b and w
-   * 
-   * @param b
-   * @param w
-   * @return double root d
-   */
-  protected static double solve (double b, double w)
-  {
-    // w == 0 means its really arcsinh
-    if (w == 0)
-      return b;
-
-    // precision is the same as that of b
-    double tolerance = 2 * Math.ulp(b);
-
-    // based on RTSAFE from Numerical Recipes 1st Edition
-    // bracket the root
-    double d_lo = 0;
-    double d_hi = b;
-
-    // bisection first step
-    double d = (d_lo + d_hi) / 2;
-    double last_delta = d_hi - d_lo;
-    double delta;
-
-    // evaluate the f(d;w,b) = 2 * (ln(d) - ln(b)) + w * (b + d)
-    // and its derivative
-    double f_b = -2 * Math.log(b) + w * b;
-    double f = 2 * Math.log(d) + w * d + f_b;
-    double last_f = Double.NaN;
-
-    for (int i = 1; i < 20; ++i)
-    {
-      // compute the derivative
-      double df = 2 / d + w;
-
-      // if Newton's method would step outside the bracket
-      // or if it isn't converging quickly enough
-      if (((d - d_hi) * df - f) * ((d - d_lo) * df - f) >= 0
-        || Math.abs(1.9 * f) > Math.abs(last_delta * df))
-      {
-        // take a bisection step
-        delta = (d_hi - d_lo) / 2;
-        d = d_lo + delta;
-        if (d == d_lo)
-          return d; // nothing changed, we're done
-      }
-      else
-      {
-        // otherwise take a Newton's method step
-        delta = f / df;
-        double t = d;
-        d -= delta;
-        if (d == t)
-          return d; // nothing changed, we're done
-      }
-      // if we've reached the desired precision we're done
-      if (Math.abs(delta) < tolerance)
-        return d;
-      last_delta = delta;
-
-      // recompute the function
-      f = 2 * Math.log(d) + w * d + f_b;
-      if (f == 0 || f == last_f)
-        return d; // found the root or are not going to get any closer
-      last_f = f;
-
-      // update the bracketing interval
-      if (f < 0)
-        d_lo = d;
-      else
-        d_hi = d;
-    }
-
-    throw new IllegalStateException("exceeded maximum iterations in solve()");
-  }
-
-  /**
-   * Computes the slope of the biexponential function at a scale value.
-   * 
-   * @param scale
-   * @return The slope of the biexponential at the scale point
-   */
-  protected double slope (double scale)
-  {
-    // reflect negative scale regions
-    if (scale < x1)
-      scale = 2 * x1 - scale;
-
-    // compute the slope of the biexponential
-    return a * b * Math.exp(b * scale) + c * d / Math.exp(d * scale);
-  }
-
-  /**
    * Computes the value of Taylor series at a point on the scale
    * 
    * @param scale
@@ -282,7 +197,7 @@ public class Hyperlog
 
     // initial guess at solution
     double x;
-    if (value < f)
+    if (value < twice_e2bx0)
       // use linear approximation in the quasi linear region
       x = x1 + value / taylor[0];
     else
@@ -354,18 +269,6 @@ public class Hyperlog
       return -inverse;
     else
       return inverse;
-  }
-
-  /**
-   * Computes the dynamic range of the Hyperlog scale. For the Hyperlog scales
-   * this is the ratio of the pixels per unit at the high end of the scale
-   * divided by the pixels per unit at zero.
-   * 
-   * @return the double dynamic range
-   */
-  public double dynamicRange ()
-  {
-    return slope(1) / slope(x1);
   }
   
 	/**

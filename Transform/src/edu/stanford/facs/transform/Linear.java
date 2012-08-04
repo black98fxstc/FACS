@@ -1,6 +1,6 @@
 package edu.stanford.facs.transform;
 /**
- * Linear display transform
+ * Linear display transform.
  * 
  * Maps a data value onto the interval [0,1] linearly such that:
  * <ul>
@@ -8,8 +8,8 @@ package edu.stanford.facs.transform;
  *   <li>data value -A is mapped to 0</li>
  * </ul>
  * 
- * @author wmoore
- *
+ * @author Wayne A. Moore
+ * @version 1.0
  */
 
 public class Linear

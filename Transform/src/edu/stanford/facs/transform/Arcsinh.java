@@ -1,7 +1,7 @@
 package edu.stanford.facs.transform;
 
 /**
- * Arcsinh display transform
+ * Arcsinh display transform.
  * 
  * Maps a data value onto the interval [0,1] such that:
  * <ul>
@@ -11,8 +11,8 @@ package edu.stanford.facs.transform;
  * </ul>
  * Equivalent to Logicle(T,0,M,A)
  * 
- * @author wmoore
- *
+ * @author Wayne A. Moore
+ * @version 1.0
  */
 
 public class Arcsinh
@@ -46,6 +46,11 @@ public class Arcsinh
     b = (M + A) * LN_10;
     c = A * LN_10;
     a = T / Math.sinh(b - c);
+  }
+  
+  public Arcsinh (double T, double M, double A)
+  {
+  	this(T, M, A, 0);
   }
 
 	@Override
