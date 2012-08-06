@@ -710,8 +710,8 @@ System.out.println( "distance is "+ distance);
 	            	if (allLines.containsKey(key)){
 		        		MyPoint[] pts = allLines.get(key);
 		        		if (pts != null && inBounds(pts)){
-		        			MyPoint pt1=pointlevelList.get(pts[0].getId());
-		        			MyPoint pt2=pointlevelList.get(pts[1].getId());
+		        		//	MyPoint pt1=pointlevelList.get(pts[0].getId());
+		        		//	MyPoint pt2=pointlevelList.get(pts[1].getId());
 		        			//System.out.println (pt1.getLevel() + "-"+pts[0].getLevel() + ", "+ pt2.getLevel() + "-" +pts[1].getLevel() );
 		        		    StringBuilder buf = new StringBuilder (pts[0].getX()+"\t"+pts[0].getY());
 		        		    buf.append("\t").append(pts[0].getLevel());
