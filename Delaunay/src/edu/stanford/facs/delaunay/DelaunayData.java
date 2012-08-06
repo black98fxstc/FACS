@@ -256,13 +256,13 @@ public class DelaunayData extends FlowData{
         	//MyPoint pt = new MyPoint (logicle[xpar][i], logicle[ypar][i]);
         	//MyPoint pt = new MyPoint (logicle[0][i], logicle[1][i]);
         	//do the calculations before the logicle transformation
-        	if (data[0][i] < minx) minx=data[0][i];
-        	else if (data[0][i]>maxx) maxx=data[0][i];
+        	if (data[xpar][i] < minx) minx=data[xpar][i];
+        	else if (data[xpar][i]>maxx) maxx=data[xpar][i];
         	
-        	if (data[1][i] < miny) miny = data[1][i];
-        	else if (data[1][i] > maxy) maxy= data[1][i];
+        	if (data[ypar][i] < miny) miny = data[ypar][i];
+        	else if (data[ypar][i] > maxy) maxy= data[ypar][i];
         	
-            MyPoint pt = new MyPoint (data[0][i], data[1][i]);
+            MyPoint pt = new MyPoint (data[xpar][i], data[ypar][i]);
         	Long key = new Long(pt.hashCode());
         	if (uniquePoints.containsKey(key)){
         		uniquePoints.get(key).addOne();

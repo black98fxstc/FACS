@@ -134,7 +134,7 @@ public class DelaunayController {
     		 fn = args[0];
     	}
     	else {
-         fn = "/Users/cate2/Eclipse/workspace/Delaunay/data/1_ip_C.fcs";//or 5_ivC.fcs
+         fn = "/Users/cate2/Eclipse/workspace/NewOne/Delaunay/data/1_ip_C.fcs";//or 5_ivC.fcs
     	}
        
         DelaunayController controller = new DelaunayController (fn);
