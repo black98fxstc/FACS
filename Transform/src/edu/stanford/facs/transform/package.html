@@ -5,6 +5,7 @@
 <title>Data Transforms for Cytometry</title>
 </head>
 <body>
+<p>
 Provides an implementation of the standard display transformations used in flow cytometry.
 The design goals of this implementation, aside from the essential computational one,  are
 first to make these transformations comprehensible to the end users, i.e., scientists and
@@ -14,8 +15,9 @@ To achieve the later, all transforms are implemented so that the
 an appropriate range of data values onto a standard unit display interval [0,1] and the 
 {@link edu.stanford.facs.transform.Transform#inverse(double)  inverse}
 mapping is always implemented.
-Note that this implementation will map data values outside the range without complaint and in a sensible
+Note that range checking is the responsibility of the calling program and this implementation will map data values outside the range without complaint and in a sensible
 way but with results falling outside the unit interval and possibly with reduced precision.
+</p>
 
 <p>
 To make the transforms comprehensible they are all defined in terms of a consistent parameterization 
@@ -50,9 +52,9 @@ unit display interval.
 Finally it should be noted that 
 {@link edu.stanford.facs.transform.Arcsinh#Arcsinh(double, double, double) Arcsinh(T, M, A)} 
 is completely equivalent to 
-{@link edu.stanford.facs.transform.Logicle#Logicle(double, double, double, double) Logicle(T, M, 0, A)}
+{@link edu.stanford.facs.transform.Logicle#Logicle(double, double, double, double) Logicle(T, 0, M, A)}
 so it is not strictly necessary to implement the arcsinh transform as a separate class.
-On is provided here primarily to fix the relevant formulas.
+One is provided here primarily to fix the relevant formulas.
 <p>
 
 <p>
@@ -60,6 +62,14 @@ This is a reference implementation, generally accurate to double precision in th
 It is reasonably fast but highly optimized routines with lower precision that are still perfectly adequate 
 for use in flow cytometry may be several times faster.
 </p>
+
+<table>
+<tr><th>Transform</th><th>Inverse function</th></tr>
+<tr><td>Logarithmic</td><<td><font size="+2" >f<sup> -1</sup>(x) = a e<sup> b x</sup></font></td></tr>
+<tr><td>Logicle</td><<td><font size="+2" >f<sup> -1</sup>(x) = a e<sup> b x</sup> - c e<sup> -d x</sup> + f</font></td></tr>
+<tr><td>Hyperlog</td><<td><font size="+2" >f<sup> -1</sup>(x) = a e<sup> b x</sup> - c x - f</font></td></tr>
+<tr><td>Arcsinh</td><<td><font size="+2" >f<sup> -1</sup>(x) = a sinh (b x - c)</font></td></tr>
+</table>
 
 <p>
 <font size="+2" >f<sup> -1</sup>(x) = a e<sup> b x</sup></font>
@@ -95,7 +105,8 @@ PDF
 or
 <a href="http://www3.interscience.wiley.com/cgi-bin/fulltext/112587611/HTMLSTART" target="_new">
 HTML
-</a>
+</a>.
+Further refinements and this standard parameterization were presented in the publication
 </p>
 
 <p>

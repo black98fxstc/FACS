@@ -40,7 +40,7 @@ public class Hyperlog
    */
   protected final double[] taylor;
   
-  private final double twice_e2bx0;
+  private final double inverse_x0;
 
   /**
    * Real constructor that does all the work. Called only from implementing
@@ -93,7 +93,6 @@ public class Hyperlog
     x0 = x2 + 2 * w;
     b = (M + A) * LN_10;
     double e2bx0 = Math.exp(b * x0);
-    twice_e2bx0 = 2 * e2bx0;
     double c_a = e2bx0 / w;
     double f_a = Math.exp(b * x1) + c_a * x1;
     a = T / ((Math.exp(b) + c_a) - f_a);
@@ -113,6 +112,8 @@ public class Hyperlog
       taylor[i] = coef;
     }
     taylor[0] += c; // hyperlog condition
+
+    inverse_x0 = inverse(x0);
   }
 
   /**
@@ -197,9 +198,9 @@ public class Hyperlog
 
     // initial guess at solution
     double x;
-    if (value < twice_e2bx0)
+    if (value < inverse_x0)
       // use linear approximation in the quasi linear region
-      x = x1 + value / taylor[0];
+      x = x1 + value * w / inverse_x0;
     else
       // otherwise use ordinary logarithm
       x = Math.log(value / a) / b;

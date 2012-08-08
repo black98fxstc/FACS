@@ -57,7 +57,7 @@ public abstract class Transform
    * Needed by the unit tests.
    * 
    * @param scale
-   * @return The slope of the biexponential at the scale point
+   * @return The slope of the inverse transform at the scale point
    */
   abstract protected double slope (double scale);
 }

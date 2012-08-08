@@ -11,7 +11,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * Tests the Logicle and FastLogicle classes.
+ * Tests the display transform implementations.
  * 
  * @author Wayne A. Moore
  * @version 1.0
@@ -123,7 +123,7 @@ public class TestTransforms
   }
 
 	/**
-	 * Test whether the specified Logicle scale is invertible to the stated precision
+	 * Test whether the specified {@link Transform} is invertible to the stated precision
 	 * using pseudorandom data from the supplied distribution.
 	 * 
 	 * @param transform
@@ -144,9 +144,9 @@ public class TestTransforms
 	}
 
   /**
-   * Test whether the inverse of the specified Logicle scale is accurate to
+   * Test whether the inverse of the specified {@link Transform} is accurate to
    * the stated tolerance using pseudorandom data from the supplied distribution.
-   * Precision is calculated as the tolerance times the slope of the biexponential 
+   * Precision is calculated as the tolerance times the slope of the inverse transform 
    * at a given point on the scale.
    * 
    * @param transform
@@ -317,7 +317,7 @@ public class TestTransforms
 
   /**
    * Test method for {@link edu.stanford.facs.transform.Hyperlog#scale(double)}.
-   * Test that the scale function really is the inverse of the biexponential
+   * Test that the scale function really is the inverse of the transform.
    */
   @Test
   public void testHyperlogScale ()
@@ -337,7 +337,7 @@ public class TestTransforms
     // from Josef Spidlen
     hyperlog = new Hyperlog(1000, 2, 4);
     testScale(hyperlog, normal, 2 * Math.ulp(1D));
-//    testScale(hyperlog, extended, 2 * Math.ulp(1D));
+    testScale(hyperlog, extended, 2 * Math.ulp(1D));
   }
 
   /**
@@ -365,11 +365,11 @@ public class TestTransforms
     testInverse(hyperlog, distribution, 2 * Math.ulp(1D) );
     
     // from Josef Spidlen
-//    hyperlog = new Hyperlog(1000, 2, 4);
-//    distribution = new Normal(0, 1);
-//    testInverse(hyperlog, distribution, Math.ulp(1D));
-//    distribution = new LogNormal(hyperlog.b / 2, hyperlog.b / 6);
-//    testInverse(hyperlog, distribution, 3 * Math.ulp(1D) );
+    hyperlog = new Hyperlog(1000, 2, 4);
+    distribution = new Normal(0, 1);
+    testInverse(hyperlog, distribution, Math.ulp(1D));
+    distribution = new LogNormal(hyperlog.b / 2, hyperlog.b / 6);
+    testInverse(hyperlog, distribution, 2 * Math.ulp(1D) );
   }
 
   /**
@@ -402,11 +402,11 @@ public class TestTransforms
     Arcsinh arcsinh;
     Distribution distribution;
 
-    // normally distributed data
-    distribution = new Normal(0, 5);
     // typical scale
     arcsinh = new Arcsinh(10000, Transform.DEFAULT_DECADES, 1);
+
     // normally distributed data
+    distribution = new Normal(0, 5);
     testInverse(arcsinh, distribution, 2 * Math.ulp(1D));
     // log normally distributed data
     distribution = new LogNormal(arcsinh.b / 2, arcsinh.b / 6);
@@ -422,6 +422,7 @@ public class TestTransforms
   {
     Logarithmic logarithmic;
 
+    // typical scale
     logarithmic = new Logarithmic(10000);
 
     // normal scale range
@@ -445,6 +446,7 @@ public class TestTransforms
 
     // typical scale
     logarithmic = new Logarithmic(10000);
+
     // log normally distributed data
     distribution = new LogNormal(logarithmic.b / 2, logarithmic.b / 6);
     testInverse(logarithmic, distribution, 2 * Math.ulp(1D) );
@@ -452,13 +454,14 @@ public class TestTransforms
 
   /**
    * Test method for {@link edu.stanford.facs.transform.Linear#scale(double)}.
-   * Test that the scale function really is the inverse of the biexponential
+   * Test that the scale function really is the inverse of the inverse transform
    */
   @Test
   public void testLinearScale ()
   {
     Linear linear;
 
+    // typical scale
     linear = new Linear(10000);
 
     // normal scale range
