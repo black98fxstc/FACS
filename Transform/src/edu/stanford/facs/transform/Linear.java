@@ -40,6 +40,16 @@ public class Linear
     a = (T - A);
     b = -A / a;
   }
+  
+  public Linear (double T, double A)
+  {
+  	this(T, A, 0);
+  }
+
+  public Linear (double T)
+  {
+  	this(T, 0, 0);
+  }
 
 	@Override
 	public double scale (double value)
@@ -51,5 +61,11 @@ public class Linear
 	public double inverse (double scale)
 	{
 		return a * scale + b;
+	}
+
+	@Override
+	protected double slope (double scale)
+	{
+		return a;
 	}
 }

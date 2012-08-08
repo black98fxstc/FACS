@@ -52,7 +52,30 @@ Finally it should be noted that
 is completely equivalent to 
 {@link edu.stanford.facs.transform.Logicle#Logicle(double, double, double, double) Logicle(T, M, 0, A)}
 so it is not strictly necessary to implement the arcsinh transform as a separate class.
+On is provided here primarily to fix the relevant formulas.
 <p>
+
+<p>
+This is a reference implementation, generally accurate to double precision in the standard display interval.
+It is reasonably fast but highly optimized routines with lower precision that are still perfectly adequate 
+for use in flow cytometry may be several times faster.
+</p>
+
+<p>
+<font size="+2" >f<sup> -1</sup>(x) = a e<sup> b x</sup></font>
+</p>
+
+<p>
+<font size="+2" >f<sup> -1</sup>(x) = a e<sup> b x</sup> - c e<sup> -d x</sup> + f</font>
+</p>
+
+<p>
+<font size="+2" >f<sup> -1</sup>(x) = a e<sup> b x</sup> - c x - f</font>
+</p>
+
+<p>
+<font size="+2" >f<sup> -1</sup>(x) = a sinh (b x - c)</font>
+</p>
 
 <h2>Related Documentation</h2>
 

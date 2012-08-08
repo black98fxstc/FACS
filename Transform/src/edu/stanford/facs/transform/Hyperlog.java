@@ -270,6 +270,16 @@ public class Hyperlog
     else
       return inverse;
   }
+
+	@Override
+	protected double slope (double scale)
+	{
+    // reflect negative scale regions
+    if (scale < x1)
+      scale = 2 * x1 - scale;
+
+    return a * b * Math.exp(b * scale) + c;
+	}
   
 	/**
 	 * Choose a suitable set of data coordinates for a Hyperlog scale

@@ -47,8 +47,17 @@ public abstract class Transform
 	 * 
 	 * @return the array of data values
 	 */
-	double[] axisLabels ()
+	public double[] axisLabels ()
 	{
 		throw new NotImplementedException();
 	}
+
+  /**
+   * Computes the slope of the inverse function at a scale value.
+   * Needed by the unit tests.
+   * 
+   * @param scale
+   * @return The slope of the biexponential at the scale point
+   */
+  abstract protected double slope (double scale);
 }

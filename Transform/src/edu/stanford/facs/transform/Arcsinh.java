@@ -57,8 +57,16 @@ public class Arcsinh
 	public double scale (double value)
 	{
 		double x = value / a;
+		// this formula for the arcsinh loses significance when x is negative
+		// therefore we take advantage of the fact that sinh is an odd function
+    boolean negative = x < 0;
+    if (negative)
+      x = -x;
 		double asinhx = Math.log(x + Math.sqrt(x*x + 1));
-		return (asinhx + c) / b;
+		if (negative)
+			return (c - asinhx) / b;
+		else
+			return (asinhx + c) / b;
 	}
 
 	@Override
@@ -68,7 +76,13 @@ public class Arcsinh
 	}
 
 	@Override
-	double[] axisLabels ()
+	protected double slope (double scale)
+	{
+		return a * b * Math.cosh(b * scale - c);
+	}
+
+	@Override
+	public double[] axisLabels ()
 	{
 		// TODO Auto-generated method stub
 		return null;

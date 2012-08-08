@@ -66,7 +66,13 @@ public class Logarithmic
 	}
 
 	@Override
-	double[] axisLabels ()
+	protected double slope (double scale)
+	{
+		return a * b * Math.exp(b * scale);
+	}
+
+	@Override
+	public double[] axisLabels ()
 	{
 		// TODO Auto-generated method stub
 		return null;
