@@ -31,14 +31,17 @@ public class Linear
       throw new TransformParameterException("T is not positive");
     if (T <= A)
       throw new TransformParameterException("T is not greater than A");
+    if (A < 0)
+      throw new TransformParameterException("A is negative");
+    	
 
     // standard parameters
     this.T = T;
     this.A = A;
 
     // actual parameters
-    a = (T - A);
-    b = -A / a;
+    a = (T + A);
+    b = -A;
   }
   
   public Linear (double T, double A)
