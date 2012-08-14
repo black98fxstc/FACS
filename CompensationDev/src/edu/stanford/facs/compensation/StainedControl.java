@@ -1,13 +1,18 @@
 package edu.stanford.facs.compensation;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.isac.fcs.FCSException;
 import org.isac.fcs.FCSFile;
+import org.isac.fcs.FCSHandler;
+import org.isac.fcs.FCSParameter;
 
 import edu.stanford.facs.compensation.Compensation2.Point;
 import edu.stanford.facs.data.FlowData;
@@ -71,9 +76,7 @@ public class StainedControl
   {
     this(comp, fcsfile, primary, reagent, parameterName, null, TubeContents.BEADS_1);
   }
-    
-	  
-	  
+  
 	private void addDiagnostic (double importance, int detector, String message,
 			Object... arguments)
 	{
@@ -143,6 +146,54 @@ public class StainedControl
             yHat, residual));
         }
     }
+  }
+
+  public void writeAugmentedCSV ()
+    throws IOException, FCSException
+  {
+    File f = this.fcs.getFile();
+    String fn = f.getName();
+    fn = fn.substring(0, fn.length() - 4) + tag + ".csv";
+    f = new File(f.getParentFile(), fn);
+
+    PrintWriter pw = new PrintWriter(f);
+    pw.print(comp.scatter[0]);
+    for (int j = 1; j < comp.scatter.length; ++j)
+    {
+      pw.print(',');
+      pw.print(comp.scatter[j]);
+    }
+    
+    String[] fluorescence = comp.getDetectorList();
+    for (int j = 0; j < fluorescence.length; ++j)
+    {
+      pw.print(',');
+      pw.print(fluorescence[j]);
+    }
+
+    augmentHeaderCSV(pw);
+    pw.println();
+
+    for (int k = 0; k < Nevents; ++k)
+    {
+      pw.printf("%10e", Y[0][k]);
+      for (int j = 1; j < comp.scatter.length; ++j)
+      {
+        pw.print(',');
+        pw.printf("%10e", Y[j][k]);
+      }
+
+      for (int j = 0; j < fluorescence.length; ++j)
+      {
+        pw.print(',');
+        pw.printf("%10e", X[j][k]);
+      }
+
+      augmentDataCSV(pw, k);
+      pw.println();
+    }
+
+    pw.close();
   }
   
   protected void load () throws FCSException, IOException
@@ -273,8 +324,16 @@ public class StainedControl
         linearity[j] = Math.abs(runs.standardError()) < 3;
         if (!linearity[j])
         	addDiagnostic(.5, j, "Run test for {0} vs {1} linearity failed {2,number}", comp.getDetectorList()[j], comp.getDetectorList()[primary], runs.standardError());
-        if (intercept[j] < 0 && -intercept[j] > 3 * interceptSigma[j])
-        	addDiagnostic(.25, j, "{0} spillover from {1} intercept is significantly negative {2,number}.", comp.getDetectorList()[j], comp.getDetectorList()[primary], intercept[j]);
+        
+        if (unstained != null)
+        {
+        	double x = unstained.A[primary];
+        	double y = slope[j] * x + intercept[j];
+        	double v = PolynomialEstimator.evaluate(varianceCoefficient[j], x);
+        	double delta_y = (y - unstained.A[j])/Math.sqrt(v);
+        	if (Math.abs(delta_y) > 3)
+          	addDiagnostic(.25, j, "{0} spillover from {1} predicts unreasonable autofluorescence {2,number}.", comp.getDetectorList()[j], comp.getDetectorList()[primary], y);
+        }
       }
     
 		if (diagnostics != null)
