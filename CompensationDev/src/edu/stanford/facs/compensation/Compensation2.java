@@ -28,13 +28,14 @@ public class Compensation2
 
   public static final boolean RECORD_RESIDUALS = false;
   public static final boolean RECORD_FIT = false;
-  public static final boolean RECORD_GATES = true;
+  public static final boolean RECORD_GATES = false;
   public static final boolean RECORD_CSV = false;
   public static final boolean RECORD_FCS = false;
   public static final boolean RECORD_ANY = 
     (RECORD_RESIDUALS || RECORD_FIT || RECORD_GATES)
     && (RECORD_FCS || RECORD_CSV);
 
+	public String[] scatter = { "FSC-A", "SSC-A" };
   private String[] detector;
   public String[] reagent;
   public UnstainedControl[] unstainedControl;
