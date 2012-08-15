@@ -20,6 +20,7 @@ public class Tools
     public final RobustHeteroskedastic heterobust;
     public final Selector selector = new Selector();
     public final RunTest runs = new RunTest();
+    public final NormalityTest normality = new NormalityTest();
 
     Local ()
     {
@@ -69,6 +70,11 @@ public class Tools
   public static final RunTest getRunTest ()
   {
     return threadLocal.get().runs;
+  }
+  
+  public static final NormalityTest getNormalityTest ()
+  {
+  	return threadLocal.get().normality;
   }
 
   public static void invert (double[][] matrix)

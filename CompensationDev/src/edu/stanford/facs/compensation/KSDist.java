@@ -3,7 +3,7 @@ package edu.stanford.facs.compensation;
 public class KSDist {
 	private static double ooe = 0.367879441171442322;
 	
-	double invxlogx(double y) {
+	static double invxlogx(double y) {
 		
 		double t,u,to=0.;
 		if (y >= 0. || y <= -ooe){
@@ -21,7 +21,7 @@ public class KSDist {
 		return Math.exp(u);
 	}
 	
-	double pks(double z) {
+	static double pks(double z) {
 		if (z < 0.) {
 			throw new IllegalArgumentException("KSDist.pks z is less than 0.");
 		}
@@ -36,7 +36,7 @@ public class KSDist {
 		}
 	}
 	
-	double qks(double z) {
+	static double qks(double z) {
 		if (z < 0.) {
 			throw new IllegalArgumentException("KSDist.qks z is less than 0."); 
 		}
@@ -46,7 +46,7 @@ public class KSDist {
 		return 2.*(x - Math.pow(x,4) + Math.pow(x,9));
 	}
 	
-	double invqks(double q) {
+	static double invqks(double q) {
 		double y,logy,yp,x,xp,f,ff,u,t;
 		if (q <= 0. || q > 1.){
 			throw new IllegalArgumentException("KSDist.invqks z is less than 0."); 
@@ -75,7 +75,7 @@ public class KSDist {
 			return Math.sqrt(-0.5*Math.log(x));
 		}
 	}
-	double invpks(double p) {
+	static double invpks(double p) {
 		return invqks(1.-p);
 		}
 

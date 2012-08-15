@@ -38,6 +38,7 @@ public class StainedControl
   public double[][] varianceCoefficient;
   public double[] goodnessOfFit;
   public double[] goodnessOfVariance;
+  public double[] normalityOfResiduals;
   public float[][] chi3;
   public float[][] fit;
   public boolean[] linearity;
@@ -244,6 +245,7 @@ public class StainedControl
     spilloverNotSignificant = new boolean[ndetectors];
     goodnessOfFit = new double[ndetectors];
     goodnessOfVariance = new double[ndetectors];
+    normalityOfResiduals = new double[ndetectors];
     for (int j = 0; j < ndetectors; ++j)
     {
       varianceSlope[j] = 1;
@@ -437,6 +439,8 @@ public class StainedControl
   {
     LeastSquaresLine leastSquares = Tools.getLeastSquaresLine();
     Heteroskedastic heteroskedastic = Tools.getHeteroskedastic();
+    NormalityTest normality = null;
+    
     String[]detectorList = comp.getDetectorList();
     for (int j = 0; j < detectorList.length; ++j)
     {
@@ -470,6 +474,11 @@ public class StainedControl
 				}
 
         heteroskedastic.reset();
+        if (pass == FINAL_PASS)
+        {
+        	normality = Tools.getNormalityTest();
+        	normality.reset();
+        }
         float[] results;
         if (Compensation2.RECORD_RESIDUALS)
           results = addFloatAnalysis(detectorList[j] + "-LSR" + pass);
@@ -492,9 +501,16 @@ public class StainedControl
           if (Compensation2.RECORD_RESIDUALS)
             results[k] = (float)(residual[j][k]);
           if (!censored(k))
+          {
             heteroskedastic.data(X[primary][k], error, weight);
+            if (pass == FINAL_PASS)
+            	normality.add(residual[j][k]);
+          }
         }
         heteroskedastic.aggregate();
+        
+        if (pass == FINAL_PASS)
+        	normalityOfResiduals[j] = normality.test();
 
         heteroskedastic.fit(2);
 				heteroskedastic.coefficients(varianceCoefficient[j]);
