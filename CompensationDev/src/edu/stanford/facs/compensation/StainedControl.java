@@ -507,36 +507,51 @@ public class StainedControl
           	spilloverNotSignificant[j] = true;
 				}
 				else
-				{
-					heteroskedastic.fit(3);
-					if (heteroskedastic.coefficient(2) > 2 * heteroskedastic.standardError(2)
-							&& heteroskedastic.coefficient(1) > 2 * heteroskedastic.standardError(1)
-							&& heteroskedastic.coefficient(0) >= 0)
+					switch (getContentType())
 					{
-						heteroskedastic.coefficients(varianceCoefficient[j]);
+					case CELLS:
+						heteroskedastic.fit(3);
+						if (heteroskedastic.coefficient(2) > 2 * heteroskedastic.standardError(2)
+								&& heteroskedastic.coefficient(1) > 2 * heteroskedastic.standardError(1)
+								&& heteroskedastic.coefficient(0) >= 0)
+						{
+							heteroskedastic.coefficients(varianceCoefficient[j]);
+							if (pass == FINAL_PASS)
+							{
+								goodnessOfVariance[j] = heteroskedastic.goodnessOfFit();
+								if (goodnessOfVariance[j] < MINIMUM_GOODNESS)
+									addDiagnostic(.75, j,
+											"Parabolic fit of {0} variance by {1} signal level is poor {2,number}%.",
+											detectorList[j], comp.reagent[reagent], 100 * goodnessOfVariance[j]);
+								else if (heteroskedastic.coefficient(2) > .00001)
+									addDiagnostic(.95, j,
+											"Large instrument errors {0,number}% detected between {1} and {2}",
+											100 * Math.sqrt(heteroskedastic.coefficient(2)),
+											detectorList[primary], detectorList[j]);
+							}
+						}
+						else if (pass == FINAL_PASS)
+						{
+							goodnessOfVariance[j] = heteroskedastic.goodnessOfFit();
+							if (goodnessOfVariance[j] < MINIMUM_GOODNESS)
+								addDiagnostic(.75, j,
+										"Linear fit of {0} variance by {1} signal level is poor {2,number}%.",
+										detectorList[j], comp.reagent[reagent], 100 * goodnessOfVariance[j]);
+						}
+						break;
+
+					case BEADS_1:
 						if (pass == FINAL_PASS)
 						{
 							goodnessOfVariance[j] = heteroskedastic.goodnessOfFit();
 							if (goodnessOfVariance[j] < MINIMUM_GOODNESS)
 								addDiagnostic(.75, j,
-										"Parabolic fit of {0} variance by {1} signal level is poor {2,number}%.",
+										"Linear fit of {0} variance by {1} signal level is poor {2,number}%.",
 										detectorList[j], comp.reagent[reagent], 100 * goodnessOfVariance[j]);
-							else if (heteroskedastic.coefficient(2) > .00001)
-								addDiagnostic(.95, j,
-										"Large instrument errors {0,number}% detected between {1} and {2}",
-										100 * Math.sqrt(heteroskedastic.coefficient(2)),
-										detectorList[primary], detectorList[j]);
 						}
+					default:
+						break;
 					}
-					else if (pass == FINAL_PASS)
-					{
-						goodnessOfVariance[j] = heteroskedastic.goodnessOfFit();
-						if (goodnessOfVariance[j] < MINIMUM_GOODNESS)
-							addDiagnostic(.75, j,
-									"Linear fit of {0} variance by {1} signal level is poor {2,number}%.",
-									detectorList[j], comp.reagent[reagent], 100 * goodnessOfVariance[j]);
-					}
-				}
       }
     }
   }
