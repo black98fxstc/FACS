@@ -525,7 +525,7 @@ public class FCSFileDialog extends JDialog {
             FCSTextSegment segment = fcsfile.getTextSegment();
             String altfilename = segment.getAttribute ("$FIL");
             String tubename = segment.getAttribute ("TUBE NAME");
-            System.out.println (altfilename +" $FIL,  tubename  "+ tubename+ " fcsfile"+ fname);
+         //System.out.println (altfilename +" $FIL,  tubename  "+ tubename+ " fcsfile"+ fname);
          
             
             if (!tubeMap.containsKey (tubename)){
@@ -586,8 +586,8 @@ public class FCSFileDialog extends JDialog {
                         buf.append (ci.detectorName).append(",").append(ci.reagent).append(",");
                       //  buf.append(ci.unstainedControlFile).append(",").append(ci.stainedControlFile);
                     //    buf.append (System.getProperty ("line.separator"));
-                        System.out.println(buf.toString());
-                        System.out.println("\nStained control name: " +ci.stainedTubeName);
+                     //   System.out.println(buf.toString());
+                     //   System.out.println("\nStained control name: " +ci.stainedTubeName);
                       String unstainedfcsfn="", stainedfcsfn="";
                         if (!ci.stainedControlFile.endsWith(".fcs")){
                             if (tubeMap.containsKey(ci.stainedControlFile)){
@@ -598,7 +598,7 @@ public class FCSFileDialog extends JDialog {
                             	tone.setContentType(ci.tubeContents);
                             	
                             	stainedfcsfn = tone.getFcsFilename();
-                            	System.out.println ("Tube : "+tone.getInfo());
+                            	//System.out.println ("Tube : "+tone.getInfo());
                             	
                             }
                         }
@@ -921,8 +921,10 @@ System.out.println ("get fcslist");
            
             
             JComboBox contents = new JComboBox(TubeContents.stringValues());
-          
-            contents.setSelectedIndex(1);
+            if (newone.getContentType() != null)
+            contents.setSelectedIndex(newone.getContentType().code);
+            else
+            	contents.setSelectedIndex(1);
             contents.putClientProperty ("rowid", new Integer(i));
             contents.addActionListener(newone);
            
@@ -1213,7 +1215,10 @@ System.out.println("FCSDialog get mapping info");
              leftPanel.add (tf3);
              JComboBox contents = new JComboBox(TubeContents.stringValues());
             // contents.setVisibleRowCount(-1);
-             contents.setSelectedIndex(1);
+             if (ci.getContentType()!= null)
+                 contents.setSelectedIndex(ci.getContentType().code);
+             else 
+            	 contents.setSelectedIndex(1);
              contents.putClientProperty ("rowid", new Integer(ii));
          //    contents.setSelectionMode(ListSelectionModel.SINGLE_SELECTION );
              constraints3.gridwidth = GridBagConstraints.REMAINDER;

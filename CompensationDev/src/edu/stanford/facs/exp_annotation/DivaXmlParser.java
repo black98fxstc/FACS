@@ -257,19 +257,6 @@ public class DivaXmlParser {
 
         return detectorList.toArray(detectors);
     }
-
-    /*
-     * @return String[] return the list of FCS filenames
-     */
-    public String[] getFCSFilenames() {
-        return fcsFilenames;
-    }
-
-    public String getExperimentName() {
-        return expName;
-    }
-
-
     
     /**
      * 
@@ -278,6 +265,25 @@ public class DivaXmlParser {
     public String getErrorMessage() {
         return errorMessage.toString();
     }
+    
+    public String getExperimentName() {
+        return expName;
+    }
+
+    /*
+     * @return String[] return the list of FCS filenames
+     */
+    public String[] getFCSFilenames() {
+        return fcsFilenames;
+    }
+
+    
+    public HashMap<String, TubeInfo> getTubeMap() {
+    	return tubemap;
+    }
+
+    
+    
     
     private void parseFile () {
         Document doc;
@@ -308,7 +314,7 @@ public class DivaXmlParser {
 //                                  int index = att.indexOf('-');
 //                                  if (index > -1)
 //                                      att = att.substring(0, index);
-                     //             System.out.println ("Parsing:  att add to detector list " + att);
+                                  System.out.println ("Parsing:  att add to detector list " + att);
                                    detectorList.add(att);
                               }
                           }
@@ -333,12 +339,12 @@ public class DivaXmlParser {
                               List<Element> tube_list = ele_i.getChildren ("tube");
                           
                               if (tube_list != null && tube_list.size() > 0){
-                                  System.out.println (" tube list size?  "+ tube_list.size());
+   //                               System.out.println (" tube list size?  "+ tube_list.size());
                                   for (int j=0; j < tube_list.size(); j++){
                                        TubeInfo newtube= null;
                                       Element onetube = (Element) tube_list.get(j);
                                       String value = ((Element) tube_list.get(j)).getAttribute("name").getValue();
-                                      System.out.println ("Tube name value is " + value);
+             //                         System.out.println ("Tube name value is " + value);
                                       if (tubemap.containsKey (value)){
                                           newtube = tubemap.get(value);
                                       }
@@ -368,7 +374,7 @@ public class DivaXmlParser {
                                                   Element fl_1 = (Element) fls.get(q);
                                                   String flname = ((Element) fls.get(q)).getAttribute("name").getValue();
                                                   fl_label[0] = flname;
-                                                  System.out.println ("fl name = "+ flname);
+            //                                      System.out.println ("fl name = "+ flname);
                                                   Element label_1 = fl_1.getChild ("label");
                                                   if (label_1 != null){
                                                       //content value
@@ -377,7 +383,7 @@ public class DivaXmlParser {
                                                           String labelis =  ((Text)labellist.get(0)).getText();
                                                           if (labelis == null) labelis="";
                                                           fl_label[1] = labelis;
-                                                          System.out.println ("label is " + labelis);
+           //                                               System.out.println ("label is " + labelis);
                                                       }
                                                   }
                                                   newtube.addAnalyteLabel (fl_label);
@@ -398,21 +404,21 @@ public class DivaXmlParser {
 //                                          tubemap.put (newtube.getTubeName(), newtube);
 //                                      }
                                       else if (value.contains("capture beads")){
-                                          System.out.println (" capture beads " + value);
+              //                            System.out.println (" capture beads " + value);
                                         //  Element onetube = (Element) tube_list.get(j);
                                           List <Element >keys = onetube.getChildren("keywords");
                                           List <Element>keywords = keys.get(0).getChildren("keyword");
                                         //  List keywords = ((Element)tube_list.get(j)).getAttribute("keywords").getChildren("keyword");
                                           for (int k=0; k < keywords.size(); k++){
                                               Element ekey =  keywords.get(k);
-                                              System.out.println (ekey.toString());
+                //                              System.out.println (ekey.toString());
                                               if (ekey.getAttribute("name").getValue().equals("type")){
                                                  
                                                  List<Element> children = ekey.getChildren("value");
                                                  if (children.size() == 1){
                                                     Element one =  (Element) children.get(0);
                                                     List<List<Text>> contents = one.getContent();
-                                                    System.out.println (contents.get(0));
+                                                  //  System.out.println (contents.get(0));
                                                     
                                                  }
                                               }
@@ -428,9 +434,9 @@ public class DivaXmlParser {
                                       }
                                       if (fl_label != null){
                                           controlList.add (fl_label);
-                                      System.out.print ( "  "+ fl_label[0] + "  "+ fl_label[1]);
+                                    //  System.out.print ( "  "+ fl_label[0] + "  "+ fl_label[1]);
                                       }
-                                      System.out.println();
+                                    //  System.out.println();
 
                                   }
                               }
@@ -451,7 +457,7 @@ public class DivaXmlParser {
                       
                       for (int i = 0; i < reagentList.size(); i++){
                           fcsFilenames[i] = dataPath + File.separator + compi + "-" + j + ".fcs";
-                          System.out.println (" fcs file = " + fcsFilenames[i]+ " "+ reagentList.get(i)+"|");
+                         // System.out.println (" fcs file = " + fcsFilenames[i]+ " "+ reagentList.get(i)+"|");
                           String tubename = reagentList.get(i);
                           TubeInfo tube = null;
                           if (tubemap.containsKey (tubename) ){
@@ -464,7 +470,7 @@ public class DivaXmlParser {
                           }
                           if (tube != null){
                               tube.addFcsFilename (fcsFilenames[i]);
-                              System.out.println ("Found it " + tube.getTubeName() + "  "+ fcsFilenames[i]);
+                              //System.out.println ("Found it " + tube.getTubeName() + "  "+ fcsFilenames[i]);
                           }
                           j++;
                       }
@@ -495,7 +501,7 @@ public class DivaXmlParser {
                       Element fl_1 = (Element) fls.get(q);
                       String flname = ((Element) fls.get(q)).getAttribute("name").getValue();
                       fl_label[0] = flname;
-                      System.out.println ("fl name = "+ flname);
+                   //   System.out.println ("fl name = "+ flname);
                       Element label_1 = fl_1.getChild ("label");
                       if (label_1 != null){
                           //content value
@@ -504,7 +510,7 @@ public class DivaXmlParser {
                               String labelis =  ((Text)labellist.get(0)).getText();
                               if (labelis == null) labelis="";
                               fl_label[1] = labelis;
-                              System.out.println ("label is " + labelis);
+                            //  System.out.println ("label is " + labelis);
                           }
                       }
 
@@ -528,14 +534,14 @@ public class DivaXmlParser {
         String tubeName = null, control_id;
         HashMap <Integer, String> compensationForList = new HashMap<Integer, String>();
         TubeInfo newtube = null;
-        System.out.println ("parse diva for tubes " );
+        //System.out.println ("parse diva for tubes " );
         if (tubeList != null && tubeList.size() > 0){
              for (int j=0; j < tubeList.size(); j++){
                  
                   Element onetube = (Element) tubeList.get(j);
                   List<List<Attribute>> li = onetube.getAttributes();
                   Attribute attr = (Attribute) li.get(0);
-                  System.out.println (attr.getName() + "  "+ attr.getValue());
+                //  System.out.println (attr.getName() + "  "+ attr.getValue());
                   tubeName = ((Attribute) onetube.getAttributes().get(0)).getValue();
                   if (tubemap.containsKey (tubeName)){
                       newtube = tubemap.get (tubeName);
@@ -550,7 +556,7 @@ public class DivaXmlParser {
                       if (child.getContent() != null){
                           alt = ((Text) child.getContent().get(0)).getText();
                           newtube.setAltFilename(alt);
-                          System.out.println (tubeName + "-- datafile anme is " + alt);
+                      //    System.out.println (tubeName + "-- datafile anme is " + alt);
                       }
                   }
                   
@@ -565,7 +571,7 @@ public class DivaXmlParser {
                 //  List keywords = ((Element)tube_list.get(j)).getAttribute("keywords").getChildren("keyword");
                   for (int k=0; k < keywords.size(); k++){
                       Element ekey = (Element) keywords.get(k);
-                      System.out.println ("All tube keywords " + ekey.getAttribute("name"));
+                    //  System.out.println ("All tube keywords " + ekey.getAttribute("name"));
                       
                       if (ekey.getAttribute("name").getValue().startsWith("Compensation-for-")){
                          control_name = ekey.getAttribute("name").getValue();
@@ -587,7 +593,7 @@ public class DivaXmlParser {
                           List <Element>children = ekey.getChildren ("value");
 //                          for (int c=0; c < children.size(); c++){
                             if (children != null && children.size() == 1){
-                               System.out.println (" Tube identifier " +  children.get(0).getText());
+                            //   System.out.println (" Tube identifier " +  children.get(0).getText());
                                tube_id = children.get(0).getText();
                           }
 
@@ -598,7 +604,7 @@ public class DivaXmlParser {
                           List <Element>children = ekey.getChildren ("value");
                           for (int c=0; c < children.size(); c++) {
                               tube_type = ((Element)children.get(c)).getText();
-                              System.out.println (((Element) children.get(c)).getText());
+                         //     System.out.println (((Element) children.get(c)).getText());
                           }
                       }
                       else if (ekey.getAttribute("name").getValue().startsWith("Label-for-")){
@@ -702,7 +708,7 @@ public class DivaXmlParser {
 
     public void printFlowJoMatrixforPC(File fn, Float[][]data, String[] detectorNames, String exname){
 
-        System.out.println (" fn path =" + fn.getPath() +  "   name "+ fn.getName() );
+      //  System.out.println (" fn path =" + fn.getPath() +  "   name "+ fn.getName() );
         String myprefix="comp";
         if (exname == null)
             exname = "Experiment";
@@ -711,7 +717,7 @@ public class DivaXmlParser {
         }
         
         
-        System.out.println (exname + "  vs "+ expName);
+      //  System.out.println (exname + "  vs "+ expName);
         String uri ="http://www.flowjo.com";
       //  if (fn != null && fn.exists() && fn.canWrite()) {
             try {

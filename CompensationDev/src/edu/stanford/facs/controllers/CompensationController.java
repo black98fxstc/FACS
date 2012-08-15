@@ -337,14 +337,15 @@ public class CompensationController //extends JFrame
 
 
 
-
+        if (Compensation2.CATE){
         //do we have a detectorList?
-        if (detectorList == null || detectorList.length == 0)
-            System.out.println (" dtector list is empty");
-        
-        else{
-        	for (int i=0; i < detectorList.length; i++)
-        	System.out.println("detectorList " +detectorList[i]	);
+	        if (detectorList == null || detectorList.length == 0)
+	            System.out.println (" dtector list is empty");
+	        
+	        else{
+	        	for (int i=0; i < detectorList.length; i++)
+	        	System.out.println("detectorList " +detectorList[i]	);
+	        }
         }
 
         int[]primaryDet = new int[stainedControls.length];
@@ -420,15 +421,24 @@ public class CompensationController //extends JFrame
         //and the detector.  For the tandem experiment, there are
         //16 stained controls + 1 unstained control, but 10 acquisition channels
 
-        String[] allControls = parser.getControlList();
+        String[] compTubeNames = parser.getControlList();
+        HashMap<String, TubeInfo> tubeMap = parser.getTubeMap();
+        Set<String>keys = tubeMap.keySet();
+        Iterator <String>it = keys.iterator();
+        while (it.hasNext()){
+        	String key = it.next();
+        	TubeInfo tube = tubeMap.get(key);
+        	System.out.println(key + ",  "+ tube.getInfo());
+        	
+        }
        
         errmsg = "There were no controls found in the diva file ";
-        //allcontrols here means the Unstained Control + all the others
+        //compTubeNames here means the Unstained Control + all the others
 
         experimentName = parser.getExperimentName();
         this.myframe.setTitle (experimentName);
 
-        // the allControls list includes the unstained control
+        // the compTubeNames list includes the unstained control
 
         detectorList = parser.getDetectorList();
         String[] fcsfiles = parser.getFCSFilenames();
@@ -437,13 +447,13 @@ public class CompensationController //extends JFrame
         // check out what we got. Did they use controls?
         // if all Controls are null, then they didn't use DiVa compensation
         // controls. So manually get them.
-        // String[]allControls, String[]detector, String[]fcsfiles.
-        if (allControls != null && allControls.length > 0){
+        // String[]compTubeNames, String[]detector, String[]fcsfiles.
+        if (compTubeNames != null && compTubeNames.length > 0){
           //show me what DiVa found.
-          answer = showDiVaControls (allControls, fcsfiles, detectorList);
+          answer = showDiVaControls (compTubeNames, fcsfiles, detectorList);
 //          System.out.println ("  Return from Show DiVaControls "+ answer);
           if (answer == JOptionPane.YES_OPTION){
-            controlList = setUpFcsFiles (allControls, fcsfiles, fl_labels);
+            controlList = setUpFcsFiles (compTubeNames, fcsfiles, fl_labels);
 
           }
           else {
@@ -615,11 +625,11 @@ public class CompensationController //extends JFrame
      * @return list of detectors used as controls
      */
 
-  protected String[] setUpFcsFiles (String[] allControls, String[] filenames,String[][]fl_labels) {
+  protected String[] setUpFcsFiles (String[] compTubeNames, String[] filenames,String[][]fl_labels) {
     int unstained = 0;
     int stained = 0;
 
-    for (String s : allControls)
+    for (String s : compTubeNames)
     {
       if (s != null)
       {
@@ -632,7 +642,7 @@ public class CompensationController //extends JFrame
     controlList = new String[stained];
   
  
-    if (unstained + stained != allControls.length)
+    if (unstained + stained != compTubeNames.length)
     {
       showMessageDialog("Problem with the number of unstained and stained controls.  Things don't add up");
       return null;
@@ -641,9 +651,9 @@ public class CompensationController //extends JFrame
     stainedFCS = new FCSFile[stained];
 
     int u = 0, s = 0;
-    for (int i = 0; i < allControls.length; i++)
+    for (int i = 0; i < compTubeNames.length; i++)
     {
-      if (allControls[i].equalsIgnoreCase("Unstained Control")){
+      if (compTubeNames[i].equalsIgnoreCase("Unstained Control")){
           if (tubeMap != null && tubeMap.containsKey ("Unstained Control")){
               TubeInfo onetube = tubeMap.get ("Unstained Control");
               if (!onetube.getTubeType().equalsIgnoreCase( "beads unstained"))
@@ -656,7 +666,7 @@ public class CompensationController //extends JFrame
         
       }
       else {
-         controlList[s] = allControls[i];
+         controlList[s] = compTubeNames[i];
         stainedFCS[s++] = new FCSFile(filenames[i]);
 
       }
@@ -976,20 +986,20 @@ public class CompensationController //extends JFrame
     TubeContents contentType = TubeContents.BEADS_1;
     controlList = new String[data.length];
     if (detectorList == null){
-        System.out.println ("  The detectorList is empty ......");
+      //  System.out.println ("  The detectorList is empty ......");
         detectorList = new String[data.length];
         for (int i=0; i < data.length; i++){
             detectorList[i] = data[i][ControlInformation.DETECTOR];
-            System.out.println (detectorList[i] + "  detectors in createUnstained  "+ data[i][ControlInformation.DETECTOR]);
+           // System.out.println (detectorList[i] + "  detectors in createUnstained  "+ data[i][ControlInformation.DETECTOR]);
         }
     }
 /* the bug is right in here.  when the row of control information is blank, the detector index comes back as
  * 0, which is always then FITC or whatever 0 is.  But this info is somewhere, in the detectorList,...*/ 
     for (int i = 0; i < data.length; i++)  {
         contentType = TubeContents.BEADS_1;
-        System.out.println("detector :"+ data[i][0] );
+     //   System.out.println("detector :"+ data[i][0] );
         int detectorIndex = getDetectorIndex (data[i][ControlInformation.DETECTOR], detectorList);
-        System.out.println (" createUnstained controls. " + data[i][ControlInformation.DETECTOR] + "  "+ detectorIndex);
+      //  System.out.println (" createUnstained controls. " + data[i][ControlInformation.DETECTOR] + "  "+ detectorIndex);
         if (detectorIndex < 0){
 //            System.out.println ("  Skip this one.no detector index for "+ data[i][0]);
             continue;
@@ -1047,16 +1057,16 @@ public class CompensationController //extends JFrame
         	if (data[i].length ==5 && data[i][ControlInformation.CELLS] !=null){
         		contentType = TubeContents.myValueOf(data[i][ControlInformation.CELLS]);	
         	}
-        	System.out.println("new stained control with are cells =  "+ contentType);
+    //    	System.out.println("new stained control with are cells =  "+ contentType);
         	newunstained.setContentType (contentType);
             newstained = new StainedControl(compensation2, new FCSFile(workingDir + File.separator
                 + data[i][ControlInformation.STAINED]), detectorIndex, stainedControlList.size(), thisreagent, newunstained, contentType);
         }
         else {
             tone = tubeMap.get(data[i][ControlInformation.STAINED]);
-            System.out.println ("CompensationController line 998" + tone.getInfo());
+      //      System.out.println ("CompensationController line 998" + tone.getInfo());
             stainfn = tone.getFcsFilename();
-            System.out.println ("Name of stain control filename "+ stainfn);
+     //       System.out.println ("Name of stain control filename "+ stainfn);
             newunstained.setContentType (contentType);
             newstained = new StainedControl (compensation2, new FCSFile (workingDir + File.separator
                     + stainfn), detectorIndex, stainedControlList.size(), thisreagent, newunstained, tone.getContentType());
@@ -1249,13 +1259,14 @@ System.out.println (" ------------------end of list------------------------");
         if (newunstained != null) {
             newunstained.setContentType(contentType);
         }
+        /**Wayne says that unstained cells are not required.  Ok.
         else if(contentType == TubeContents.CELLS) { // and newunstained == null, issue a warning
         	JOptionPane.showMessageDialog (this.myframe, "When using cells for stained controls,  unstained cells are required. ", 
         			"Matrix File IO Error",
                     JOptionPane.ERROR_MESSAGE);
         	return;
         	
-        }
+        }**/
         System.out.println("Create Stained Control 1 "+ contentType);
         newstained = new StainedControl(compensation2, new FCSFile(workingDir + File.separator
             + data[i][ControlInformation.STAINED]), detectorIndex, stainedControlList.size(), thisreagent, newunstained, contentType);
