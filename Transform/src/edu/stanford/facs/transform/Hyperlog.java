@@ -86,15 +86,24 @@ public class Hyperlog
     this.A = A;
 
     // actual parameters
-    // formulas from biexponential paper
+    // choose the data zero location and the width of the linearization region
+    // to match the corresponding logicle scale
     w = W / (M + A);
     x2 = A / (M + A);
     x1 = x2 + w;
     x0 = x2 + 2 * w;
+    // make the logarithmic portion match corresponding log/logicle scales
     b = (M + A) * LN_10;
+    // for a logicle scale the positive and negative exponential terms are equal at x0
+    // for the hyperlog we choose the slope so that the exponential and linear terms are equal there
+    // and thus the linear to log transition occurs at roughly the same point
     double e2bx0 = Math.exp(b * x0);
+    // this is roughly the B parameter of the original method adjusted to map the
+    // appropriate range of log values onto the unit display interval
     double c_a = e2bx0 / w;
+    // data value zero occurs at x1
     double f_a = Math.exp(b * x1) + c_a * x1;
+    // adjust for top of scale
     a = T / ((Math.exp(b) + c_a) - f_a);
     c = c_a * a;
     f = f_a * a;

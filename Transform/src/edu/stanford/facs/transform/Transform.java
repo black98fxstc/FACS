@@ -3,8 +3,6 @@
  */
 package edu.stanford.facs.transform;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 /**
  * Abstract display transform. A display transform maps a range of scaled and compensated data values
  * monotonically onto the interval [0,1]. They are primarily for use in constructing data visualizations 
@@ -49,7 +47,7 @@ public abstract class Transform
 	 */
 	public double[] axisLabels ()
 	{
-		throw new NotImplementedException();
+		throw new UnsupportedOperationException("not implemented");
 	}
 
   /**
