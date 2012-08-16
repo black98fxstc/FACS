@@ -65,6 +65,8 @@ public class Hyperlog
       throw new TransformParameterException("W is negative");
     if (M <= 0)
       throw new TransformParameterException("M is not positive");
+    if (W <= 0)
+      throw new TransformParameterException("W is not positive");
     if (2 * W > M)
       throw new TransformParameterException("W is too large");
     if (-A > W || A + W > M - W)
