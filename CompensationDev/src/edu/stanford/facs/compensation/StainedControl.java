@@ -440,6 +440,7 @@ public class StainedControl
     LeastSquaresLine leastSquares = Tools.getLeastSquaresLine();
     Heteroskedastic heteroskedastic = Tools.getHeteroskedastic();
     NormalityTest normality = null;
+    String varianceModel = null;
     
     String[]detectorList = comp.getDetectorList();
     for (int j = 0; j < detectorList.length; ++j)
@@ -534,40 +535,53 @@ public class StainedControl
 							heteroskedastic.coefficients(varianceCoefficient[j]);
 							if (pass == FINAL_PASS)
 							{
+								varianceModel = "Parabolic";
 								goodnessOfVariance[j] = heteroskedastic.goodnessOfFit();
-								if (goodnessOfVariance[j] < MINIMUM_GOODNESS)
-									addDiagnostic(.75, j,
-											"Parabolic fit of {0} variance by {1} signal level is poor {2,number}%.",
-											detectorList[j], comp.reagent[reagent], 100 * goodnessOfVariance[j]);
-								else if (heteroskedastic.coefficient(2) > .00001)
-									addDiagnostic(.95, j,
-											"Large instrument errors {0,number}% detected between {1} and {2}",
-											100 * Math.sqrt(heteroskedastic.coefficient(2)),
-											detectorList[primary], detectorList[j]);
 							}
 						}
 						else if (pass == FINAL_PASS)
 						{
+							varianceModel = "Linear";
 							goodnessOfVariance[j] = heteroskedastic.goodnessOfFit();
-							if (goodnessOfVariance[j] < MINIMUM_GOODNESS)
-								addDiagnostic(.75, j,
-										"Linear fit of {0} variance by {1} signal level is poor {2,number}%.",
-										detectorList[j], comp.reagent[reagent], 100 * goodnessOfVariance[j]);
 						}
 						break;
 
 					case BEADS_1:
 						if (pass == FINAL_PASS)
 						{
+							varianceModel = "Linear";
 							goodnessOfVariance[j] = heteroskedastic.goodnessOfFit();
-							if (goodnessOfVariance[j] < MINIMUM_GOODNESS)
-								addDiagnostic(.75, j,
-										"Linear fit of {0} variance by {1} signal level is poor {2,number}%.",
-										detectorList[j], comp.reagent[reagent], 100 * goodnessOfVariance[j]);
 						}
 					default:
 						break;
 					}
+				
+				if (pass == FINAL_PASS && !spilloverNotSignificant[j])
+				{
+					double severity = .8;
+					double significance = .01;
+					if (slope[j] < .02)
+					{
+						severity /= 2;
+						significance /= 100;
+					}
+					if (slope[j] < .005)
+					{
+						severity /= 2;
+						significance /= 100;
+					}
+					if (normalityOfResiduals[j] < significance)
+					{
+						addDiagnostic(severity, j,
+								"Residuals on {0} not normally distributed {1,number}%",
+								detectorList[j], 100 * normalityOfResiduals[j]);
+						severity *= .75;
+					}
+					if (goodnessOfVariance[j] < MINIMUM_GOODNESS)
+						addDiagnostic(.75 * severity, j,
+								"{0} fit of {1} variance by {2} signal level is poor {3,number}%.",
+								varianceModel, detectorList[j], comp.reagent[reagent], 100 * goodnessOfVariance[j]);
+				}
       }
     }
   }
