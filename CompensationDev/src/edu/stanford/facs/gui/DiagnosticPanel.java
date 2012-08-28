@@ -14,13 +14,18 @@ import edu.stanford.facs.compensation.Diagnostic;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ListCellRenderer;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
@@ -38,15 +43,18 @@ public class DiagnosticPanel extends JPanel  {
             "AB CDEF G IJ KLMN OPQR STUV WXYZABCDEF GHIJ KLMN OPQR STUV WXYZ",
             "123456 789 10110 11 12 13 141 5 23 34 1819 1919029 29393940 293049"
         };
+    String [] msg2={"One message", "Two Message", "Three Message", "Four Message"};
+    int n=0;
    
 	private static final long serialVersionUID = 1L;
+	private JScrollPane scroll;
 
 
 
     DiagnosticPanel(Dimension dim) {
         super(new BorderLayout());
         setSize (dim.width, dim.height);
-
+System.out.println("Dimension of the DiagnosticPanel " + dim.toString());
        // setBorder (BorderFactory.createEmptyBorder (6, 12, 6, 12));
         init(dim);
 //        diagnostics = ListofDiagnostics.getInstance();
@@ -58,15 +66,15 @@ public class DiagnosticPanel extends JPanel  {
         renderer = new MyCellRenderer();
         jlist.setVisibleRowCount (20);
         jlist.setCellRenderer(renderer);
-        JScrollPane scroll = new JScrollPane(jlist );
+        jlist.setPrototypeCellValue(msgs);
+        scroll = new JScrollPane(jlist );
         scroll.setPreferredSize(dim);
+        scroll.setVerticalScrollBarPolicy (ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
        
         JLabel label = new JLabel ("Diagnostics");
 
         add (label, BorderLayout.NORTH);
-//        add (jlist, BorderLayout.CENTER);
-//       add (button, BorderLayout.SOUTH);
-       add(scroll, BorderLayout.CENTER);
+        add(scroll, BorderLayout.CENTER);
         
         
     }
@@ -78,15 +86,14 @@ public class DiagnosticPanel extends JPanel  {
     protected void addSimpleList (Diagnostic.List msgs){
        // jlist.removeAll();
         model.clear();
-        System.out.println ("  Cell selected.  AddSimpleList");
+        System.out.println ("  Cell selected--  AddSimpleList.  how many messages "+ msgs.size());
         if (msgs != null && msgs.size()>0) {
             for (int i=0; i < msgs.size(); i++)
                model.addElement (msgs.get(i));
-//            Diagnostic[] diag = new Diagnostic[msgs.size()];
-//            diag = msgs.toArray(diag);
-//            jlist.setListData (diag);
+
         }
-        repaint();
+        jlist.ensureIndexIsVisible(0);
+       // repaint();
     }
     
     /*
@@ -94,13 +101,15 @@ public class DiagnosticPanel extends JPanel  {
      */
     protected void addSimpleList (String[] msg){
         model.clear();
-//        System.out.println (model.getSize());
+        System.out.println ("cell selected. how many messages?  "+ msg.length);
         if (msg != null && msg.length > 0){
             for (String s: msg){
+            	System.out.println (s);
                 model.addElement (s);
             }
             repaint();
         }
+        jlist.ensureIndexIsVisible(0);
 //        System.out.println (model.getSize());
     }
 
@@ -111,14 +120,16 @@ public class DiagnosticPanel extends JPanel  {
      * @param msgs
      */
     protected void addDiagnosticsToList2 (Diagnostic.List[] msgs){
+    	System.out.println ("addDiagnosticsToList2 for column selection. ");
         for (int i=0; i < msgs.length; i++){
             if (msgs[i] != null){
                 for (int j=0; j < msgs[i].size(); j++){
-//                   System.out.println ("column selection " + msgs[i].get(j).toString());
+                   System.out.println ("column selection " + msgs[i].get(j).toString());
                         model.addElement (msgs[i].get(j));
                 }
             }
         }
+        jlist.ensureIndexIsVisible(0);
         repaint();
     }
 
@@ -128,9 +139,11 @@ public class DiagnosticPanel extends JPanel  {
  * @param msgs
  */
     protected void appendDiagnosticList (Diagnostic.List msgs){
+    	System.out.println ("append DiagnosticList ");
         for (Diagnostic dia: msgs){            
             model.addElement (dia);
         }
+        jlist.ensureIndexIsVisible(0);
         repaint();
     }
 
@@ -144,8 +157,12 @@ public class DiagnosticPanel extends JPanel  {
 		private static final long serialVersionUID = 1L;
 
          public MyCellRenderer() {
-             super (4, 32);
+             super (2, 32);
              setOpaque(true);
+             System.out.println ("MyCell Renderer Preferred Size  " +getPreferredSize());
+             System.out.println ("MyCell Renderer Minimum size "+ getMinimumSize());
+             System.out.println ("MyCell Renderer maximum size "+ getMaximumSize());
+             setMaximumSize (getPreferredSize());
          }
 
      public Component getListCellRendererComponent(JList list,
@@ -189,6 +206,8 @@ public class DiagnosticPanel extends JPanel  {
     public static void main (String[] args){
         final String[] msg= {"abcdefghijkl mnopq rstuvwxyz--abcdefghijkl mnopqrstu vwxyz--abcdefghi jklmnopqrstuvwxyz",
             "wxyz---abcd efghijklmn opqrstuvwxyz---abcdefghijklmnopqrstuvwxy z---abcdefghijklmnopqrs tuvwxyz",
+            "------abcd efghijklmn opqrstuvwxyz---abcdefghijklmnopqrstuvwxy z---abcdefghijklmnopqrs tuvwxyz-------",
+
             "amn opqrstuvwxyz===abcde fghijklmnopqrstuvwxyz===abcdef ghijklmnopqrst uvwxyz"};
         
         
