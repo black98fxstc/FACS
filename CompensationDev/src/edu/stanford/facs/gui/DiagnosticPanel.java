@@ -54,7 +54,6 @@ public class DiagnosticPanel extends JPanel  {
     DiagnosticPanel(Dimension dim) {
         super(new BorderLayout());
         setSize (dim.width, dim.height);
-System.out.println("Dimension of the DiagnosticPanel " + dim.toString());
        // setBorder (BorderFactory.createEmptyBorder (6, 12, 6, 12));
         init(dim);
 //        diagnostics = ListofDiagnostics.getInstance();
@@ -86,7 +85,7 @@ System.out.println("Dimension of the DiagnosticPanel " + dim.toString());
     protected void addSimpleList (Diagnostic.List msgs){
        // jlist.removeAll();
         model.clear();
-        System.out.println ("  Cell selected--  AddSimpleList.  how many messages "+ msgs.size());
+        //System.out.println ("  Cell selected--  AddSimpleList.  how many messages "+ msgs.size());
         if (msgs != null && msgs.size()>0) {
             for (int i=0; i < msgs.size(); i++)
                model.addElement (msgs.get(i));
@@ -101,10 +100,10 @@ System.out.println("Dimension of the DiagnosticPanel " + dim.toString());
      */
     protected void addSimpleList (String[] msg){
         model.clear();
-        System.out.println ("cell selected. how many messages?  "+ msg.length);
+       // System.out.println ("cell selected. how many messages?  "+ msg.length);
         if (msg != null && msg.length > 0){
             for (String s: msg){
-            	System.out.println (s);
+            	//System.out.println (s);
                 model.addElement (s);
             }
             repaint();
@@ -120,11 +119,11 @@ System.out.println("Dimension of the DiagnosticPanel " + dim.toString());
      * @param msgs
      */
     protected void addDiagnosticsToList2 (Diagnostic.List[] msgs){
-    	System.out.println ("addDiagnosticsToList2 for column selection. ");
+    	//System.out.println ("addDiagnosticsToList2 for column selection. ");
         for (int i=0; i < msgs.length; i++){
             if (msgs[i] != null){
                 for (int j=0; j < msgs[i].size(); j++){
-                   System.out.println ("column selection " + msgs[i].get(j).toString());
+                  // System.out.println ("column selection " + msgs[i].get(j).toString());
                         model.addElement (msgs[i].get(j));
                 }
             }
@@ -139,7 +138,7 @@ System.out.println("Dimension of the DiagnosticPanel " + dim.toString());
  * @param msgs
  */
     protected void appendDiagnosticList (Diagnostic.List msgs){
-    	System.out.println ("append DiagnosticList ");
+    	//System.out.println ("append DiagnosticList ");
         for (Diagnostic dia: msgs){            
             model.addElement (dia);
         }
@@ -159,9 +158,9 @@ System.out.println("Dimension of the DiagnosticPanel " + dim.toString());
          public MyCellRenderer() {
              super (2, 32);
              setOpaque(true);
-             System.out.println ("MyCell Renderer Preferred Size  " +getPreferredSize());
-             System.out.println ("MyCell Renderer Minimum size "+ getMinimumSize());
-             System.out.println ("MyCell Renderer maximum size "+ getMaximumSize());
+           //  System.out.println ("MyCell Renderer Preferred Size  " +getPreferredSize());
+           //  System.out.println ("MyCell Renderer Minimum size "+ getMinimumSize());
+           //  System.out.println ("MyCell Renderer maximum size "+ getMaximumSize());
              setMaximumSize (getPreferredSize());
          }
 

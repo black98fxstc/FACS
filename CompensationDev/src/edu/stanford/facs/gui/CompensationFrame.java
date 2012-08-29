@@ -127,7 +127,7 @@ public class CompensationFrame extends JFrame  implements CompensationResults, P
 
     //Override
     public void propertyChange (PropertyChangeEvent pce) {
-        System.out.println (" Compensation Frame -- propertyChangeListener ");
+       // System.out.println (" Compensation Frame -- propertyChangeListener ");
     }
 
 
@@ -406,7 +406,7 @@ public class CompensationFrame extends JFrame  implements CompensationResults, P
    */
   public void initialize (String[] fluorochrome, String[] detector, int[]primaryDet) {
 //      Exception e = new Exception();
-//      System.out.println ("<--------- Initialize -------->");
+  //    System.out.println ("<--------- Initialize -------->");
 //      e.printStackTrace();
 	  if (Compensation2.CATE){
 	  System.out.println("initialize frame  ");
@@ -433,21 +433,17 @@ public class CompensationFrame extends JFrame  implements CompensationResults, P
    if(Compensation2.CATE){
       for (int i=0; i<primaryDet.length; i++){
     	  if (primaryDet[i] > -1)
-    	    System.out.println("Initialize   :: "+ i + ". " + primaryDet[i] + "," + detectorList[primaryDet[i]]);
+    	    System.out.println("Initialize   :: "+ i + ". " + primaryDet[i] + ", " + detectorList[primaryDet[i]]);
     	  
       }
    }
-     /*This is mixed up.  In one case, the primaryDet list is a list of controls so that it can be less than the controlList or the detectorList
-      * which should really be different,but aren't.  The detectorList is the names of the channels/detectors.  The controlList should be
-      * the names of the compensation controls.  There can be fewer controls than detectors or more controls than detectors.  don't know what
-      * I was trying to do with this primaryDet[].  I was trying to map the controls to the channels  But it isn't matching up because
-      * there are 10 compensation control tubes and the controlList thinks there are 13.  There are 13 detectors.  The primaryDet has only
-      * 10 slots.  */
+     
       for (int i=0; i < controlList.length; i++) {
           for (int j=0; j < detectorList.length; j++){
-        	  if (controlList[i].equalsIgnoreCase(detectorList[primaryDet[i]]))
-        		  System.out.println(controlList[i] + "  "+ detectorList[primaryDet[i]]);
-              if (primaryDet[i] == j) spectrumData[i][j]= (float)1.0;
+        	// if (controlList[i].equalsIgnoreCase(detectorList[primaryDet[i]]))
+        		//  System.out.println(controlList[i] + "  "+ detectorList[primaryDet[i]]);
+        	   
+              if (i < primaryDet.length && primaryDet[i] == j) spectrumData[i][j]= (float)1.0;
               else spectrumData[i][j]=(float)0.0;
           }
       }

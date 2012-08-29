@@ -86,14 +86,14 @@ public class FCSFileDialog extends JDialog {
     private DefaultListModel listModel = new DefaultListModel();
     private ArrayList<ControlInformation> allInfo = new ArrayList<ControlInformation>();
     private String[] colNames={"Add Row", "Detector", "Reagent",
-                               "Unstained FCSFile ",
-                               "Stained FCSFile", "Tube Contents"};
+                               "Unstained Tube ",
+                               "Stained Tube", "Tube List"};
    
 	private static final long serialVersionUID = 1L;
 
     private final URL addURL = FCSFileDialog.class.getResource ("/edu/stanford/facs/gui/add.png");
     private final ImageIcon addIcon = new ImageIcon (addURL);
-    private JLabel message = new JLabel ("Drag and drop the unstained and stained control files to the detector rows.");
+    private JLabel message = new JLabel ("Drag and drop the unstained and stained control tubes to the detector rows.");
     private HashMap<String, TubeInfo> tubeMap = new HashMap <String, TubeInfo>();
     private JCheckBox useUnstained = new JCheckBox("Use one unstained control for all stained controls.");
    
