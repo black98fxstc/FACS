@@ -107,6 +107,7 @@ public class CompensationController //extends JFrame
       //these are tube ids.
       protected ArrayList <Integer[]> uniqueStainSets = new ArrayList<Integer[]>();
       private JFrame myframe;
+      int[] detectorIndex;
 //      private HashMap<String, StainSet> stainSets;
 
      CompensationController(String fn){
@@ -152,8 +153,7 @@ public class CompensationController //extends JFrame
           public void actionPerformed (ActionEvent e){
               jofile = new JoFile(CompensationController.this);
               jofile.addPropertyChangeListener (CompensationController.this);
-//              dataFolder = jofile.getTempDirectory();
-//              System.out.println (dataFolder.getName() );
+
                turnOnOffButtons (buttongroup1);
           }
       });
@@ -260,6 +260,7 @@ public class CompensationController //extends JFrame
               fcsdialog.setModal(true);
               fcsdialog.setVisible(true);
 //              runButton.setEnabled (true);
+              System.out.println ("Run Analysis Point (1)");
               runAnalysis();
           }
       });
@@ -286,6 +287,7 @@ public class CompensationController //extends JFrame
           public void actionPerformed (ActionEvent e){
               //pass information back to the compensation frame for further processing?
               //setVisible (false);
+        	  System.out.println("Run analysis (2)");
               runAnalysis();
             
               }
@@ -307,7 +309,7 @@ public class CompensationController //extends JFrame
     
 
     protected void runAnalysis() {
-      //  System.out.println ("  run analysis ");
+        System.out.println ("  run analysis ");
         if (visual && frame == null)
             frame = new CompensationFrame (experimentName, dataFolder, this);
         if (compensation2 == null)
@@ -348,9 +350,12 @@ public class CompensationController //extends JFrame
 	        }
         }
 
-        int[]primaryDet = new int[stainedControls.length];
+      //  int[]primaryDet = new int[stainedControls.length];
+        if (detectorIndex == null){
+        	detectorIndex = new int[stainedControls.length];
+        }
         int nd=0;
-        for (int i=0; i < primaryDet.length;i++){
+       /** for (int i=0; i < primaryDet.length;i++){
         	
         	if (stainedControls[i] !=null){
         	    primaryDet[i] = stainedControls[i].getPrimaryDetector();
@@ -361,16 +366,33 @@ public class CompensationController //extends JFrame
         	else primaryDet[i]=nd;
         	    nd++;
             
+        }**/
+      for (int i=0; i < detectorIndex.length;i++){
+        	
+        	if (stainedControls[i] !=null){
+        	    detectorIndex[i] = stainedControls[i].getPrimaryDetector();
+        	    if (i >0 && detectorIndex[i] == detectorIndex[i-1]){
+        	       nd = detectorIndex[i];	
+        	    }
+        	}
+        	else detectorIndex[i]=nd;
+        	    nd++;
+            
         }
+       
         
         if (visual){
             if (PnSreagents.length < detectorList.length) {           
-                frame.initialize (detectorList, detectorList, primaryDet);
+                frame.initialize (detectorList, detectorList, detectorIndex);
+                //frame.initialize (detectorList, detectorList, primaryDet);
+
             }
             else{
             	//for (int i=0; i < PnSreagents.length; i++)
             		//System.out.println (i + ". " + PnSreagents[i] + " " + primaryDet[i]);
-                frame.initialize (PnSreagents, detectorList, primaryDet);
+                frame.initialize (PnSreagents, detectorList, detectorIndex);
+               // frame.initialize (PnSreagents, detectorList, primaryDet);
+
             }
     //                frame.initialize (detectorList, detectorList);
         }
@@ -428,7 +450,7 @@ public class CompensationController //extends JFrame
         while (it.hasNext()){
         	String key = it.next();
         	TubeInfo tube = tubeMap.get(key);
-        	System.out.println(key + ",  "+ tube.getInfo());
+        	//System.out.println(key + ",  "+ tube.getInfo());
         	
         }
        
@@ -570,7 +592,7 @@ public class CompensationController //extends JFrame
   
     
     private void findStainSets () {
-       //     System.out.println ("Find Stain Sets ");
+            System.out.println ("Find Stain Sets ");
 //         int n=1;            
 //        Collection tubes = tubeMap.values();
 //        Iterator it = tubes.iterator();
@@ -599,19 +621,6 @@ public class CompensationController //extends JFrame
 
  
 
-    private boolean testDetectorForData (UnstainedControl unstained, String detector) {
-        boolean flag = true;
-        try {
-            FCSParameter p = unstained.getFCSFile().getParameter (detector);
-            if (p == null)
-                flag = false;
-        } catch ( FCSException fcs) {
-            System.out.println ("testDetectorForData exception "+ detector);
-        } catch (IOException io){
-            System.out.println (" testDetector for data io exception ");
-        }
-        return flag;
-    }
 
  
     /**
@@ -660,9 +669,9 @@ public class CompensationController //extends JFrame
                  unstainedFCS[u++] = new FCSFile(filenames[i]);
 
           }
-//          else {
+          else {
               unstainedFCS[u++] = new FCSFile (filenames[i]);
-//          }
+          }
         
       }
       else {
@@ -671,11 +680,11 @@ public class CompensationController //extends JFrame
 
       }
     }
-    //the tandems are still on this list.
-//    for (String ss: controlList)
-//        System.out.println ("stained list "+ ss);
+ 
     
     results = (CompensationResults) frame;
+   // System.out.println("Calling createUnstainedStainedControls  (2)");
+
     createUnstainedStainedControls (unstainedFCS, stainedFCS, fl_labels, true, results);
     //it is the controlList that works.
     return controlList;
@@ -835,11 +844,13 @@ public class CompensationController //extends JFrame
 
       PnSreagents = new String[detectorList.length];
       int currow=0;
+      
       if (fl_labels != null && fl_labels.length > 0){
+    	  detectorIndex = new int[fl_labels.length];
           for (int i=0; i < fl_labels.length; i++){
-//              System.out.println (fl_labels[i][0] + ", " + fl_labels[i][1]);
+             // System.out.println (fl_labels[i][0] + ", " + fl_labels[i][1]);
               int detectorindex = getDetectorIndex (fl_labels[i][0], detectorList);
-
+              detectorIndex[i] = detectorindex;
               if (detectorindex < 0){
                   continue;
               }
@@ -860,9 +871,12 @@ public class CompensationController //extends JFrame
           }
       }
       else {
+    	  detectorIndex = new int[controlList.length];
          for (int i=0; i < controlList.length; i++){
-//             System.out.println ( controlList[i]);
+           //  System.out.println ( controlList[i]);
              int detectorindex = getDetectorIndex (controlList[i], detectorList);
+          //   System.out.println ( controlList[i] + ", "+ detectorindex);
+             detectorIndex[i] = detectorindex;
              if (detectorindex < 0)
                  continue;
 //             System.out.println (detectorindex + "  "+ i);
@@ -877,12 +891,15 @@ public class CompensationController //extends JFrame
              currow++;
          }
       }
-
+if(Compensation2.CATE){
       for (int i=0; i < detectorList.length; i++){
           if (PnSreagents[i] == null)
               PnSreagents[i] = detectorList[i];
-//          System.out.println (PnSreagents[i] + " <--> "+ detectorList[i]);
+          System.out.println (PnSreagents[i] + " <--> "+ detectorList[i]);
       }
+      for (int i=0; i < detectorIndex.length; i++)
+    	  System.out.println("\tDetector Index " + i + ". "+ detectorIndex[i]);
+}
       stainedControls = new StainedControl[tempstained.size()];
       stainedControls = tempstained.toArray (stainedControls);
       if (Compensation2.CATE){
@@ -906,7 +923,6 @@ public class CompensationController //extends JFrame
       int index=-1;
       boolean found = false;
       int i=0;
-//      System.out.println (" getDetectorIndex for ("+ name + ") "+ name.trim());
       while (!found && i < list.length){
           if (list[i].startsWith (name)){
               found = true;
@@ -915,54 +931,20 @@ public class CompensationController //extends JFrame
           else i++;
       }
       if (!found) index = -1;
+    //  System.out.println (" getDetectorIndex for ("+ name + ") "+ name.trim() + " = "+ index);
 
       return index;
 
   }
 
-  // Not being called
-  /**
-  private String[] uniqueDetectorList (String[] detect){
-      String[] uniquelist;
-      ArrayList<String> list = new ArrayList<String>();
-
-      for ( String s: detect){
-          if (!list.contains (s))
-              list.add (s);
-      }
-      uniquelist = new String[list.size()];
-      uniquelist = list.toArray (uniquelist);
-      return uniquelist;
-
-  }**/
-  //Not being called
-  /**private int getReagentIndex (String name){
-      int index=-1;
-      boolean found = false;
-      int i=0;
-
-      if (name == null || name.length() == 0)
-          return index;
-      while (!found && i < PnSreagents.length){
-          if (PnSreagents[i].equals (name)){
-              found = true;
-              index = i;
-          }
-          else i++;
-      }
-      if (!found) index = -1;
-
-      return index;
-
-  }**/
-
+  
   /**
    * this one is called when we are downloading the jo files.  
    */
   protected void createUnstainedStainedControls (String[][]data, File workingDir,
                                                  boolean mode, CompensationResults results,
                                                  HashMap <String, TubeInfo> tubeMap){
-    
+    //  System.out.println ("Create Unstained Stained Controls (jo)");
       if (results == null){
           System.out.println ("CompensationController.createUnstained controls CompensationResults are null");
       }
@@ -1139,7 +1121,8 @@ System.out.println (" ------------------end of list------------------------");
   protected void createUnstainedStainedControls (String[][]data, File workingDir, 
                                                  boolean mode, CompensationResults results){
   
-     
+  //  System.out.println ("Create Unstained Stained Controls (other)");
+ 
     ArrayList<StainedControl> stainedControlList = new ArrayList<StainedControl>();
    // StainedControl [] templist;
     HashMap<String, UnstainedControl> unstainedControlList = new HashMap<String, UnstainedControl>();
@@ -1220,7 +1203,7 @@ System.out.println (" ------------------end of list------------------------");
       String thisreagent=null;
       //I need to know what the index in the detectorList of this data[i][0].  That is
       //what is the primaryDetector, given this String, what is the index in the detectorList
-      //that matches.
+      //that matches. Maybe I fixed this by replacing the detectorIndex with the detectorIndex[]
 /*here bug here with detectorIndex*/
 
       if (data[i][ControlInformation.REAGENT] != null && !data[i][ControlInformation.REAGENT].equals("")){
@@ -1228,8 +1211,6 @@ System.out.println (" ------------------end of list------------------------");
          thisreagent = data[i][ControlInformation.REAGENT];
       }
       else {
-//             PnSreagents[detectorIndex] = new String (detectorList[detectorIndex]);
-//             thisreagent = PnSreagents[detectorIndex];
           thisreagent = detectorList[detectorIndex];
       }
 
@@ -1267,18 +1248,16 @@ System.out.println (" ------------------end of list------------------------");
         	return;
         	
         }**/
-        System.out.println("Create Stained Control 1 "+ contentType);
+     //   System.out.println("Create Stained Control 1 "+ contentType);
         newstained = new StainedControl(compensation2, new FCSFile(workingDir + File.separator
             + data[i][ControlInformation.STAINED]), detectorIndex, stainedControlList.size(), thisreagent, newunstained, contentType);
 
        stainedControlList.add (newstained);
-//       System.out.println (i + ". " +newstained.toString());
        reagentList.add (thisreagent);
 
       }
       else {
         stainedControlList.add ((StainedControl)null);
-//        System.out.println (i + " this one is blank");
         reagentList.add (thisreagent);
 
       }
@@ -1298,10 +1277,8 @@ System.out.println (" ------------------end of list------------------------");
     Iterator<String> it = keys.iterator();
     int j = 0;
     while (it.hasNext())
-    {
-       
+    {  
       unstainedControls[j++] = unstainedControlList.get((String)it.next());
-       System.out.println ("what about the unstained ?  " + unstainedControls[j-1]);
     }
 
     if (Compensation2.CATE ){
@@ -1473,11 +1450,7 @@ System.out.println (" ------------------end of list------------------------");
                multiples[primary].addReagentEntry (stainedControls[i].getParameterName(), i, primary);
 
            }
-//           else {
-//               System.out.println ("  This is not a correct assumption for a null stained control");
-//               System.out.println (i + ", "+ detectorNames[i]);
-//               //multiples[i] = new Pair (detectorNames[i], detectorNames[i],i, i );
-//           }
+
 
        }
        for (int i=0; i < multiples.length; i++){
@@ -1605,7 +1578,7 @@ System.out.println (" ------------------end of list------------------------");
 
           int j=0;
           while  ( j < rlist.size()){
-              System.out.println ("getSelections "+ rlist.get(j).toString() + "  "+ rlist.get(j).isSelected() );
+             // System.out.println ("getSelections "+ rlist.get(j).toString() + "  "+ rlist.get(j).isSelected() );
               if (rlist.get(j).isSelected()){
                   int row = rlist.get(j).getRow();
 
@@ -1710,13 +1683,14 @@ System.out.println (" ------------------end of list------------------------");
      * this is a pass through.
      */
     public void putMappingData (String[][] info, File dataFolder) {
-        System.out.println (" accept Mapping Information !! in the CompensationController." );
+       // System.out.println (" accept Mapping Information !! in the CompensationController." );
         this.dataFolder = dataFolder;
+        /*
         for (int i=0; i < info.length; i++){
         	for (int j=0; j < info[i].length; j++)
                System.out.print(i + " "+j+". "+info[i][j]+ " ");
         	System.out.println();
-        }
+        }*/
 
 if (info != null){
         controlMappings = new String[info.length][];
@@ -1730,6 +1704,7 @@ if (info != null){
 }
         if (Compensation2.CATE)
             System.out.println (" how many stained controls? "+ info.length);
+        System.out.println("Calling createUnstainedStainedControls  (1)");
         createUnstainedStainedControls (info, dataFolder, true, (CompensationResults)frame);
 
     }
@@ -1759,13 +1734,13 @@ if (info != null){
 
     //override
     public void propertyChange (PropertyChangeEvent pce) {
-        System.out.println (" CompensationController propertyChanged");
-        System.out.println (pce.getSource().getClass().getName());
-        System.out.println (pce.getNewValue().toString() + "  "+ pce.getOldValue().toString());
+       // System.out.println (" CompensationController propertyChanged");
+       // System.out.println (pce.getSource().getClass().getName());
+      //  System.out.println (pce.getNewValue().toString() + "  "+ pce.getOldValue().toString());
 //        if (pce.getNewValue() == SwingWorker.StateValue.DONE){
         if ("state".equals(pce.getPropertyName())
                  && SwingWorker.StateValue.DONE == pce.getNewValue()) {
-            System.out.println ("CompensationController  Done with download.....");
+         //   System.out.println ("CompensationController  Done with download.....");
             if (jofile != null){
 ////                controlMappings = jofile.getControlData();
                 tempJoFolder = jofile.getTempDirectory(); 
@@ -1784,21 +1759,12 @@ if (info != null){
                         
                     }
                 }
-//                ArrayList<String[]> controlInformation = jofile.getList();
-              /**  for (int i=0; i < controlInformation.size(); i++){
-                  for (String s: controlInformation.get(i)){
-                      System.out.print (s + " ");
-                  }
-                  System.out.println();
-              }**/
+
                 
             }
-//            createUnstainedStainedControls (controlMappings, tempJoFolder, true, (CompensationResults)frame, tubeMap);
 
             
         }
-//         protected void createUnstainedStainedControls (FCSFile[] unstainedFCSFiles, FCSFile[] stainedFCSFiles, 
-//                                                 String[][]fl_labels, boolean mode, CompensationResults results){
     }
 
 
