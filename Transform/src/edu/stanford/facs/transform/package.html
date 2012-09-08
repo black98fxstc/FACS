@@ -38,16 +38,17 @@ transforms this is in addition to what is already brought on scale by <code>W</c
 generally not be needed.
 The {@link edu.stanford.facs.transform.Logicle}, {@link edu.stanford.facs.transform.Hyperlog} and 
 {@link edu.stanford.facs.transform.Arcsinh} transforms with <code>A = 0</code>
-will all behave like the {@link edu.stanford.facs.transform.Logarithmic} transform with the same values
+will all behave like the {@link edu.stanford.facs.transform.Logarithmic Logarithmic(T,M)} transform with the same values
 of <code>T</code> and <code>M</code> for large data values.
 </p>
+<p>
 This choice of parameters also leads to a sensible fall back strategy when software does not
 implement a particular transform.
 For example if the logicle transform is not available a hyperlog transform with the same parameters
 should be a reasonable alternative and vice versa.
 In cases where neither is available 
 {@link edu.stanford.facs.transform.Arcsinh#Arcsinh(double, double, double) Arcsinh(T, M, W + A)} 
-although almost never be really satisfactory will at least map the same data range onto the 
+although almost never  really satisfactory, will at least map  roughly the same data range onto the 
 unit display interval.
 Finally it should be noted that 
 {@link edu.stanford.facs.transform.Arcsinh#Arcsinh(double, double, double) Arcsinh(T, M, A)} 
@@ -55,14 +56,23 @@ is completely equivalent to
 {@link edu.stanford.facs.transform.Logicle#Logicle(double, double, double, double) Logicle(T, 0, M, A)}
 so it is not strictly necessary to implement the arcsinh transform as a separate class.
 One is provided here primarily to fix the relevant formulas.
-<p>
-
-<p>
-This is a reference implementation, generally accurate to double precision in the standard display interval.
-It is reasonably fast but highly optimized routines with lower precision that are still perfectly adequate 
-for use in flow cytometry may be several times faster.
 </p>
 
+<p>
+One practical drawback to using the log like functions is that standard graphics packages do not contain 
+suitable axis drawing routines.
+Fully addressing this is beyond the scope of this implementations but it does provide some help in chosing 
+suitable points on the axis to label. 
+Each transform has a {@link edu.stanford.facs.transform.Transform#axisLabels()} method, which returns an array 
+of data values such that a graphical representations of the data values located at the scale possition  for each value the 
+will produce a decent default display.
+</p>
+
+<p>
+Since the logicle and hyperlog functions cannot be represented in closed form using the standard functions
+of analysis they are actually defined in terms of their respective inverse functions. 
+Inverse functions for the logarithm and arcsinh are provided for comparison.
+<center>
 <table>
 <tr><th>Transform</th><th>Inverse function</th></tr>
 <tr><td>Logarithmic</td><<td><font size="+2" >f<sup> -1</sup>(x) = a e<sup> b x</sup></font></td></tr>
@@ -70,21 +80,15 @@ for use in flow cytometry may be several times faster.
 <tr><td>Hyperlog</td><<td><font size="+2" >f<sup> -1</sup>(x) = a e<sup> b x</sup> + c x - f</font></td></tr>
 <tr><td>Arcsinh</td><<td><font size="+2" >f<sup> -1</sup>(x) = a sinh (b x - c)</font></td></tr>
 </table>
-
-<p>
-<font size="+2" >f<sup> -1</sup>(x) = a e<sup> b x</sup></font>
+</center>
+The actual parameters are defined from these inverse functions by subjecting them to the constraints
+imposed by the formal parameters. See the comments in each method for details.
 </p>
 
 <p>
-<font size="+2" >f<sup> -1</sup>(x) = a e<sup> b x</sup> - c e<sup> -d x</sup> + f</font>
-</p>
-
-<p>
-<font size="+2" >f<sup> -1</sup>(x) = a e<sup> b x</sup> + c x - f</font>
-</p>
-
-<p>
-<font size="+2" >f<sup> -1</sup>(x) = a sinh (b x - c)</font>
+This is a reference implementation, generally accurate to double precision in the standard display interval.
+It is reasonably fast but highly optimized routines with lower precision that are still perfectly adequate 
+for use in flow cytometry may be several times faster.
 </p>
 
 <h2>Related Documentation</h2>
@@ -107,8 +111,19 @@ or
 HTML
 </a>.
 Further refinements and this standard parameterization were presented in the publication
-</p>
+<blockquote>
+Update for the logicle data scale including operational code implementations
+<br/>
+Wayne A. Moore, David R. Parks
+<br/>
+Cytometry Part A
 
+Volume 81A, Issue 4, pages 273–277, April 2012</blockquote>
+available online as 
+<a href="http://onlinelibrary.wiley.com/doi/10.1002/cyto.a.22030/pdf">PDF</a>
+or
+<a href="http://onlinelibrary.wiley.com/doi/10.1002/cyto.a.22030/full">HTML</a>.
+</p>
 <p>
 The Hyperlog methods was originally described in the publication:
 <blockquote>
@@ -127,8 +142,6 @@ or
 HTML
 </a>.
 </p>
-
-
 <p>
 The method is included in the Gating-ML proposed standard of the International Society
 for the Advancement of Cytometry. The specifications for Gating-ML are available 
