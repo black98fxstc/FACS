@@ -2,7 +2,7 @@ package edu.stanford.facs.desk;
 
 import java.io.*;
 import java.util.*;
-import sun.net.ftp.FtpClient;
+//import sun.net.ftp.FtpClient;
 
 /**
  * Identifies FACS.Desk sites and files
@@ -36,7 +36,7 @@ public class FacsDesk
   public int tapeIndex[];
   public int tapeVolumes = 0;
   private String site, institution;
-  public FtpClient ftpc;
+//  public FtpClient ftpc;
   private File context_file;
   private DeskContext context;
   private int cache_size = 255;
@@ -738,11 +738,11 @@ public class FacsDesk
 
     {
 
-      ftpc = new FtpClient(host);
-
-      ftpc.login(user, pass);
-
-      ftpc.binary();
+//      ftpc = new FtpClient(host);
+//
+//      ftpc.login(user, pass);
+//
+//      ftpc.binary();
 
     }
 
@@ -773,9 +773,9 @@ public class FacsDesk
 
     {
 
-      if (ftpc != null)
-
-        ftpc.closeServer();
+//      if (ftpc != null)
+//
+//        ftpc.closeServer();
 
       if (context != null)
 
@@ -813,20 +813,20 @@ public class FacsDesk
 
   {
 
-    if (ftpc == null)
-
-      connect();
-
-    if (ascii)
-
-      ftpc.ascii();
-
-    else
-
-      ftpc.binary();
-
-    return new DeskInputStream(ftpc.get(file_name));
-
+//    if (ftpc == null)
+//
+//      connect();
+//
+//    if (ascii)
+//
+//      ftpc.ascii();
+//
+//    else
+//
+//      ftpc.binary();
+//
+//    return new DeskInputStream(ftpc.get(file_name));
+  	return null;
   }
 
   public DeskInputStream get (
@@ -855,17 +855,17 @@ public class FacsDesk
 
   {
 
-    if (ftpc == null)
-
-      connect();
-
-    if (ascii)
-
-      ftpc.ascii();
-
-    else
-
-      ftpc.binary();
+//    if (ftpc == null)
+//
+//      connect();
+//
+//    if (ascii)
+//
+//      ftpc.ascii();
+//
+//    else
+//
+//      ftpc.binary();
 
     target.getParentFile().mkdirs();
 
