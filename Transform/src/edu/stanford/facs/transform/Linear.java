@@ -30,8 +30,8 @@ public class Linear
 	{
 		if (T <= 0)
 			throw new TransformParameterException("T is not positive");
-		if (T <= A)
-			throw new TransformParameterException("T is not greater than A");
+		if (T < A)
+			throw new TransformParameterException("T is less than A");
 		if (A < 0)
 			throw new TransformParameterException("A is negative");
 

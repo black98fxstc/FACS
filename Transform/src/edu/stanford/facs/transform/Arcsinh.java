@@ -37,6 +37,8 @@ public class Arcsinh
 			throw new TransformParameterException("M is not positive");
 		if (A < 0)
 			throw new TransformParameterException("A is negative");
+		if (A > M)
+			throw new TransformParameterException("A is greater than M");
 
 		// standard parameters
 		this.T = T;
