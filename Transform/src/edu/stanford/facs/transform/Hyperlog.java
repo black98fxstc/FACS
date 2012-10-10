@@ -289,7 +289,6 @@ public class Hyperlog
 			return inverse;
 	}
 
-	@Override
 	protected double slope (double scale)
 	{
 		// reflect negative scale regions

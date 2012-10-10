@@ -56,7 +56,6 @@ public class Arcsinh
 		this(T, M, A, 0);
 	}
 
-	@Override
 	public double scale (double value)
 	{
 		double x = value / a;
@@ -72,19 +71,16 @@ public class Arcsinh
 			return (asinhx + c) / b;
 	}
 
-	@Override
 	public double inverse (double scale)
 	{
 		return a * Math.sinh(b * scale - c);
 	}
 
-	@Override
 	protected double slope (double scale)
 	{
 		return a * b * Math.cosh(b * scale - c);
 	}
 
-	@Override
 	public double[] axisLabels ()
 	{
 		// smallest power of 10 in the positive logarithmic region

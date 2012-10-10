@@ -54,25 +54,21 @@ public class Linear
 		this(T, 0, 0);
 	}
 
-	@Override
 	public double scale (double value)
 	{
 		return (value - b) / a;
 	}
 
-	@Override
 	public double inverse (double scale)
 	{
 		return a * scale + b;
 	}
 
-	@Override
 	protected double slope (double scale)
 	{
 		return a;
 	}
 
-	@Override
 	public double[] axisLabels ()
 	{
 		// total range of the data

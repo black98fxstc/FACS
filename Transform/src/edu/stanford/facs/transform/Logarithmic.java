@@ -52,25 +52,21 @@ public class Logarithmic
 		this(T, DEFAULT_DECADES, 0);
 	}
 
-	@Override
 	public double scale (double value)
 	{
 		return Math.log(value / a) / b;
 	}
 
-	@Override
 	public double inverse (double scale)
 	{
 		return a * Math.exp(b * scale);
 	}
 
-	@Override
 	protected double slope (double scale)
 	{
 		return a * b * Math.exp(b * scale);
 	}
 
-	@Override
 	public double[] axisLabels ()
 	{
 		// smallest power of 10 in the display region
