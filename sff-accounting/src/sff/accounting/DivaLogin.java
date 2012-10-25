@@ -58,11 +58,13 @@ public class DivaLogin
       StringTokenizer st = new StringTokenizer(line, ",");
 
       String username = st.nextToken();
-      st.nextToken();
-      st.nextToken();
-      st.nextToken();
-      st.nextToken();
-      st.nextToken();
+      if (username.equals("BDService"))
+      	continue;
+      String field = st.nextToken();
+      field = st.nextToken();
+      field = st.nextToken();
+      field = st.nextToken();
+      field = st.nextToken();
       String loginTime = st.nextToken();
       String loginDate = st.nextToken();
       String logoutTime;
