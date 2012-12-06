@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified">
+
+<xs:element name="experiment">
+   <xs:complexType>
+      <xs:sequence>
+        <xs:element name="instrument">
+           <xs:complexType>
+             <xs:sequence>
+              <xs:element type="xs:string"  name="detector" minOccurs="1" maxOccurs="unbounded"/> 
+              </xs:sequence>
+              <xs:attribute type="xs:string" name="manufacturer"/>
+              <xs:attribute type="xs:string" name="product"/>
+              <xs:attribute type="xs:string" name="configurationName"/>
+              <xs:attribute type="xs:string" name="default_template"/>
+              <xs:attribute type="xs:string" name="installation"/>
+           </xs:complexType>
+        </xs:element>
+
+        <xs:element name="unstained_control">
+            <xs:complexType>
+               <xs:sequence>
+                  <xs:element type="xs:string" name="name"/>
+                  <xs:element type="xs:anyURI" name="uri" minOccurs="1" maxOccurs="1"/>
+                  <xs:element type="xs:string" name="detector" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+                <xs:attribute type="xs:string" name="type"/>
+                <xs:attribute type="xs:integer" name="id"/>
+            </xs:complexType>
+        </xs:element>
+
+        <xs:element name="stained_control" maxOccurs="unbounded" minOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+               <xs:element type="xs:string" name="name"/>
+               <xs:element type="xs:string" name="reagent" minOccurs="0" maxOccurs="1"/>
+               <xs:element type="xs:string" name="label" minOccurs="0" maxOccurs="1"/>
+               <xs:element type="xs:anyURI" name="uri"  minOccurs="1" maxOccurs="1"/>
+               <xs:element type="xs:string" name="detector" minOccurs="0" maxOccurs="unbounded"/>
+              </xs:sequence>
+              <xs:attribute type="xs:string" name="type"/>
+              <xs:attribute type="xs:integer" name="id" />
+            </xs:complexType>
+        </xs:element>
+
+        <xs:element name="stainset" minOccurs="1" maxOccurs="unbounded">
+            <xs:complexType>
+                <xs:sequence>
+                <xs:element name="unstained_control">
+                    <xs:complexType>
+                       <xs:simpleContent>
+                            <xs:extension base="xs:string">
+                               <xs:attribute type="xs:integer" name="id"/>
+                            </xs:extension>
+                       </xs:simpleContent>
+                    </xs:complexType>
+                  </xs:element>
+
+                <xs:element name="stained_control" minOccurs="1" maxOccurs="unbounded">
+                    <xs:complexType>
+                       <xs:simpleContent>
+                            <xs:extension base="xs:string">
+                               <xs:attribute type="xs:integer" name="id"/>
+                            </xs:extension>
+                       </xs:simpleContent>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:sequence>
+                <xs:attribute type="xs:string" name="name"/>
+            </xs:complexType>
+        </xs:element>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="name"/>
+   </xs:complexType>
+</xs:element>
+</xs:schema>
+
