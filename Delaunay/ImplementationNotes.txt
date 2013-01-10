@@ -1,0 +1,19 @@
+Delaunay notes:
+
+1.  main is located in the edu.stanford.facs.delaunay.DelaunayController class.  The program assumes and does not check, that there is a subdirectory {working dir}/R where the output files are written and where the R scripts are located.
+
+2.  It has run with a FCS file name as an argument, but that is commented out right now.  
+
+3.  Now it is running with no arguments.  It is using a random number generated to generate bimodal data.  How much data is hard-coded in the called to getBimodalData(int n), found in the DelaunayController file.  
+
+4.  The output is written to 2 files.  One is called ./R/trianglesAsLines.r  .  This file contains 8 columns, tab-delineated.  The file contains a list of lines with level assignments:  
+
+Name1, x1, y1, Level1, Name2, x2, y2, Level2.
+
+This file is read by an R script that will draw the lines.  The functions are in the file triangles.R
+
+The second file is a list of points.  The file is written to ./R/clusters.txt.  There are six columns:
+name, x, y, level, cluster, boundary (boolean)
+The contents of this file are used in an R program called ./R/bplot.R.  
+
+ In the directory ./R, there is an R script, called triangles.R.  There are 6 functions that read the data files, set up the data frames, get minx and maxes, plot the lines, and color the points based on cluster id.
