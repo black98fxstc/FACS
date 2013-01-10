@@ -1,6 +1,11 @@
 package edu.stanford.facs.delaunay;
 
-public class MyPoint {
+import java.util.ArrayList;
+import java.util.Comparator;
+
+import edu.stanford.facs.delaunay.Onion.OneLine;
+
+public class MyPoint implements Comparable{
 	
 	static final int X=0;
 	static final int Y=1;
@@ -12,9 +17,11 @@ public class MyPoint {
 	protected final static int IN=2;
 	protected int  loc = UND;
 	protected int frequency=1;
-	protected int level=0;
+	protected int level=UND;
 	protected Long id;
-	private String name="";
+	protected int clusterId = -1;
+	protected String name="";
+	protected boolean boundaryPoint=false;
 	
 	public MyPoint (float x, float y){
 		point[X] = x;
@@ -35,6 +42,13 @@ public class MyPoint {
     	return false;
     }
 	
+	public MyPoint clone() {
+		MyPoint newone = new MyPoint(point[X], point[Y]);
+		newone.name = name;
+		newone.frequency = frequency;
+		return newone;
+	}
+	
 	protected void setName(String n){
 		name = n;
 	}
@@ -44,10 +58,15 @@ public class MyPoint {
 	}
 	
 	public String toString(){
-		
-		return ""+name + "-" +point[X]+", "+ point[Y] ;
+		StringBuilder buf = new StringBuilder(name);
+		buf.append(", ").append(point[X]).append(", ").append(point[Y]).append(", ").append(level).append(", ");
+		buf.append(clusterId).append(",").append(boundaryPoint);
+		return buf.toString();
 	}
 	
+	protected int getClusterId() {
+		return clusterId;
+	}
  	
 	public int getFreq(){
 		return frequency;
@@ -90,10 +109,20 @@ public class MyPoint {
 	     return hash;
 		}
 	
+	protected void addClusterId (int i){
+		clusterId = i;
+	}
 	
+	protected boolean getBoundaryPoint (){
+		return boundaryPoint;
+	}
+	
+	protected void setBoundaryPoint(boolean flag){
+		boundaryPoint = flag;
+	}
 	protected void setLevel(int l){
 		level = l;
-		System.out.println (toString() + "  "+ level);
+		//System.out.println (toString() + "  "+ level);
 	}
 	
 	public void setLoc (int loc){
@@ -121,6 +150,25 @@ public class MyPoint {
 	
 	public void setY (float y){
 		point[Y]= y;
+	}
+	@Override
+	/*  sort on name */
+	public int compareTo(Object arg0) {
+		// TODO Auto-generated method stub
+		if (arg0 instanceof MyPoint){
+			MyPoint pt = (MyPoint) arg0;
+		   return (name.compareTo(pt.name));
+		}
+		return 0;
+	}
+	
+	public static class PointLevelCompare implements Comparator<MyPoint> {
+		
+		@Override
+		public int compare(MyPoint one, MyPoint two) {
+			return (new Integer (one.getLevel()).compareTo(new Integer(two.getLevel())));
+		}
+		
 	}
 
 }

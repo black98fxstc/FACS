@@ -87,8 +87,8 @@ public class DelaunayData extends FlowData{
           String experimentName = segment.getAttribute ("EXPERIMENT NAME");
           if (experimentName == null) experimentName= "";
           int in=0;
-          int np;
-          String split;
+         // int np;
+        //  String split;
           for (String s: attrNames){
 
               if (s.startsWith ("$P") && s.endsWith ("N")){
@@ -244,34 +244,39 @@ public class DelaunayData extends FlowData{
         
     }
     
-   
+   /*  this one is being used for development.  It only wants data within -100 and max 3000 
+    *  for ease of viewing and verifying.   */
     public MyPoint[] getUniqueSamples (float[][] data, int xpar, int ypar){
     	
     	int length = data[xpar].length;
+    	
        // float[][]logicle = transformToLogicle (data, xpar, ypar);
         Map <Long, MyPoint> uniquePoints = new HashMap <Long,MyPoint>();
         
         for (int i=0; i < length; i++){
-        	//if (logicle[xpar][i] < 10000 && logicle[ypar][i]<10000){
-        	//MyPoint pt = new MyPoint (logicle[xpar][i], logicle[ypar][i]);
-        	//MyPoint pt = new MyPoint (logicle[0][i], logicle[1][i]);
-        	//do the calculations before the logicle transformation
+        	
         	if (data[xpar][i] < minx) minx=data[xpar][i];
         	else if (data[xpar][i]>maxx) maxx=data[xpar][i];
         	
         	if (data[ypar][i] < miny) miny = data[ypar][i];
         	else if (data[ypar][i] > maxy) maxy= data[ypar][i];
         	
-            MyPoint pt = new MyPoint (data[xpar][i], data[ypar][i]);
-        	Long key = new Long(pt.hashCode());
-        	if (uniquePoints.containsKey(key)){
-        		uniquePoints.get(key).addOne();
-        		//System.out.println (" duplicate found ");
-        	}
-        	else {
-        		pt.addOne();
-        		uniquePoints.put(key, pt);
-        	}
+            if (withinRange (data[xpar][i], data[ypar][i])){
+            	MyPoint pt;
+            	if (i > length/2)
+            		pt = new MyPoint (data[xpar][i], data[ypar][i]+1000);
+            	else
+	               pt = new MyPoint (data[xpar][i], data[ypar][i]);
+	        	Long key = new Long(pt.hashCode());
+	        	if (uniquePoints.containsKey(key)){
+	        		uniquePoints.get(key).addOne();
+	        		//System.out.println (" duplicate found ");
+	        	}
+	        	else {
+	        		pt.addOne();
+	        		uniquePoints.put(key, pt);
+	        	}
+            }
         	//}
         		
         }
@@ -281,6 +286,19 @@ public class DelaunayData extends FlowData{
 //       System.out.println ("Min x,y and max x,y " +minx + ", "+ miny + ", "+ maxx + ", "+ maxy); 
         return unique;
         
+    }
+    
+    private boolean withinRange (float x, float y){
+    	float mmin=-100;
+    	float mmax=2000;
+    	boolean flag = true;
+    	
+    	if (x < mmin)flag=false;
+    	else if (x>mmax) flag=false;
+    	else if (y < mmin)flag = false;
+    	else if (y>mmax)flag=false;
+    	return flag;
+    	
     }
     public float[][] getRandomSample (MyPoint[] fp){
         int size=300;

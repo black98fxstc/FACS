@@ -7,6 +7,7 @@ package edu.stanford.facs.delaunay;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -19,8 +20,6 @@ public class TriangleTree {
 
    
     public Triangle treeRoot;
-    private MyPoint[][] validLines;
-    private MyPoint[] convexHull;
   
     
     public TriangleTree (Triangle tri){
@@ -41,7 +40,7 @@ public class TriangleTree {
   //      traverseTree (treeRoot, 0);
 
         tri = treeRoot;
-        System.out.println ("containing triangle for point " + xx.getX() + ", "+ xx.getY());
+  //      System.out.println ("containing triangle for point " + xx.getX() + ", "+ xx.getY());
         int ans = tri.contains (xx);
  //       System.out.println ("\t(1) " + ans );
 
@@ -79,7 +78,7 @@ public class TriangleTree {
          int level = 1;
          for (Triangle tri: treeRoot.getDaughters()){
              if (tri != null){
-//                 System.out.println (level + "  "+ tri.toString());
+                 System.out.println (level + "  "+ tri.toString());
                  traverseTree (tri, level);
              }
          }
@@ -90,9 +89,9 @@ public class TriangleTree {
         level++;
         for (Triangle tri:  parent.getDaughters()){
             if (tri != null){
-//                System.out.println (level + "  " + tri.toString());
+                System.out.println (level + "  " + tri.toString());
                 traverseTree (tri, level);
-                System.out.println (level + "  "+ tri.toString());
+                
             }
         }
         
@@ -139,63 +138,32 @@ public class TriangleTree {
         
         return tri;
     }
+    
+    public void printTree() {
+    	/**
+    	ArrayList <Triangle>myqueue = new ArrayList<Triangle>();
+    	int top = 0;
+    		
+    	queue.addLast(treeRoot);
+    	myqueue.add(treeRoot);
+    	while (!myqueue.isEmpty()){
+    		Triangle tri = myqueue.get(top);
+    		top++;
+    		//Triangle tri = queue.pop();
+    		
+    		System.out.println (tri.toString());
+    		Triangle[] daughters = tri.getDaughters();
+    		for(Triangle t : daughters){
+    			if (t != null)
+    			    myqueue.add(t);
+    		}
+    	}**/
+    	
+    }
 
  
 
-/**
 
-    private Triangle findTriangleInTree (Point a, Point b, Point c, Triangle root){
-        Triangle tri = null;
-        boolean found = false;
-
-        int id = a.hashCode() ^ b.hashCode() ^ c.hashCode();
-        while (!found){
-            if (root != null){
-                Triangle[] daughters = root.getDaughters();
-                for (int i=0; i < daughters.length; i++){
-                    if (daughters[i] != null){
-                        if (daughters[i].getId() == id){
-                            found = true;
-                            tri = daughters[i];
-                            break;
-                        }
-                        else {
-                            Point aa = new Point (daughters[i].xpoints[0], daughters[i].ypoints[0]);
-                            Point bb = new Point (daughters[i].xpoints[1], daughters[i].ypoints[1]);
-                            Point cc = new Point (daughters[i].xpoints[2], daughters[i].ypoints[2]);
-                            findTriangleInTree (aa, bb, cc, daughters[i]);
-                        }
-                    }
-                }
-            }
-        }
-//        System.out.println ("findTriangle in Tree " + root.toString());
-//        if (tri != null)
-//        System.out.println  (tri.toString());
-        return tri;
-    }
-
-    private Triangle whichDaughter (Triangle parent, Point a, Point b, Point c){
-        Triangle[]daughters = parent.getDaughters();
-        Triangle one = null;
-        int id = a.hashCode()^ b.hashCode()^ c.hashCode();
-
-            if (daughters[0] != null && daughters[0].getId() == id){
-                one= daughters[0];
-            }
-            else if (daughters[1] != null && daughters[1].getId() == id){
-                one =daughters[1];
-            }
-            else if (daughters[2] != null && daughters[2].getId() == id){
-                one = daughters[2];
-            }
-            else {
-                System.out.println (" couldn't find it ");
-            }
-        return one;
-    }
-
-   **/
     /* Return the list of valid lines and save the list of points on the convex hull
      * if remove is true, then do not include the outer triangle and its connecting
      * lines.  if false, all lines are retained.
@@ -257,73 +225,5 @@ public class TriangleTree {
        
     }
     
-    /** not called
-    public void printTreeForR (Triangle root, MyPoint[] bbox){
-        
-        File f = new File ("./printR.r");
-        FileOutputStream fw = null;
-        try {
-        fw = new FileOutputStream (f);
-        if (root != null){
-        	String s ="plot.new();\n";
-        	fw.write (s.getBytes());
-        	String xx = "xb <-c("+bbox[0].getX()+","+bbox[1].getX()+","+bbox[2].getX()+","+bbox[0].getX()+");\n";
-        	String yy = "yb <-c("+bbox[0].getY()+","+bbox[1].getY()+","+bbox[2].getY()+","+bbox[0].getY()+");\n";
-        	fw.write(xx.getBytes());
-        	fw.write(yy.getBytes());
-        	String plot = "plot (xb,yb,type=\"n\");\n";
-        	fw.write(plot.getBytes());
-        			
-
-        	printTree (root.getDaughters(), fw);
-//            Triangle[] daughters = root.getDaughters();
-//            
-//            for (Triangle tri: daughters){
-//                // (tri != null && tri.getLiveStatus()){
-//                if (tri != null){
-//                    printTree (tri, fw);
-////                    String s = tri.printForR();
-////                    if (s != null || !s.equals(""))
-////                        fw.write (s.getBytes());
-//                }
-//            }
-        }
-        fw.close();
-        } catch (IOException e){
-            System.out.println (" file io exception ");
-        } finally {
-            
-        }
-    }**/
-
-/**
-    public void printTree(Triangle[] daughters, FileOutputStream fw) throws IOException {
-      
-
-//        if (root != null  && !root.getLiveStatus()) {
-//            System.out.println ("PrintTree Parent" + root.toString());
-//            Triangle[] daughters = root.getDaughters();
-          
-            for (Triangle tri : daughters){
-                if ( tri != null) {
-                    if (!tri.getLiveStatus()){
-                       // System.out.println ("daughters " +  " " +tri.toString());
-                        printTree (tri.getDaughters(), fw);
-//                    String s = tri.printForR();
-//                    System.out.println (s);
-//                    fw.write (s.getBytes());
-                    }
-               
-                    else {
-                     //   String s = tri.printForR();
-                    	tri.printDataFrame(fw);
-                      
-                    }
-                }
-            }
-    }**/
-    
-  
-
     
 }

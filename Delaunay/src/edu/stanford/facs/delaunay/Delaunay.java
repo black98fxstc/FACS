@@ -43,6 +43,9 @@ public  class Delaunay {
     private static int B=1;
     private static int C=2;
     private int nextTask=0;
+    public static boolean DEBUG_1 = false;
+    public static boolean DEBUG_2 = true;
+    private int NPTS=200;
     
    private float delx, dely;
    
@@ -55,7 +58,7 @@ public  class Delaunay {
     Random randomfuzz = new Random(314159265);
     private float minx=1000000000, maxx=0;
     private float miny=1000000000, maxy=0;
-    private Map<Long, MyPoint> pointlevelList;
+    private Map<Long, MyPoint> pointList = new HashMap<Long, MyPoint>();
     private float[][] tdata;
       		
 
@@ -73,15 +76,16 @@ public  class Delaunay {
 			System.out.println ("bounding box " + pt.toString());	
     	}
     	processData(mydata, boundingBox);
-    	 pruneLineData();
-        
-    	 printLinesTransformed();
+    	 Onion onion = new Onion (tree,   pointList, allLines);
+    	 onion.walkOut();
+    	 printLines();
+    	 
     }
     
     public Delaunay ( float[][] data){
        // System.out.println (data.length + "  " +data[0].length);
         this.data = data;
-        
+        NPTS = data.length;
         boundingBox = init();
     
         
@@ -89,9 +93,13 @@ public  class Delaunay {
            System.out.println (p.toString());
         processData(data, boundingBox);
      //   pruneTriangleData();
-        pruneLineData();
-   
+      //  pruneLineData();
+      //  Onion onion = new Onion (tree, allLines, pointList);
+        
+        Onion onion = new Onion (tree, pointList, allLines);
+        onion.walkOut();
         printLines();
+       // tree.printTree();
       
     }
     
@@ -100,6 +108,8 @@ public  class Delaunay {
     private MyPoint[] init (MyPoint[] mydata){
     	
     	for (int i=0; i < mydata.length; i++){
+    		pointList.put(mydata[i].getId(), mydata[i]);
+    		
     		//System.out.println (mydata[i].getX() + ", "+ mydata[i].getY());
             if (mydata[i].getX() < minx) minx=mydata[i].getX();
             if (mydata[i].getX() > maxx) maxx = mydata[i].getX();
@@ -109,6 +119,9 @@ public  class Delaunay {
         }
     	String[]abc={"A", "B", "C"};
     	MyPoint[] trifp = createBoundingBox (minx, maxx, miny,  maxy);
+    	pointList.put(trifp[0].getId(), trifp[0]);
+    	pointList.put(trifp[1].getId(), trifp[1]);
+    	pointList.put(trifp[2].getId(), trifp[2]);
     	for (int i=0; i < trifp.length; i++){
     		trifp[i].setName(abc[i]);
             if (trifp[i].getX() < minx) minx=trifp[i].getX();
@@ -149,6 +162,7 @@ public  class Delaunay {
         
             //create an artificial bounding box based on these values
         MyPoint[] trifp = createBoundingBox (minx, maxx, miny,  maxy);
+       
       //  MyPoint[] trifp = createBoundingBox();
         for (int i=0; i < trifp.length; i++){
             if (trifp[i].getX() < minx) minx=trifp[i].getX();
@@ -160,6 +174,12 @@ public  class Delaunay {
          
   try{
         Triangle tri = new Triangle (trifp[0], trifp[1], trifp[2]);
+        trifp[0].setName("A");
+        trifp[1].setName("B");
+        trifp[2].setName("C");
+        pointList.put(trifp[0].getId(), trifp[0]);
+        pointList.put(trifp[1].getId(), trifp[1]);
+        pointList.put(trifp[2].getId(), trifp[2]);
         tree = new TriangleTree(tri);
     
        /** frame.addPoint (new MyPoint (470, 10));
@@ -188,22 +208,27 @@ public  class Delaunay {
         float x1 = (float)0.5 * (minx + maxx);
         float y1 = maxy + bigscale * dely;
         boundingtri[0] = new MyPoint (x1, y1 );
+        boundingtri[0].setLevel(0);
         
         
        float x2 =minx- (float)0.5* bigscale*delx;
        float y2 = miny- (float)0.5*bigscale*dely;
         boundingtri[1] = new MyPoint (x2, y2);
+        boundingtri[1].setLevel(0);
+
         
         float x3 = maxx + (float) 0.5*bigscale * delx;
         float y3 = miny - (float) 0.5*bigscale * dely;
         boundingtri[2] = new MyPoint (x3, y3);
-        
-        
-        
-        System.out.println ("  Bounding Triangle ");
-        for (int i=0; i < boundingtri.length; i++){
-            System.out.println (boundingtri[i].toString());
+        boundingtri[2].setLevel(0);
 
+        
+        if (DEBUG_1){
+	        System.out.println ("  Bounding Triangle ");
+	        for (int i=0; i < boundingtri.length; i++){
+	            System.out.println (boundingtri[i].toString());
+	
+	        }
         }
 
         return boundingtri;
@@ -217,24 +242,29 @@ public  class Delaunay {
     public void processData (float[][] data, MyPoint []trifp) {
        // boundingBox = trifp;
      //   tree.traverseTree();/**????**/
-        for (int i=0; i < data.length; i++){
-            
-            MyPoint fp = new MyPoint (data[i][0], data[i][1]);
+    	
+    	if (data.length < NPTS) NPTS=data.length;
+        for (int i=0; i < NPTS; i++){
+         
+            MyPoint   fp = new MyPoint (data[i][0], data[i][1]);
+          
+            pointList.put(fp.getId(), fp);
             fp.setName(""+ i);
-            System.out.println ("Point "+ i + ".  " + data[i][0] + ", "+ data[i][1] + ", "+fp.getFreq());
+            System.out.println ("\nPoint "+ i + ".  " + data[i][0] + ", "+ data[i][1] + ", "+fp.getFreq());
     //        System.out.println (fp.toString() + "  "+ fp.hashCode());
+            
             addNewPoint (fp);
             
         
         }
         //remove the first big triangle and all of its edges.
      //   dumpLineHash();
-        tree.markDead();
+   //     tree.markDead();
       //  Long rootId = tree.treeRoot.getId();
-        MyPoint[] rootpts = tree.treeRoot.getPoints();
-        removeLineFromHash (rootpts[0], rootpts[1]);
-        removeLineFromHash (rootpts[1], rootpts[2]);
-        removeLineFromHash (rootpts[2], rootpts[0]);
+     //   MyPoint[] rootpts = tree.treeRoot.getPoints();
+     //   removeLineFromHash (rootpts[0], rootpts[1]);
+     //   removeLineFromHash (rootpts[1], rootpts[2]);
+     //   removeLineFromHash (rootpts[2], rootpts[0]);
       
         
     }
@@ -246,28 +276,24 @@ public  class Delaunay {
     public void processData (MyPoint[] points, MyPoint[] trifp){
     	System.out.println(" how many points are there? "+ points.length);
     	int n =points.length;
-    	int size = 10;
-    	int []rann = new int[size];
+    	
+    	int []rann = new int[NPTS];
     	Random random = new Random(3234567);
-    	for (int i=0; i < size; i++){
+    	for (int i=0; i < NPTS; i++){
     		rann[i] = random.nextInt (n);
     		//System.out.println (rann[i]);
-    		System.out.println (points[rann[i]].getX() + "\t" + points[rann[i]].getY());
+    		//System.out.println (points[rann[i]].getX() + "\t" + points[rann[i]].getY());
     	}
     	
     	
-    	if (n > size)n=size;
-    	for(int i = 0; i < n; i++){
-    		System.out.println ("Point "+i + ". " +points[rann[i]].toString()+ " "+ points[rann[i]].getFreq());
+    	if (n < NPTS)
+    		NPTS=n;
+    	for(int i = 0; i < NPTS; i++){
+    		//System.out.println ("Point "+i + ". " +points[rann[i]].toString()+ " "+ points[rann[i]].getFreq());
     		points[rann[i]].setName(""+ i);
     		addNewPoint(points[rann[i]]);
     	}
-    	tree.markDead();
-        //  Long rootId = tree.treeRoot.getId();
-          MyPoint[] rootpts = tree.treeRoot.getPoints();
-          removeLineFromHash (rootpts[0], rootpts[1]);
-          removeLineFromHash (rootpts[1], rootpts[2]);
-          removeLineFromHash (rootpts[2], rootpts[0]);
+    
           
     }
 
@@ -302,6 +328,7 @@ public  class Delaunay {
             return;
             }
         }
+     //   assignLevel (containing, pt);
         //create 3 new triangles and queue them for testing
 //        System.out.println (" containing triangle = " + containing.toString());
         MyPoint[][] newlines = containing.makeDaughters (pt);
@@ -341,13 +368,7 @@ public  class Delaunay {
             MyPoint fourth = null;
            // Triangle testTri = triangleQueue.get(nextTask);
             Triangle testTri = triangleStack.pop();
-            System.out.println (nextTask + ". testtri = " + testTri.toString());
-           /** if (testTri.getLiveStatus() == false){
-                System.out.println (" Skip this one.  " + testTri.toString());
-                nextTask++;
-                continue;
-            	
-            }**/
+         
             if (testTri.getLiveStatus()) {
             MyPoint[] testpts = testTri.getPoints();
             Long keypt = makeHashCodeForLine (testpts[C], testpts[B]);
@@ -355,8 +376,8 @@ public  class Delaunay {
             
             if (lineHash.containsKey (keypt)) {
                  fourth = lineHash.get (keypt);
-                 System.out.print(keypt + "--- ");
-                 System.out.println ("Fourth point "+ ptToString(fourth) + " for points "+ptToString(testpts[C])+ " and "+ ptToString(testpts[B]));
+               //  System.out.print(keypt + "--- ");
+              //   System.out.println ("Fourth point "+ ptToString(fourth) + " for points "+ptToString(testpts[C])+ " and "+ ptToString(testpts[B]));
                  if (fourth.equals(testpts[A])){
                 	 System.out.println ("  This is an error !! ");
                  }
@@ -366,6 +387,7 @@ public  class Delaunay {
                 	try{
 	                    newone = new Triangle(testpts[A], testpts[B], fourth);
 	                    newtwo = new Triangle (testpts[A], fourth, testpts[C]);  
+	                    
                 	}catch (Circle.ColinearPointsException e){
                 		System.out.println ("(1) " +e.getMessage());
                 	}
@@ -376,18 +398,18 @@ public  class Delaunay {
 	                    addNewLine (fourth, testpts[A]);
 	//                    System.out.println ("new one ? " + newone.toString());
 	                    hashATriangle (newone);
-                	
+                	  //  reassignLevel (testpts[A], testpts[B], fourth);
 	                
 	                    addNewLine (testpts[A], fourth);
 	                    addNewLine (fourth, testpts[C]);
 	                    addNewLine (testpts[C], testpts[A]);
-	                    
+	                 //   reassignLevel (testpts[A], fourth, testpts[C]);
 	                    hashATriangle (newtwo);
                 
                     
  
 
-                //erase the two old triangles 
+                //erase the two old triangles and add the new daughters
                   key = new Long (testTri.getId());
                   eraseTriangle(key, testTri, newone, newtwo);
                   checkTheQueue (key, testTri, nextTask);
@@ -407,6 +429,7 @@ public  class Delaunay {
                   
                 //erase the line in both directions
                    removeLineFromHash (testpts[B], testpts[C]);
+                //   reassignLevel (testpts[B], testpts[C]);
 //                   frame.eraseLine (testpts[B], testpts[C]);
                
 
@@ -417,19 +440,29 @@ public  class Delaunay {
                    triangleStack.push (newtwo);
                 }
             }
-
-            
+   
             }
-           /** else {
-                System.out.println ("There is no fourth point ");
-            }**/
-       //     System.out.println ("......... after one iteration of the queue ..........");
-           // nextTask++;
-            }
+      }
 
         }
 
     }
+    
+    private void assignLevel (Triangle tri, MyPoint pt){
+    	//find the minimum level in the triangle and assign level+1 to pt
+    	MyPoint[] tript= tri.getPoints();
+    	int min = 999999999;
+    	for (MyPoint ptri: tript){
+    		//System.out.println ("assign level "+ ptri.toString()+ ", "+ ptri.getLevel());
+    		if (ptri.getLevel() < min)
+    			min = ptri.getLevel();
+    		
+    	}
+    	pt.setLevel( min +1);
+    //	System.out.println (" new point "+ pt.toString() + ", "+ pt.getLevel());
+    }
+    
+    
     
     /**  
      *******************************************************************************
@@ -439,14 +472,15 @@ public  class Delaunay {
 	    	Long key = makeHashCodeForLine (A, B);
 	    	Long keyneg = 0-key;
 	    	MyPoint[] newline={A,B};
+	    //	MyPoint[] negline={B,A};
 	    	if (!allLines.containsKey(key) && !allLines.containsKey(keyneg)){
-	    		allLines.put(key, newline);
+	    		allLines.put(key, newline);	
+	    	//	allLines.put(keyneg, negline);
 	    		//System.out.println ("addNewLine "+ ptToString(A) + ", "+ ptToString(B));
 	    	}
-	    	
+	
     	}
     		
-    	
     }
     
     /**
@@ -475,11 +509,13 @@ public  class Delaunay {
     private void checkTheQueue (Long key, Triangle tri, int nextTask){
     	
     	Iterator<Triangle> it = triangleStack.iterator();
-    	System.out.println("Check the Queue ");
-    	System.out.println ("\t" + tri.toString() + tri.getId());
+    	if (DEBUG_1){
+	    	System.out.println("Check the Queue ");
+	    	System.out.println ("\t" + tri.toString() + tri.getId());
+    	}
     	while (it.hasNext()){
     		Triangle qtri = it.next();
-    		System.out.println (qtri.toString() + qtri.getId());
+    		//System.out.println (qtri.toString() + qtri.getId());
     		
     		if (qtri.getId() == tri.getId()){
     			qtri.setLiveStatus(false);
@@ -524,17 +560,17 @@ public  class Delaunay {
         
         triangleHash.put (hint, tri);
         MyPoint[] points = tri.getPoints();
- System.out.print (" Hash a Triangle " +  ptToString (points[0]) + "  "+ ptToString(points[1]) + "  " + ptToString(points[2]));
- System.out.println ("  hashcode = " + hint);    
+// System.out.print (" Hash a Triangle " +  ptToString (points[0]) + "  "+ ptToString(points[1]) + "  " + ptToString(points[2]));
+// System.out.println ("  hashcode = " + hint);    
         Long linehash = makeHashCodeForLine (points[A], points[B]);
         lineHash.put (linehash, points[C]);
-    System.out.println (linehash + " key for " + points[C].toString());
+ //   System.out.println (linehash + " key for " + points[C].toString());
         linehash = makeHashCodeForLine (points[B], points[C]);
         lineHash.put (linehash, points[A]);
-    System.out.println (linehash + " key for " + points[A].toString());
+ //   System.out.println (linehash + " key for " + points[A].toString());
         linehash = makeHashCodeForLine (points[C], points[A]);
         lineHash.put (linehash, points[B]);
-    System.out.println (linehash + " key for " + points[B].toString());
+ //   System.out.println (linehash + " key for " + points[B].toString());
 
 
     }
@@ -543,17 +579,15 @@ public  class Delaunay {
 
     public void removeLineFromHash (MyPoint a, MyPoint b){
 
-        System.out.println ("..........removeLine from hash " + ptToString(a) + ","+ ptToString(b));
-        System.out.println ("............................." + a.hashCode() + ", " + b.hashCode());
-        
+    	if (DEBUG_1){
+	        System.out.println ("..........removeLine from hash " + ptToString(a) + ","+ ptToString(b));
+	        System.out.println ("............................." + a.hashCode() + ", " + b.hashCode());
+    	}
 
         Long keyi = new Long (a.hashCode() - b.hashCode());
         
         if (lineHash.containsKey (keyi)){
            MyPoint p = lineHash.remove(keyi);
-           System.out.println (keyi + "..... "+ ptToString(p));
-           // lineHash.remove (keyi);
-           // frame.eraseLine (a, b);
          
         }
         else
@@ -570,7 +604,6 @@ public  class Delaunay {
         if (lineHash.containsKey (keyi)){
 
             MyPoint p = lineHash.remove (keyi);
-            System.out.println (keyi.toString() + "........ "+ ptToString(p));
          //   frame.eraseLine (b, a);
 
         }
@@ -582,16 +615,7 @@ public  class Delaunay {
         	allLines.remove(keyi);
         }
         
-  /**      System.out.println (".......................lineHash after removing ..........");
-        Set<Long> keys = lineHash.keySet();
-        Iterator <Long> it = keys.iterator();
-        while (it.hasNext()){
-        	Long k = it.next();
-        	MyPoint pt = lineHash.get(k);
-        	System.out.println(k + "  for "+ ptToString(pt));
-        }
-        System.out.println (".......................lineHash after removing ..........");**/
-
+  
     }
 
     /*
@@ -601,6 +625,10 @@ public  class Delaunay {
      * positive is inside
      * 0 is on the line
      * negative is outside of the circle.
+     * point d, point a, b,c
+     * Circle cc = circumcircle(a,b,c);
+	Doub radd = SQR(d.x[0]-cc.center.x[0]) + SQR(d.x[1]-cc.center.x[1]);
+	return (SQR(cc.radius) - radd);
      */
     private boolean testForDistance (MyPoint pt, Triangle onetri){
         boolean flag= false;
@@ -611,6 +639,9 @@ public  class Delaunay {
         if (pt != null){
         	if(onetri.getCircle() == null)
         		return false;
+        	//System.out.println (" TestForDistance point is "+ pt.toString());
+        //	System.out.println (" Triangle is "+ onetri.toString());
+        	//System.out.println (" Circle center is " + onetri.getCircle().getCenter() + ", "+ onetri.getCircle().getRadius());
             radius = onetri.getCircle().getRadius();
             MyPoint center = onetri.getCircle().getCenter();
             if (center == null){
@@ -619,27 +650,17 @@ public  class Delaunay {
             }
             radd = (pt.getX() - center.getX())*(pt.getX()-center.getX())+ (pt.getY()-center.getY())*(pt.getY()-center.getY());
             distance = radius*radius - radd;
-System.out.println( "distance is "+ distance);
             if (distance == 0){
                 System.out.println ("Points are co-linear!!!");
             }
             if (distance > 0)
                 flag = true;
         }
-        System.out.println ("testForDistance "+ flag + " "+radius + " || "+ distance + " || " + radd);
+     //   System.out.println ("testForDistance "+ flag + " radius = "+radius + ", distance = "+ distance + ", distance pt to center " + radd);
         return flag;
 
     }
-    /** look through the tree of triangles.  Some of the lines are connected to the points in the
-     * boundingBox.  These need to be 'removed' from the final solution.  The other end of a removed
-     * line is on the convex hull.  Assign a level to the triangles.  Level 0 is the bounding box.  The
-     * daughters are level 1 and so on ...
-     * 
-     *  */
-    private void pruneTriangleData (){
-    	System.out.println ("pruneTriangle Data has been commented out.");
-    	//tree.pruneLineData ();
-    }
+    
     
     private void pruneLineData (){
     	Set<Long> keys = allLines.keySet();
@@ -648,8 +669,7 @@ System.out.println( "distance is "+ distance);
     	while (it.hasNext()){
     		Long key = it.next();
     		if (allLines.containsKey(key)){
-    			MyPoint[] oneline = allLines.get(key);
-    			
+    			MyPoint[] oneline = allLines.get(key);  			
     			markPoint (oneline[0], oneline[1]);
     			
     		}
@@ -662,11 +682,11 @@ System.out.println( "distance is "+ distance);
 
        
     private void printLinesTransformed(){
-    	Set<Long> keys = lineHash.keySet();
-    	Iterator<Long>it = keys.iterator();
+    	//Set<Long> keys = lineHash.keySet();
+    	//Iterator<Long>it = keys.iterator();
     	//MyPoint []pts = (MyPoint[]) allLines.get (key);
     	
-    	tdata = transformLineData ();
+    	tdata = transformLineData ();  //this has already been done by pruning the data.
     	File f = new File ("./printRR.r");
         FileOutputStream fw = null;
         try{
@@ -691,17 +711,20 @@ System.out.println( "distance is "+ distance);
     }
     
     private void printLines() {
+    	/* don't print lines to infinity */
     	
-    	System.out.println (lineHash.size());
+    //	System.out.println (lineHash.size());
     	Set<Long> keys = lineHash.keySet();
     	Iterator<Long>it = keys.iterator();
     	//MyPoint []pts = (MyPoint[]) allLines.get (key);
-    	File f = new File ("./printRR.r");
+    	
+    	File f = new File ("./R/trianglesAsLines.r");
+    	
         FileOutputStream fw = null;
        // printDataFrame
         try{
 	        	fw= new FileOutputStream (f);
-	        	String h = "x1\ty1\tLevel1\tx2\ty2\tLevel2\n";
+	        	String h = "Name1\tx1\ty1\tLevel1\tName2\tx2\ty2\tLevel2\n";
 	        	//System.out.print(h);
 	            fw.write(h.getBytes());
 	            //include the bounding triangle
@@ -710,11 +733,10 @@ System.out.println( "distance is "+ distance);
 	            	if (allLines.containsKey(key)){
 		        		MyPoint[] pts = allLines.get(key);
 		        		if (pts != null && inBounds(pts)){
-		        		//	MyPoint pt1=pointlevelList.get(pts[0].getId());
-		        		//	MyPoint pt2=pointlevelList.get(pts[1].getId());
-		        			//System.out.println (pt1.getLevel() + "-"+pts[0].getLevel() + ", "+ pt2.getLevel() + "-" +pts[1].getLevel() );
-		        		    StringBuilder buf = new StringBuilder (pts[0].getX()+"\t"+pts[0].getY());
+		        			StringBuilder buf = new StringBuilder(pts[0].getName()+"\t");
+		        		    buf = buf.append (pts[0].getX()).append("\t").append(pts[0].getY());
 		        		    buf.append("\t").append(pts[0].getLevel());
+			        		buf.append("\t").append(pts[1].getName());
 			        		buf.append("\t").append(pts[1].getX()).append("\t").append(pts[1].getY());
 			        		buf.append("\t").append(pts[1].getLevel()).append("\n");
 			        		
@@ -846,28 +868,25 @@ System.out.println( "distance is "+ distance);
 //        System.out.print ("GetHashTriangle Hashcode = " + hashcode + a.toString() + ", "+ b.toString() + ", " + c.toString());
         if (triangleHash.containsKey (new Long (hashcode))){
             tri = triangleHash.get (new Long (hashcode));
-            if (tri != null)
-                System.out.println ("  Found this triangle " + tri.toString());
-            else
-            	System.out.println (" No triangle found for key = " + hashcode);
+            if (tri == null)
+               System.out.println (" No triangle found for key = " + hashcode);
         }
         return tri;
     }
     
     /**
-     * Called when printing.  If not inbounds, the line is not printed
+     * Called when printing.  Do not print the line if one end is on the bounding box
      * @param line
      * @return
      */
     
     private boolean inBounds(MyPoint[] line){
     	boolean in = true;
-    	if (line[0].getLoc() == MyPoint.OUT){
+    	
+    	if (line[0].level == 0)
     		in = false;
-    	}
-    	else if (line[1].getLoc() == MyPoint.OUT){
+    	else if (line[1].level == 0)
     		in = false;
-    	}
     	
     	return in;
     }

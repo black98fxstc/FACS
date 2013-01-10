@@ -33,21 +33,61 @@ public class DelaunayController {
     		
 
     DelaunayController() {
-    	float[][]mydata = new float[NPTS][2];
-        
+    //	int twice = NPTS*2;
+    //	float[][]mydata = new float[twice][2];
+     /**   
         Random random = new Random (314128759);
         for (int i=0; i < NPTS; i++){
-            mydata[i][0] = random.nextFloat()*10;
-            mydata[i][1] = random.nextFloat()*10;
-            System.out.println (mydata[i][0] + "\t"+ mydata[i][1]);
-           /** mydata[i][0] = (float)random.nextGaussian()*10;
-            mydata[i][1] = (float)random.nextGaussian()*10;**/
-
+            mydata[i][0] = (float)random.nextGaussian()*100+300;
+            mydata[i][1] = (float)random.nextGaussian()*100+300;
+         //   System.out.println (mydata[i][0] + "\t"+ mydata[i][1]);
+         
         }
+       
+        for (int i= NPTS; i< twice; i++){
+        	mydata[i][0] = (float)random.nextGaussian()*100;
+        	mydata[i][1] = (float)random.nextGaussian()*100;
+        }
+        **/
+    	//float[][] mydata = getGaussianData (100);
+    	
+    	float[][] mydata = getBimodalData(200);
+    	
         
       
     //   float [][] sample = dataReader.getRandomSample(data, 8, 13);
          delaunay = new Delaunay ( mydata);
+    }
+    
+    DelaunayController (FCSFile fn){
+    	
+    }
+    
+    private float[][] getGaussianData(int n){
+    	float[][] data = new float[n][2];
+    	Random random = new Random (314128759);
+    	for (int i=0; i < n; i++){
+    		data[i][0] = (float) random.nextGaussian()*100 + 300;
+    		data[i][1] = (float) random.nextGaussian()*100 + 300;
+    	}
+    	
+    	return data;
+    	
+    }
+    private float[][] getBimodalData (int n){
+    	int twice = n*2;
+    	float[][] data = new float[twice][2];
+    	Random random = new Random (314128759);
+    	for (int i=0; i < n; i++){
+    		data[i][0] = (float) random.nextGaussian()*100 + 300;
+    		data[i][1] = (float) random.nextGaussian()*100 + 300;
+    	}
+    	for (int i= NPTS; i< twice; i++){
+        	data[i][0] = (float)random.nextGaussian()*100;
+        	data[i][1] = (float)random.nextGaussian()*100;
+        }
+    	return data;
+    	
     }
     
     /*
@@ -134,11 +174,14 @@ public class DelaunayController {
     		 fn = args[0];
     	}
     	else {
-         fn = "/Users/cate2/Eclipse/workspace/NewOne/Delaunay/data/1_ip_C.fcs";//or 5_ivC.fcs
+         fn = "/Users/cate2/Eclipse/workspace/NewOne/Delaunay/data/4-4.fcs";//or 5_ivC.fcs
+         
+     //    File file = new File (fn);
+     //    FCSFile fcs = new FCSFile (fn);
     	}
        
-        DelaunayController controller = new DelaunayController (fn);
-        //  DelaunayController controller = new DelaunayController();
+    //    DelaunayController controller = new DelaunayController (fn);
+       DelaunayController controller = new DelaunayController();
     }
 
 }

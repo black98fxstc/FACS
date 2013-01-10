@@ -25,9 +25,10 @@ public class Triangle {
     private static int C=2;
     private boolean LIVE = true;
     private int level;
+    private int treeLevel=0;
     private long id;
     private MyPoint[] points = new MyPoint[MAX];
-  //  private int[] tripts = new int [3];
+ 
     private DefaultMutableTreeNode treeNode;
     private boolean [] validLines = new boolean[3];
     //0 = AB, 1 = BC, 2 = CA.  A line is valid when neither of its end points is connected to
@@ -94,6 +95,13 @@ public class Triangle {
 
     public MyPoint[] getPoints() {
         return points;
+    }
+    
+    public void setTreeLevel(int i) {
+    	treeLevel = i;
+    }
+    public int getTreeLevel() {
+    	return treeLevel;
     }
    
 
@@ -209,10 +217,8 @@ public class Triangle {
           }
           
         }
-       
-        System.out.println ("Contains "+ toString() + "  "+ p.toString());
-        System.out.println (d + " flag = "+ flag);
-        return flag?0:1;
+        
+      return flag?0:1;
     }
     
     private double determinant (MyPoint p1, MyPoint p2){
@@ -345,7 +351,7 @@ public class Triangle {
 		        	buf.append(points[A].getY()).append("\n");
         		
         	}
-        	System.out.println(buf.toString());	
+        	//System.out.println(buf.toString());	
         	fw.write(buf.toString().getBytes());
         }
        
@@ -442,7 +448,7 @@ public class Triangle {
     	}
     	}
     	
-    	System.out.println ("Prune -- "+ toString());
+    	//System.out.println ("Prune -- "+ toString());
     	for (Triangle d : daughters){
     		if (d!= null)
     			d.prune(level+1, box, pruning);
@@ -558,10 +564,10 @@ public class Triangle {
         private void circumcircle()  throws ColinearPointsException{
         //xpoints, ypoints, npoints from triangle
             double a0, a1, c0, c1;
-            a0 = mytri.points[0].getX() - mytri.points[1].getX();
-            a1 = mytri.points[0].getY() - mytri.points[1].getY();
-            c0 = mytri.points[2].getX() - mytri.points[1].getX();
-            c1 = mytri.points[2].getY() - mytri.points[1].getY();
+            a0 = mytri.points[A].getX() - mytri.points[B].getX();
+            a1 = mytri.points[A].getY() - mytri.points[B].getY();
+            c0 = mytri.points[C].getX() - mytri.points[B].getX();
+            c1 = mytri.points[C].getY() - mytri.points[B].getY();
             
              
             double det = a0*c1-(c0*a1);
@@ -587,10 +593,10 @@ public class Triangle {
 
 
             float xf =  (float) (ctr0 + mytri.points[B].getX());
-            float yf =  (float) (mytri.points[B].getY() +  ctr1); // because of the weird display coordinates
+            float yf =  (float) (ctr1 + mytri.points[B].getY()); 
 
             center = new MyPoint (xf,yf);
-//            System.out.println ("Printing the radius and center of the circle " + radius + " ("+ xf + ", "+yf + ")");
+          //  System.out.println ("Printing the radius and center of the circle " + radius + " ("+ xf + ", "+yf + ")");
         }
 
         public MyPoint getCenter(){
