@@ -29,7 +29,7 @@ public class DelaunayController {
     private String[] detectors;
   //  private FloatingPoint[] initialPoints = new FloatingPoint[4];
   //  private TriangleTree tree;
-    private int NPTS=50;
+    private int NPTS=400;
     		
 
     DelaunayController() {
@@ -51,7 +51,7 @@ public class DelaunayController {
         **/
     	//float[][] mydata = getGaussianData (100);
     	
-    	float[][] mydata = getBimodalData(200);
+    	float[][] mydata = getBimodalData(NPTS);
     	
         
       
