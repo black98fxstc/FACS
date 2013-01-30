@@ -10,6 +10,11 @@ package edu.stanford.facs.transform;
 public class TransformParameterException
 		extends IllegalArgumentException
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1130649252534189960L;
+
 	public TransformParameterException(String string)
 	{
 		super(string);
