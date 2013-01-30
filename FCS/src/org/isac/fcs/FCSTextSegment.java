@@ -38,19 +38,19 @@ import java.text.*;
 public class FCSTextSegment
 {
   char delimiter;
-  Hashtable textAttributes;
+  Hashtable<String, String> textAttributes;
   boolean modified = true;
 
   public FCSTextSegment()
   {
     delimiter = '\t';
-    textAttributes = new Hashtable(100);
+    textAttributes = new Hashtable<String, String>(100);
   }
 
-  private FCSTextSegment(FCSTextSegment copy)
+	private FCSTextSegment(FCSTextSegment copy)
   {
     this.delimiter = copy.delimiter;
-    this.textAttributes = (Hashtable)copy.textAttributes.clone();
+    this.textAttributes = new Hashtable<String, String>(copy.textAttributes);
   }
 
   public char getDelimiter()
@@ -64,7 +64,7 @@ public class FCSTextSegment
     this.delimiter = delimiter;
   }
 
-  public Set getAttributeNames ()
+  public Set<String> getAttributeNames ()
   {
     return textAttributes.keySet();
   }
@@ -257,7 +257,7 @@ public class FCSTextSegment
       throws IOException
   {
     out.write(delimiter);
-    Enumeration k = textAttributes.keys();
+    Enumeration<String> k = textAttributes.keys();
     while (k.hasMoreElements())
     {
       String keyword = (String)k.nextElement();
@@ -293,10 +293,10 @@ public class FCSTextSegment
       FCSTextSegment textSegment)
       throws FCSException
   {
-    Iterator it = textSegment.textAttributes.entrySet().iterator();
+    Iterator<Map.Entry<String, String>> it = textSegment.textAttributes.entrySet().iterator();
     while (it.hasNext())
     {
-      Map.Entry entry = (Map.Entry)it.next();
+      Map.Entry<String, String> entry = it.next();
       setAttribute((String)entry.getKey(), (String)entry.getValue());
     }
   }

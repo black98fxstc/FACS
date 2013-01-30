@@ -60,7 +60,7 @@ public class FCSFile
    * A <code>List</code> of <code>FCSParameter</code>s describing the
    * measurements stored in this data file
    */
-  private ArrayList parameters;
+  private ArrayList<FCSParameter> parameters;
 
   /**
    * The first 8 <code>bytes</code> of the HEADER as defined in the standard
@@ -613,13 +613,13 @@ public class FCSFile
    * @throws IOException If in input or output exception occurs
    * @return A <code>List</code> of <code>FCSParameter</code>s
    */
-  public List getParameterList()
+  public List<FCSParameter> getParameterList()
       throws FCSException, IOException
   {
     if (parameters == null)
     {
       int n = getParameters();
-      parameters = new ArrayList(n);
+      parameters = new ArrayList<FCSParameter>(n);
       for (int i = 1; i <= n; ++i)
       {
         FCSParameter p = new FCSParameter(getTextSegment());
@@ -733,10 +733,10 @@ public class FCSFile
       String label)
       throws FCSException, IOException
   {
-    Iterator i = getParameterList().iterator();
+    Iterator<FCSParameter> i = getParameterList().iterator();
     while (i.hasNext())
     {
-      FCSParameter p = (FCSParameter)i.next();
+      FCSParameter p = i.next();
       if (label.equalsIgnoreCase(p.getAttribute("$P", "N")))
         return p;
     }

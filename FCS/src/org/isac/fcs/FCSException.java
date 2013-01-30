@@ -32,8 +32,12 @@ package org.isac.fcs;
 public class FCSException
     extends Exception
 {
-
   /**
+	 * 
+	 */
+	private static final long serialVersionUID = 9011657314510733715L;
+
+	/**
    * Construct an <code>FCSException</code> with a <code>String</code> detail
    * message
    *
