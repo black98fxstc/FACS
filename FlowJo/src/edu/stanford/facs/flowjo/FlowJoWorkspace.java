@@ -118,10 +118,10 @@ public class FlowJoWorkspace
       Node sample = sampleList.appendChild(doc.createElement("Sample"));
 
       Node keywords = sample.appendChild(doc.createElement("Keywords"));
-      Iterator k = headers[i].getAttributeNames().iterator();
+      Iterator<String> k = headers[i].getAttributeNames().iterator();
       while (k.hasNext())
       {
-        String attribute = (String)k.next();
+        String attribute = k.next();
         Element keyword = doc.createElement("Keyword");
         keyword.setAttribute("name", attribute);
         keyword.setAttribute("value", headers[i].getAttribute(attribute));

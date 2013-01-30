@@ -10,16 +10,22 @@
 	<property name="debuglevel" value="source,lines,vars" />
 	<property name="target" value="1.5" />
 	<property name="source" value="1.5" />
-
+	<property name="jaf.home" value="${library}/jaf-1.1.1" />
+	
+	<path id="JAF Library.userclasspath">
+	    <pathelement location="${jaf.home}/activation.jar" />
+	</path>
+		
 	<path id="FCS.classpath">
 		<pathelement location="${FCS.location}/FCS.jar" />
 	</path>
 
 	<path id="FlowJo.classpath">
 		<pathelement location="bin" />
+		<path refid="JAF Library.userclasspath" />
 		<path refid="FCS.classpath" />
 	</path>
-
+			
 	<!-- ================================= 
           target: clean              
          ================================= -->
@@ -50,7 +56,7 @@
 	<target name="compile" depends="init" description="Compile Java sources">
 		<javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}" includeantruntime="false">
 			<src path="src" />
-			<classpath refid="FCS.classpath" />
+			<classpath refid="FlowJo.classpath" />
 		</javac>
 	</target>
 
