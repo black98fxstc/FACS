@@ -28,12 +28,12 @@ public class PanelDesign
 	
 	private  Worker[] workers;
 	
-	final Stack<Solution> toDo = new Stack<Solution>();
+	private final Stack<Solution> toDo = new Stack<Solution>();
 
 	long started = 0;
 	long finished = 0;
 	int solutions = 0;
-	volatile boolean workersExit = false;
+	private volatile boolean workersExit = false;
 
 	private class StainSetImpl
 			extends StainSet
@@ -91,7 +91,7 @@ public class PanelDesign
 		{
 			// this is actually more than we need but allows us to
 			// skip checking a boundry condition when the size is
-			// a multiple -f 64
+			// a multiple of 64
 			this.bits = new long[size / BIT_MULT + 1];
 		}
 
@@ -148,35 +148,29 @@ public class PanelDesign
 		}
 	}
 
-	class FluorochromeSet
+	private static class FluorochromeSet
 			extends Combination
 			implements Comparable<FluorochromeSet>
 	{
-		double minDistance;
+		float minDistance;
 		short[] chosen;
 
-		FluorochromeSet(int choice)
+		FluorochromeSet(int size, int choice)
 		{
-			super(fluorochromes.length);
+			super(size);
 			this.chosen = new short[1];
 			this.chosen[0] = (short) choice;
 			this.set(choice);
-			this.minDistance = Double.POSITIVE_INFINITY;
+			this.minDistance = Float.POSITIVE_INFINITY;
 		}
 
-		FluorochromeSet(FluorochromeSet that, int choice)
+		FluorochromeSet(FluorochromeSet that, int choice, float distance)
 		{
 			super(that);
 			this.chosen = Arrays.copyOf(that.chosen, that.chosen.length + 1);
 			this.chosen[that.chosen.length] = (short) choice;
 			this.set(choice);
-			this.minDistance = that.minDistance;
-			for (int i = 0; i < that.chosen.length; i++)
-			{
-				double d = distance[that.chosen[i]][choice];
-				if (d < this.minDistance)
-					this.minDistance = d;
-			}
+			this.minDistance = distance;
 		}
 
 		@Override
@@ -216,7 +210,7 @@ public class PanelDesign
 		}
 	}
 
-	static class Stain
+	private static class Stain
 			implements Comparable<Stain>
 	{
 		short marker;
@@ -260,16 +254,16 @@ public class PanelDesign
 		}
 	}
 
-	public class Solution
+	private static class Solution
 			extends Combination
 			implements Comparable<Solution>
 	{
 		short[] panel;
 		double stainingIndex;
 
-		public Solution()
+		public Solution(int size)
 		{
-			super(catalogStains.length);
+			super(size);
 			this.panel = new short[0];
 		}
 
@@ -323,7 +317,7 @@ public class PanelDesign
 			List<StainSet> results)
 	{
 		// complete set of fluorochromes so construct a partial solution
-		Solution partial = new Solution();
+		Solution partial = new Solution(catalogStains.length);
 		// excluding any stains that don't use these fluorochromes
 		for (int i = 0; i < catalogStains.length; ++i)
 			if (!set.get(catalogStains[i].fluorochrome))
@@ -637,7 +631,7 @@ public class PanelDesign
 
 		SortedSet<FluorochromeSet> priorityQueue = new TreeSet<FluorochromeSet>();
 		for (int i = 0; i < fluorochromes.length; i++)
-			priorityQueue.add(new FluorochromeSet(i));
+			priorityQueue.add(new FluorochromeSet(fluorochromes.length, i));
 
 		List<StainSet> results = new ArrayList<StainSet>();
 		startWorkers();
@@ -663,7 +657,16 @@ public class PanelDesign
 				// create new sets by adding each currently unused fluorochrome to the set
 				// note that this will cause collisions, which is why the Set interface is required
 				for (int i = 0; (i = set.nextClear(i)) < fluorochromes.length; ++i)
-					priorityQueue.add(new FluorochromeSet(set, i));
+				{
+					Float minDistance = set.minDistance;
+					for (int j = 0; j < set.chosen.length; j++)
+					{
+						float d = distance[set.chosen[j]][i];
+						if (d < minDistance)
+							minDistance = d;
+					}
+					priorityQueue.add(new FluorochromeSet(set, i, minDistance));
+				}
 		}
 		stopWorkers();
 		
