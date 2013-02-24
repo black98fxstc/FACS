@@ -286,6 +286,12 @@ public class PanelDesign
 		}
 	}
 
+	public PanelDesign(int nWorkers, int nSolutions)
+	{
+		this.nWorkers = nWorkers;
+		this.nSolutions = nSolutions;
+	}
+
 	public int getNWorkers ()
 	{
 		return nWorkers;
@@ -459,10 +465,10 @@ public class PanelDesign
 		return score * Math.exp(-.3 * solutions * Math.random());
 	}
 
-	public class Worker
+	private static class Worker
 			extends Thread
 	{
-		private List<StainSet> results = new ArrayList<StainSet>(nSolutions);
+		private List<StainSet> results = new ArrayList<StainSet>(100);
 
 		public void run ()
 		{
@@ -675,11 +681,5 @@ public class PanelDesign
 			results.add(this.results[i]);
 
 		return results;
-	}
-
-	public PanelDesign(int nWorkers, int nSolutions)
-	{
-		this.nWorkers = nWorkers;
-		this.nSolutions = nSolutions;
 	}
 }
