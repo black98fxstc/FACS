@@ -28,7 +28,7 @@ public class PanelTest
 
 	private ZipFile spectraZip;
 	
-	private class TestDetector
+	private static class TestDetector
 			extends Instrument.Detector
 	{
 		Set<String> names = new HashSet<String>();
@@ -40,7 +40,7 @@ public class PanelTest
 		}
 	}
 	
-	private class TestInstrument
+	private static class TestInstrument
 			extends Instrument
 	{
 		private Map<String, Detector> nameMap;
@@ -91,7 +91,7 @@ public class PanelTest
 		}
 	}
 	
-	private class TestMarker
+	private static class TestMarker
 			extends Marker
 	{
 		TestMarker(String name)
@@ -100,7 +100,7 @@ public class PanelTest
 		}
 	}
 
-	private class TestHapten
+	private static class TestHapten
 			extends Hapten
 	{
 		public TestHapten(String name)
@@ -126,7 +126,7 @@ public class PanelTest
 		}
 	}
 
-	private class TestFluorochrome
+	private static class TestFluorochrome
 			extends Fluorochrome
 	{
 		final double[] excitation;
@@ -174,13 +174,13 @@ public class PanelTest
 		@Override
 		public double emissionEffiency (Detector detector)
 		{
-			return PanelTest.this.emissionEffiency(excitation, detector);
+			return PanelTest.emissionEffiency(excitation, detector);
 		}
 
 		@Override
 		public double excitationEffiency (Detector detector)
 		{
-			return PanelTest.this.excitationEffiency(excitation, excitationMaximum, detector);
+			return PanelTest.excitationEffiency(excitation, excitationMaximum, detector);
 		}
 	}
 	
@@ -410,7 +410,7 @@ public class PanelTest
 		return fluorochrome;
 	}
 
-	double excitationEffiency (double[] excitation, int excitation_max,
+	private static double excitationEffiency (double[] excitation, int excitation_max,
 			Detector detector)
 	{
 		double excitation_efficiency =
@@ -419,7 +419,7 @@ public class PanelTest
 		return excitation_efficiency;
 	}
 
-	double emissionEffiency (double[] emission, Detector detector)
+	private static double emissionEffiency (double[] emission, Detector detector)
 	{
 		double emmission_efficiency = 0;
 		for (int i = 0; i < detector.bandPass.length; i++)

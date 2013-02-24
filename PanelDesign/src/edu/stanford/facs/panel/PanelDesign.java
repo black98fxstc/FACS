@@ -259,7 +259,7 @@ public class PanelDesign
 			implements Comparable<Solution>
 	{
 		short[] panel;
-		double stainingIndex;
+		float stainingIndex;
 
 		public Solution(int size)
 		{
