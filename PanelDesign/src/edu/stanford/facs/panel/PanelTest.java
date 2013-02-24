@@ -55,12 +55,9 @@ public class PanelTest
 			if (nameMap == null)
 			{
 				nameMap = new HashMap<String, Detector>();
-				for (Iterator<Detector> i = detectors.iterator(); i.hasNext();)
-				{
-					Detector detector = (Detector) i.next();
+				for (Detector detector : detectors)
 					for (String detector_name : detector.names)
 						nameMap.put(detector_name, detector);
-				}
 			}
 			
 			return nameMap.get(name);
@@ -69,8 +66,6 @@ public class PanelTest
 		@Override
 		public Detector detector (Fluorochrome fluorochrome)
 		{
-			if (fluorochrome.name.equals("PE") || fluorochrome.name.equals("APC"))
-				System.out.println(fluorochrome.name);
 			Detector detector = fluorochromeMap.get(fluorochrome);
 			if (detector == null)
 			{
