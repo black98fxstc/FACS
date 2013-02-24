@@ -31,10 +31,8 @@ public class PanelTest
 	private static class TestDetector
 			extends Instrument.Detector
 	{
-		Set<String> names = new HashSet<String>();
-
 		protected TestDetector(Instrument instrument, int position, Set<String> names, String laser,
-				int wavelength, double power, BandPass[] bandPass)
+				int wavelength, int power, BandPass[] bandPass)
 		{
 			instrument.super(position, names, laser, wavelength, power, bandPass);
 		}
@@ -49,9 +47,6 @@ public class PanelTest
 		public TestInstrument(String name, List<TestDetector> detectors)
 		{
 			super(name, detectors);
-			for (TestDetector detector : detectors)
-				for (String detector_name : detector.names)
-					this.nameMap.put(detector_name, detector);
 		}
 
 		@Override
@@ -74,16 +69,41 @@ public class PanelTest
 		@Override
 		public Detector detector (Fluorochrome fluorochrome)
 		{
+			if (fluorochrome.name.equals("PE") || fluorochrome.name.equals("APC"))
+				System.out.println(fluorochrome.name);
 			Detector detector = fluorochromeMap.get(fluorochrome);
 			if (detector == null)
 			{
-				double peak = 0;
+				double peakExcitation = 0;
+				double peakEmission = 0;
+				int peakWavelength = 0;
+				int lastWavelength = 0;
 				for (int i = 0; i < detectors.size(); ++i)
 				{
-					double effiency = fluorochrome.emissionEffiency(detectors.get(i));
-					if (effiency >= peak)
-						detector = detectors.get(i);
+					Detector d = detectors.get(i);
+					if (lastWavelength != d.wavelength)
+					{
+						double excitation = fluorochrome.excitationEffiency(d);
+						if (excitation > peakExcitation)
+						{
+							peakExcitation = excitation;
+							peakWavelength = d.wavelength;
+							peakEmission = 0;
+							detector = null;
+						}
+					}
+					if (peakWavelength == d.wavelength)
+					{
+						double emission = fluorochrome.emissionEffiency(d);
+						if (emission > peakEmission)
+						{
+							peakEmission = emission;
+							detector = d;
+						}
+					}
+					lastWavelength = d.wavelength;
 				}
+				assert detector != null : "No detector for " + fluorochrome.name;
 				fluorochromeMap.put(fluorochrome, detector);
 			}
 			
@@ -174,7 +194,7 @@ public class PanelTest
 		@Override
 		public double emissionEffiency (Detector detector)
 		{
-			return PanelTest.emissionEffiency(excitation, detector);
+			return PanelTest.emissionEffiency(emission, detector);
 		}
 
 		@Override
@@ -288,7 +308,7 @@ public class PanelTest
 					
 					BandPass[] bandPass = { new BandPass(nm_min, nm_max) };
 					names = new HashSet<String>();
-					detector = new TestDetector(instrument, position, names, laser_name, laser_wavelength, laser_power, bandPass);
+					detector = new TestDetector(instrument, position++, names, laser_name, laser_wavelength, laser_power, bandPass);
 					detectors.add(detector);
 				}
 				names.add(detector_name);
@@ -383,6 +403,7 @@ public class PanelTest
 			if (excitation[j] > excitation[excitation_max])
 				excitation_max = j;
 		}
+		excitation_max += PanelTest.NM_MIN;
 		for (int j = 0; j < PanelTest.NM_BAND; j++)
 		{
 			excitation[j] /= excitation_sum;
@@ -410,12 +431,12 @@ public class PanelTest
 		return fluorochrome;
 	}
 
-	private static double excitationEffiency (double[] excitation, int excitation_max,
+	private static double excitationEffiency (double[] excitation, int excitationMaximum,
 			Detector detector)
 	{
 		double excitation_efficiency =
 				excitation[detector.wavelength - PanelTest.NM_MIN]
-						/ excitation[excitation_max];
+						/ excitation[excitationMaximum - PanelTest.NM_MIN];
 		return excitation_efficiency;
 	}
 
@@ -423,8 +444,8 @@ public class PanelTest
 	{
 		double emmission_efficiency = 0;
 		for (int i = 0; i < detector.bandPass.length; i++)
-			for (int j = detector.bandPass[i].nmMax; j <= detector.bandPass[i].nmMax; ++j)
-				emmission_efficiency += emission[j - PanelTest.NM_MIN];
+			for (int wavelength = detector.bandPass[i].nmMax; wavelength <= detector.bandPass[i].nmMax; ++wavelength)
+				emmission_efficiency += emission[wavelength - PanelTest.NM_MIN];
 		return emmission_efficiency;
 	}
 
@@ -436,7 +457,7 @@ public class PanelTest
 		int Nmarkers;
 
 		Nmarkers = args.length;
-		Nmarkers = 10;
+		Nmarkers = 2;
 
 		try
 		{
@@ -584,27 +605,9 @@ public class PanelTest
 			System.out.println("average tasks per solution " + multiplier);
 			
 			for (StainSet stainSet : results)
-			{
-				System.out.println();
-				System.out.println(stainSet.index);
-				for (int i = 0; i < stainSet.size(); ++i)
-				{
-					System.out.print(stainSet.marker(i));
-					if (stainSet.isIndirect(i))
-					{
-						System.out.print(':');
-						System.out.print(stainSet.hapten(i));
-					}
-					System.out.print(':');
-					System.out.println(stainSet.fluorochrome(i));
-				}
-			}
+				stainSet.print();
 		}
-		catch (IOException ex)
-		{
-			ex.printStackTrace();
-		}
-		catch (InterruptedException ex)
+		catch (Exception ex)
 		{
 			ex.printStackTrace();
 		}

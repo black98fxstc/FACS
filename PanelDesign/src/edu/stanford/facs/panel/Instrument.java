@@ -24,11 +24,11 @@ public abstract class Instrument
 		public final int position;
 		public final String laser;
 		public final int wavelength;
-		public final double laserPower;
+		public final int laserPower;
 		public final BandPass[] bandPass;
 		public final Set<String> names;
 
-		protected Detector(int position, Set<String> names, String laser, int wavelength, double power,
+		protected Detector(int position, Set<String> names, String laser, int wavelength, int power,
 				BandPass[] bandPass)
 		{
 			this.position = position;

@@ -7,7 +7,7 @@ import edu.stanford.facs.panel.Instrument.Detector;
 
 public class PanelDesign
 {
-	private final static boolean DEBUG = false;
+	private final static boolean DEBUG = true;
 	private final static boolean SINGLE_THREAD = true;
 	
 	private int nWorkers;
@@ -131,7 +131,7 @@ public class PanelDesign
 			return i * BIT_MULT;
 		}
 
-		int nextClear (int start)
+		int nextClearX (int start)
 		{
 			int i = start >> BIT_SHIFT;
 			long mask = (1L << (start & BIT_MASK)) - 1L;
@@ -145,6 +145,17 @@ public class PanelDesign
 					return i * BIT_MULT + j;
 			}
 			return i * BIT_MULT;
+		}
+		
+		int nextClear (int start)
+		{
+			int i;
+			for (i = start; i < bits.length << BIT_SHIFT; ++i)
+				if (get(i) == false)
+					break;
+			int j = nextClearX(start);
+			assert i == j : "nextClear failed";
+			return j;
 		}
 	}
 
@@ -322,17 +333,10 @@ public class PanelDesign
 	private void evaluateFluorochromeSet (FluorochromeSet set,
 			List<StainSet> results)
 	{
-		// complete set of fluorochromes so construct a partial solution
-		Solution partial = new Solution(catalogStains.length);
-		// excluding any stains that don't use these fluorochromes
-		for (int i = 0; i < catalogStains.length; ++i)
-			if (!set.get(catalogStains[i].fluorochrome))
-				partial.set(i);
-
 		if (DEBUG)
 		{
-			System.out.print(set.minDistance);
 			Arrays.sort(set.chosen);
+			System.out.print(set.minDistance);
 			for (int i = 0; i < set.chosen.length; ++i)
 			{
 				System.out.print(", ");
@@ -341,15 +345,40 @@ public class PanelDesign
 			System.out.println();
 		}
 		
-		// compute the spectrum matrix in Spe for this set of fluorochromes
-		
+		Fluorochrome[] fluorochromes = new Fluorochrome[markers.length];
+		Detector[] detectors = new Detector[markers.length];
 		double spectrum[][] = new double[markers.length][markers.length];
-		for (int j = 0; j < markers.length; j++)
+		for (int i = 0; i < markers.length; ++i)
 		{
-			Detector detector = instrument.detector(fluorochromes[set.chosen[j]]);
-			for (int i = 0; i < markers.length; i++)
+			Fluorochrome fluorochrome = fluorochromes[i] = this.fluorochromes[set.chosen[i]];
+			Detector detector = detectors[i] = instrument.detector(fluorochrome);
+			// make sure this set of dyes use distinct detectors on the instrument
+			for (int j = 0; j < i; ++j)
+				if (detectors[i] == detectors[j])
+				{
+					if (DEBUG)
+						System.out.println("detector clash " + fluorochromes[i].name + " and " + fluorochromes[j].name);
+					return;
+				}
+			for (int j = 0; j < markers.length; ++j)
 				spectrum[i][j] = spectra[set.chosen[i]][detector.position];
 		}
+		
+		// complete set of fluorochromes so construct a partial solution
+		Solution partial = new Solution(catalogStains.length);
+		// excluding any stains that don't use these fluorochromes
+		for (int i = 0; i < catalogStains.length; ++i)
+			if (!set.get(catalogStains[i].fluorochrome))
+				partial.set(i);
+
+		// compute the spectrum matrix in Spe for this set of fluorochromes
+		
+//		for (int j = 0; j < markers.length; j++)
+//		{
+//			Detector detector = instrument.detector(fluorochromes[set.chosen[j]]);
+//			for (int i = 0; i < markers.length; i++)
+//				spectrum[i][j] = spectra[set.chosen[i]][detector.position];
+//		}
 
 		toDo.push(partial);
 		while (!toDo.isEmpty())
@@ -421,46 +450,43 @@ public class PanelDesign
 				++solutions;
 				double stainingIndex = scorePanel(score, used.panel);
 				Arrays.sort(used.panel);
-				results.add(new StainSetImpl(stainingIndex, used.panel));
+				StainSetImpl stainSet = new StainSetImpl(stainingIndex, used.panel);
+				results.add(stainSet);
 				
 				if (DEBUG)
-				{
-					for (int j = 0; j < used.panel.length; j++)
-					{
-						Stain stain = catalogStains[used.panel[j]];
-						System.out.print(markers[stain.marker]);
-						System.out.print(':');
-						if (stain.hapten >= 0)
-						{
-							System.out.print(haptens[stain.hapten]);
-							System.out.print(':');
-						}
-						System.out.println(fluorochromes[stain.fluorochrome].name);
-					}
-					System.out.println();
-				}
+					stainSet.print();
 			}
 		}
 	}
 	
 	private double scorePanel (double score, short[] panel)
 	{
-		double[][] speExpected = new double[targets.length][markers.length];
-		for (int i = 0; i < speExpected.length; ++i)
-			Arrays.fill(speExpected[i], 0);
-
+		double[][] dyeExpected = new double[targets.length][markers.length];
 		for (int i = 0; i < targets.length; ++i)
 			for (int j = 0; j < markers.length; ++j)
 				if (targets[i][j] == null)
-					speExpected[i][j] = 0;
+					dyeExpected[i][j] = 0;
 				else
 				{
-					double brightness = fluorochromes[catalogStains[panel[j]].fluorochrome].brightness;
-					int excitationEffiency = 0;
-					int emissionEffiency = 0;
-					int laserPower = 0;
-					speExpected[i][j] = targets[i][j].level * brightness * excitationEffiency * laserPower;
+					Fluorochrome fluorochrome = fluorochromes[catalogStains[panel[j]].fluorochrome];
+					Detector detector = instrument.detector(fluorochrome);
+					double brightness = fluorochrome.brightness;
+					double emissionEffiency = fluorochrome.emissionEffiency(detector);
+					double excitationEffiency = fluorochrome.excitationEffiency(detector);
+					int laserPower = detector.laserPower;
+					dyeExpected[i][j] = targets[i][j].level * brightness * excitationEffiency * laserPower;
 				}
+		double[][] speExpected = new double[targets.length][markers.length];
+		for (int i = 0; i < targets.length; ++i)
+			for (int j = 0; j < markers.length; ++j)
+			{
+				Fluorochrome fluorochrome = fluorochromes[catalogStains[panel[j]].fluorochrome];
+				for (int k = 0; k < markers.length; ++k)
+				{
+					Detector detector = instrument.detector(fluorochromes[catalogStains[panel[k]].fluorochrome]);
+					speExpected[i][j] += fluorochrome.emissionEffiency(detector);
+				}
+			}
 		
 		return score * Math.exp(-.3 * solutions * Math.random());
 	}
@@ -611,15 +637,15 @@ public class PanelDesign
 		for (int i = 0; i < fluorochromes.length; ++i)
 		{
 			double peak = 0;
-			for (int j = 1; j < instrument.detectors.size(); ++j)
+			for (int j = 0; j < instrument.detectors.size(); ++j)
 			{
-				Detector detector = instrument.detectors.get(i);
+				Detector detector = instrument.detectors.get(j);
 				double signal = fluorochromes[i].emissionEffiency(detector);
 				spectra[i][j] = signal;
 				if (signal > peak)
 					peak = signal;
 			}
-			for (int j = 1; j < instrument.detectors.size(); ++j)
+			for (int j = 0; j < instrument.detectors.size(); ++j)
 				spectra[i][j] /= peak;
 		}
 
@@ -632,6 +658,12 @@ public class PanelDesign
 				distance[i][j] = distance[j][i] = (float) fluorochromes[i].distance(fluorochromes[j]);
 			distance[i][i] = 0;
 		}
+		for (int i = 0; i < fluorochromes.length; ++i)
+			for (int j = 0; j < i; ++j)
+				for (int m = 0; m < fluorochromes.length; ++m)
+					for (int n = 0; n < m; ++n)
+						if (i != m || j != n)
+							assert distance[i][j] != distance[m][n] : "metric degeneracy";
 
 		// initialize the priority queue
 
@@ -641,14 +673,17 @@ public class PanelDesign
 
 		List<StainSet> results = new ArrayList<StainSet>();
 		startWorkers();
+		Set<FluorochromeSet> alreadySeen = new TreeSet<FluorochromeSet>();
 		while (!priorityQueue.isEmpty() && uselessResults < nSolutions * 10)
 		{
 			// get the best current solution
 
 			FluorochromeSet set = priorityQueue.first();
 			priorityQueue.remove(set);
+			assert !alreadySeen.contains(set) : "duplicate fluorochrome set";
 			if (set.chosen.length == markers.length)
 			{
+				alreadySeen.add(set);
 				// complete set found so evaluate it
 				fluorochromeSetQueue.put(set);
 				if (SINGLE_THREAD)
@@ -667,11 +702,12 @@ public class PanelDesign
 					Float minDistance = set.minDistance;
 					for (int j = 0; j < set.chosen.length; j++)
 					{
-						float d = distance[set.chosen[j]][i];
+						float d = distance[i][set.chosen[j]];
 						if (d < minDistance)
 							minDistance = d;
 					}
-					priorityQueue.add(new FluorochromeSet(set, i, minDistance));
+					if (minDistance < set.minDistance)
+						priorityQueue.add(new FluorochromeSet(set, i, minDistance));
 				}
 		}
 		stopWorkers();

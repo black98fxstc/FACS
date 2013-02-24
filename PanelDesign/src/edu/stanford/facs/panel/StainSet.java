@@ -1,5 +1,7 @@
 package edu.stanford.facs.panel;
 
+import java.io.*;
+
 public abstract class StainSet
 implements Comparable<StainSet>
 {
@@ -21,6 +23,27 @@ implements Comparable<StainSet>
 		if (this.index < that.index)
 			return 1;
 		return 0;
+	}
+	
+	public void print (PrintStream out)
+	{
+		for (int i = 0; i < size(); i++)
+		{
+			out.print(marker(i));
+			out.print(':');
+			if (isIndirect(i))
+			{
+				out.print(hapten(i));
+				out.print(':');
+			}
+			out.println(fluorochrome(i));
+		}
+		out.println();
+	}
+	
+	public void print ()
+	{
+		print(System.out);
 	}
 
 	protected StainSet (double index)
