@@ -459,21 +459,43 @@ public class PanelTest
 		{
 			PanelFactory factory = new PanelTest();
 
-			// make up some staining data from markers on the command line
-
+			// read a panel
+			
 			List<PopulationStaining> populations = new ArrayList<PopulationStaining>();
-			for (int i = 1; i <= 3; ++i)
+			BufferedReader panel_reader = new BufferedReader(new FileReader(new File("panel1.csv")));
+			String line = panel_reader.readLine();
+			String[] markers = line.split("\t");
+			String species = markers[0];
+			while ((line = panel_reader.readLine()) != null)
 			{
+				String[] population = line.split("\t");
 				List<MarkerStaining> staining = new ArrayList<MarkerStaining>();
-				for (int j = 0; j < Nmarkers; ++j)
+				for (int i = 1; i < population.length; ++i)
 				{
-					Marker marker = factory.getMarker(args[j]);
-					int level = (int) Math.exp(4 * Math.log(10) * Math.random());
-					boolean important = Math.random() > .5;
+					Marker marker = factory.getMarker(markers[i]);
+					int level = Integer.parseInt(population[i]);
+					boolean important = level > 0;
 					staining.add(new MarkerStaining(marker, level, important));
 				}
-				populations.add(new PopulationStaining("population " + i, staining));
+				populations.add(new PopulationStaining(population[0], staining));
 			}
+			panel_reader.close();
+
+			// make up some staining data from markers on the command line
+
+//			List<PopulationStaining> populations = new ArrayList<PopulationStaining>();
+//			for (int i = 1; i <= 3; ++i)
+//			{
+//				List<MarkerStaining> staining = new ArrayList<MarkerStaining>();
+//				for (int j = 0; j < Nmarkers; ++j)
+//				{
+//					Marker marker = factory.getMarker(args[j]);
+//					int level = (int) Math.exp(4 * Math.log(10) * Math.random());
+//					boolean important = Math.random() > .5;
+//					staining.add(new MarkerStaining(marker, level, important));
+//				}
+//				populations.add(new PopulationStaining("population " + i, staining));
+//			}
 
 			// get a set of markers for the populations
 
@@ -531,14 +553,14 @@ public class PanelTest
 			int catalogTotal = 0;
 			int markerTotal = 0;
 			int usefulTotal = 0;
-			ZipFile zip = new ZipFile("mouse.zip");
+			ZipFile zip = new ZipFile(species + ".zip");
 			Enumeration<? extends ZipEntry> e = zip.entries();
 			while (e.hasMoreElements())
 			{
 				ZipEntry ze = e.nextElement();
-				BufferedReader br =
+				BufferedReader spectrum_reader =
 						new BufferedReader(new InputStreamReader(zip.getInputStream(ze)));
-				String line = br.readLine();
+				line = spectrum_reader.readLine();
 				String[] field = line.split("\t");
 				int c = -1;
 				int a = -1;
@@ -552,7 +574,7 @@ public class PanelTest
 				if (c == -1 || a == -1)
 					throw new IllegalStateException("Can't read antibody catalog "
 							+ ze.getName());
-				while ((line = br.readLine()) != null)
+				while ((line = spectrum_reader.readLine()) != null)
 				{
 					String[] data = line.split("\t");
 					String conjugated = data[c];
@@ -573,8 +595,8 @@ public class PanelTest
 					++markerTotal;
 					if (conjugated.equalsIgnoreCase("Biotin"))
 					{
-						Set<Marker> markers = haptenReagents.get(biotin);
-						markers.add(antigen);
+						Set<Marker> biotinMarkers = haptenReagents.get(biotin);
+						biotinMarkers.add(antigen);
 						++usefulTotal;
 					}
 					else
