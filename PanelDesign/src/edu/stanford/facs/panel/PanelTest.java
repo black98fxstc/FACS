@@ -100,6 +100,7 @@ public class PanelTest
 				}
 				assert detector != null : "No detector for " + fluorochrome.name;
 				fluorochromeMap.put(fluorochrome, detector);
+				System.out.println(fluorochrome.name + " => " + detector.names);
 			}
 			
 			return detector;
@@ -439,7 +440,7 @@ public class PanelTest
 	{
 		double emmission_efficiency = 0;
 		for (int i = 0; i < detector.bandPass.length; i++)
-			for (int wavelength = detector.bandPass[i].nmMax; wavelength <= detector.bandPass[i].nmMax; ++wavelength)
+			for (int wavelength = detector.bandPass[i].nmMin; wavelength <= detector.bandPass[i].nmMax; ++wavelength)
 				emmission_efficiency += emission[wavelength - PanelTest.NM_MIN];
 		return emmission_efficiency;
 	}
@@ -452,7 +453,7 @@ public class PanelTest
 		int Nmarkers;
 
 		Nmarkers = args.length;
-		Nmarkers = 2;
+		Nmarkers = 10;
 
 		try
 		{
@@ -501,12 +502,26 @@ public class PanelTest
 			haptenReagents.put(biotin, new HashSet<Marker>());
 
 			Set<Fluorochrome> avidin = new HashSet<Fluorochrome>();
-			avidin.add(factory.getFluorochrome("Pacific Blue"));
 			avidin.add(factory.getFluorochrome("Fluorescein (FITC)"));
+			avidin.add(factory.getFluorochrome("PerCP-Cy5.5"));
+			avidin.add(factory.getFluorochrome("Pacific Blue"));
+			avidin.add(factory.getFluorochrome("BV421"));
+			avidin.add(factory.getFluorochrome("BV510"));
+			avidin.add(factory.getFluorochrome("Pacific Orange"));
+			avidin.add(factory.getFluorochrome("BV570"));
+			avidin.add(factory.getFluorochrome("Qdot 605"));
+			avidin.add(factory.getFluorochrome("Qdot 655"));
+			avidin.add(factory.getFluorochrome("BV650"));
+			avidin.add(factory.getFluorochrome("Qdot 705"));
+			avidin.add(factory.getFluorochrome("BV711"));
+			avidin.add(factory.getFluorochrome("BV785"));
 			avidin.add(factory.getFluorochrome("APC"));
+			avidin.add(factory.getFluorochrome("Alexa Fluor 647"));
 			avidin.add(factory.getFluorochrome("APC-Cy5.5"));
 			avidin.add(factory.getFluorochrome("APC-Cy7"));
 			avidin.add(factory.getFluorochrome("PE"));
+			avidin.add(factory.getFluorochrome("PE-Texas Red"));
+			avidin.add(factory.getFluorochrome("PE-Alexa Fluor 610"));
 			avidin.add(factory.getFluorochrome("PE-Cy7"));
 
 			indirectStains.put(biotin, avidin);

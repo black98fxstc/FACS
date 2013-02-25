@@ -7,7 +7,7 @@ import edu.stanford.facs.panel.Instrument.Detector;
 
 public class PanelDesign
 {
-	private final static boolean DEBUG = true;
+	private final static boolean DEBUG = false;
 	private final static boolean SINGLE_THREAD = true;
 	
 	private int nWorkers;
@@ -131,7 +131,7 @@ public class PanelDesign
 			return i * BIT_MULT;
 		}
 
-		int nextClearX (int start)
+		int nextClear (int start)
 		{
 			int i = start >> BIT_SHIFT;
 			long mask = (1L << (start & BIT_MASK)) - 1L;
@@ -146,17 +146,6 @@ public class PanelDesign
 			}
 			return i * BIT_MULT;
 		}
-		
-		int nextClear (int start)
-		{
-			int i;
-			for (i = start; i < bits.length << BIT_SHIFT; ++i)
-				if (get(i) == false)
-					break;
-			int j = nextClearX(start);
-			assert i == j : "nextClear failed";
-			return j;
-		}
 	}
 
 	private static class FluorochromeSet
@@ -166,22 +155,14 @@ public class PanelDesign
 		float minDistance;
 		short[] chosen;
 
-		FluorochromeSet(int size, int choice)
+		FluorochromeSet (int size)
 		{
 			super(size);
-			this.chosen = new short[1];
-			this.chosen[0] = (short) choice;
-			this.set(choice);
-			this.minDistance = Float.POSITIVE_INFINITY;
 		}
-
-		FluorochromeSet(FluorochromeSet that, int choice, float distance)
+		
+		FluorochromeSet (FluorochromeSet that)
 		{
 			super(that);
-			this.chosen = Arrays.copyOf(that.chosen, that.chosen.length + 1);
-			this.chosen[that.chosen.length] = (short) choice;
-			this.set(choice);
-			this.minDistance = distance;
 		}
 
 		@Override
@@ -352,7 +333,7 @@ public class PanelDesign
 		{
 			Fluorochrome fluorochrome = fluorochromes[i] = this.fluorochromes[set.chosen[i]];
 			Detector detector = detectors[i] = instrument.detector(fluorochrome);
-			// make sure this set of dyes use distinct detectors on the instrument
+			// make sure this set of dyes uses distinct detectors on the instrument
 			for (int j = 0; j < i; ++j)
 				if (detectors[i] == detectors[j])
 				{
@@ -370,15 +351,6 @@ public class PanelDesign
 		for (int i = 0; i < catalogStains.length; ++i)
 			if (!set.get(catalogStains[i].fluorochrome))
 				partial.set(i);
-
-		// compute the spectrum matrix in Spe for this set of fluorochromes
-		
-//		for (int j = 0; j < markers.length; j++)
-//		{
-//			Detector detector = instrument.detector(fluorochromes[set.chosen[j]]);
-//			for (int i = 0; i < markers.length; i++)
-//				spectrum[i][j] = spectra[set.chosen[i]][detector.position];
-//		}
 
 		toDo.push(partial);
 		while (!toDo.isEmpty())
@@ -427,7 +399,11 @@ public class PanelDesign
 			Solution used = new Solution(work, i);
 
 			// or never use this reagent
-			toDo.push(work);
+			// since the stains are sorted by marker if the next available stain isn't for this
+			// marker then the set is not feasible
+			int j = work.nextClear(i + 1);
+			if (j < catalogStains.length && catalogStains[i].marker == catalogStains[j].marker)
+				toDo.push(work);
 
 			// if that didn't complete the panel, remove any other reagents that
 			// would clash and keep trying
@@ -668,8 +644,17 @@ public class PanelDesign
 		// initialize the priority queue
 
 		SortedSet<FluorochromeSet> priorityQueue = new TreeSet<FluorochromeSet>();
-		for (int i = 0; i < fluorochromes.length; i++)
-			priorityQueue.add(new FluorochromeSet(fluorochromes.length, i));
+		for (int i = 0; i < fluorochromes.length - 1; i++)
+			for (int j = i + 1; j < fluorochromes.length; ++j)
+			{
+				FluorochromeSet set = new FluorochromeSet(fluorochromes.length);
+				set.set(i);
+				set.set(j);
+				short[] chosen = { (short) i, (short) j };
+				set.chosen = chosen;
+				set.minDistance = distance[i][j];
+				priorityQueue.add(set);
+			}
 
 		List<StainSet> results = new ArrayList<StainSet>();
 		startWorkers();
@@ -706,8 +691,17 @@ public class PanelDesign
 						if (d < minDistance)
 							minDistance = d;
 					}
+					// if this new fluorochrome is further away that the current minimum then there
+					// was a set of the same size with a better score that has already tried this
 					if (minDistance < set.minDistance)
-						priorityQueue.add(new FluorochromeSet(set, i, minDistance));
+					{
+						FluorochromeSet bigger = new FluorochromeSet(set);
+						bigger.set(i);
+						bigger.chosen = Arrays.copyOf(set.chosen, set.chosen.length + 1);
+						bigger.chosen[set.chosen.length] = (short) i;
+						bigger.minDistance = minDistance;
+						priorityQueue.add(bigger);
+					}
 				}
 		}
 		stopWorkers();
