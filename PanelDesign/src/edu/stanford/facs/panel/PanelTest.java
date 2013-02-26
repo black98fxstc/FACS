@@ -100,7 +100,6 @@ public class PanelTest
 				}
 				assert detector != null : "No detector for " + fluorochrome.name;
 				fluorochromeMap.put(fluorochrome, detector);
-				System.out.println(fluorochrome.name + " => " + detector.names);
 			}
 			
 			return detector;

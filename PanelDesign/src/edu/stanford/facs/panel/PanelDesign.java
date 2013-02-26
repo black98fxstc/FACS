@@ -12,14 +12,13 @@ public class PanelDesign
 	
 	private int nWorkers;
 	private int nSolutions;
-
+	private int nImportant;
 	private Instrument instrument;
 	private Marker[] markers;
 	private Fluorochrome[] fluorochromes;
 	private Hapten[] haptens;
 	private Stain[] catalogStains;
 	private MarkerStaining[][] targets;
-	private int nImportant;
 	private float[][] distance;
 	private double[][] spectra;
 	private ArrayBlockingQueue<FluorochromeSet> fluorochromeSetQueue = new ArrayBlockingQueue<FluorochromeSet>(5);
@@ -27,9 +26,7 @@ public class PanelDesign
 	private int resultCount = 0;
 	private int uselessResults = 0;
 	private int solutions = 0;
-	
-	private  FluorochromeSetWorker[] workers;
-	
+	private FluorochromeSetWorker[] workers;
 
 	private class StainSetImpl
 			extends StainSet
@@ -312,10 +309,10 @@ public class PanelDesign
 			
 			// compute compensation variance
 			Arrays.fill(variance, 0);
-			for (int j = 0; j < markers.length; ++j)
-				for (int k = 0; k < markers.length; ++k)
-					variance[j] += compensationSquared[j][k] * observedSignal[j];
-			for (int j = 0; j < markers.length; ++j)
+			for (int j = 0; j < detectors.length; ++j)
+				for (int k = 0; k < detectors.length; ++k)
+					variance[j] += observedSignal[j] * compensationSquared[j][k];
+			for (int j = 0; j < detectors.length; ++j)
 				if (targets[j].important)
 					score += Math.log(trueSignal[j] / Math.sqrt(variance[j]));
 			
@@ -411,17 +408,17 @@ public class PanelDesign
 				while (!toDo.isEmpty())
 				{
 					// get a partial solution and find the next available reagent
-					// if there aren't any this solution in infeasible and we drop it
-					Solution work = toDo.pop();
-					int i = work.nextClear(0);
+					// if there aren't any this solution is infeasible and we drop it
+					Solution partial = toDo.pop();
+					int i = partial.nextClear(0);
 					if (i < catalogStains.length)
 					{
 						// found a reagent so we will dispose of it one way or the other now
 						// by dividing the solutions into two cases
-						work.set(i);
+						partial.set(i);
 
 						// either use it now and therefore fix a reagent in the panel
-						Solution used = new Solution(work, i);
+						Solution used = new Solution(partial, i);
 						if (used.panel.length < markers.length)
 						{
 							// if that didn't complete the panel, remove any other reagents that
@@ -440,7 +437,6 @@ public class PanelDesign
 						{
 							// finished the panel so score it and add it to the list of
 							// candidates
-							++solutions;
 							Arrays.sort(used.panel);
 							double stainingIndex = scorePanel(used.panel);
 							StainSetImpl stainSet = new StainSetImpl(stainingIndex, used.panel);
@@ -459,9 +455,9 @@ public class PanelDesign
 						// otherwise never use this reagent in this family of solutions
 						// since the stains are sorted by marker, if the next available 
 						// stain isn't for this marker then the solution is no longer feasible
-						int j = work.nextClear(i + 1);
+						int j = partial.nextClear(i + 1);
 						if (j < catalogStains.length && catalogStains[i].marker == catalogStains[j].marker)
-							toDo.push(work);
+							toDo.push(partial);
 					}
 				}
 				
@@ -630,12 +626,15 @@ public class PanelDesign
 			Map<Hapten, Set<Fluorochrome>> indirectStains)
 			throws InterruptedException
 	{
+		nImportant = 0;
 		resultCount = 0;
 		uselessResults = 0;
 		if (results == null || results.length < nSolutions * 2)
 			results = new StainSet[nSolutions * 2];
 		
 		this.instrument = instrument;
+		
+		// get the set of markers and impose an order on them
 		
 		Set<Marker> markerSet1 = new HashSet<Marker>();
 		for (PopulationStaining population : populations)
@@ -653,6 +652,8 @@ public class PanelDesign
 		markers = markerSet2.toArray(new Marker[markerSet2.size()]);
 		Arrays.sort(markers);
 		
+		// set up the staining information for rapid access
+		
 		targets = new MarkerStaining[populations.size()][markers.length];
 		for (int i = 0; i < targets.length; ++i)
 		{
@@ -667,6 +668,8 @@ public class PanelDesign
 					targets[i][j] = new MarkerStaining(markers[j], 0, false);
 		}
 
+		// collect all the fluorochromes used and order them
+		
 		Set<Fluorochrome> fluorochromeSet = new HashSet<Fluorochrome>();
 		for (Set<Fluorochrome> fluorochromes : directStains.values())
 			fluorochromeSet.addAll(fluorochromes);
@@ -674,9 +677,13 @@ public class PanelDesign
 			fluorochromeSet.addAll(fluorochromes);
 		fluorochromes = fluorochromeSet.toArray(new Fluorochrome[fluorochromeSet.size()]);
 		Arrays.sort(fluorochromes);
+		
+		// and also the haptens
 
 		haptens = haptenReagents.keySet().toArray(new Hapten[haptenReagents.size()]);
 		Arrays.sort(haptens);
+		
+		// find all the direct stains that are available
 
 		Set<Stain> catalogSet = new TreeSet<Stain>();
 		int directTotal = 0;
@@ -685,14 +692,15 @@ public class PanelDesign
 			int markerCode = Arrays.binarySearch(markers, entry.getKey());
 			for (Fluorochrome fluorochrome : entry.getValue())
 			{
-				int fluorochromeCode =
-						Arrays.binarySearch(fluorochromes, fluorochrome);
+				int fluorochromeCode = Arrays.binarySearch(fluorochromes, fluorochrome);
 				catalogSet.add(new Stain(markerCode, fluorochromeCode));
 				++directTotal;
 			}
 		}
 		if (DEBUG) System.out.println("direct stains for markers " + directTotal);
 
+		// add and indirect stains for which a direct reagent is not available
+		
 		int indirectTotal = 0;
 		for (Map.Entry<Hapten, Set<Marker>> entry : haptenReagents.entrySet())
 		{
@@ -703,8 +711,7 @@ public class PanelDesign
 				int markerCode = Arrays.binarySearch(markers, marker);
 				for (Fluorochrome fluorochrome : indirectStains.get(hapten))
 				{
-					int fluorochromeCode =
-							Arrays.binarySearch(fluorochromes, fluorochrome);
+					int fluorochromeCode = Arrays.binarySearch(fluorochromes, fluorochrome);
 					if (!catalogSet.contains(new Stain(markerCode, fluorochromeCode)))
 					{
 						catalogSet.add(new Stain(markerCode, fluorochromeCode, haptenCode));
@@ -715,6 +722,9 @@ public class PanelDesign
 		}
 		if (DEBUG) System.out.println("indirect stains for markers " + indirectTotal);
 		if (DEBUG) System.out.println("possible stains " + catalogSet.size());
+		
+		// order the stains by marker and then by fluorochrome
+		// we will use this later to optimize the search
 
 		catalogStains = catalogSet.toArray(new Stain[catalogSet.size()]);
 		Arrays.sort(catalogStains);
@@ -780,7 +790,6 @@ public class PanelDesign
 				priorityQueue.add(set);
 			}
 
-		List<StainSet> results = new ArrayList<StainSet>();
 		startWorkers();
 		Set<FluorochromeSet> alreadySeen = new TreeSet<FluorochromeSet>();
 		while (!priorityQueue.isEmpty() && uselessResults < nSolutions * 10)
@@ -814,6 +823,7 @@ public class PanelDesign
 					// was a set of the same size with a better score that has already tried this
 					if (minDistance < set.minDistance)
 					{
+						// otherwise add this fluorochrome to the set and try it
 						FluorochromeSet bigger = new FluorochromeSet(set);
 						bigger.set(i);
 						bigger.chosen = Arrays.copyOf(set.chosen, set.chosen.length + 1);
@@ -825,7 +835,7 @@ public class PanelDesign
 		}
 		stopWorkers();
 		
-		results.clear();
+		List<StainSet> results = new ArrayList<StainSet>();
 		for (int i = 0; i < resultCount; ++i)
 			results.add(this.results[i]);
 
