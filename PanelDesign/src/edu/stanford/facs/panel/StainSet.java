@@ -27,6 +27,7 @@ implements Comparable<StainSet>
 	
 	public void print (PrintStream out)
 	{
+		out.println(index);
 		for (int i = 0; i < size(); i++)
 		{
 			out.print(marker(i));

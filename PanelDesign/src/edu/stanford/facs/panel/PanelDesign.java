@@ -19,21 +19,17 @@ public class PanelDesign
 	private Hapten[] haptens;
 	private Stain[] catalogStains;
 	private MarkerStaining[][] targets;
+	private int nImportant;
 	private float[][] distance;
 	private double[][] spectra;
 	private ArrayBlockingQueue<FluorochromeSet> fluorochromeSetQueue = new ArrayBlockingQueue<FluorochromeSet>(5);
 	private StainSet[] results;
 	private int resultCount = 0;
 	private int uselessResults = 0;
+	private int solutions = 0;
 	
-	private  Worker[] workers;
+	private  FluorochromeSetWorker[] workers;
 	
-	private final Stack<Solution> toDo = new Stack<Solution>();
-
-	long started = 0;
-	long finished = 0;
-	int solutions = 0;
-	private volatile boolean workersExit = false;
 
 	private class StainSetImpl
 			extends StainSet
@@ -278,6 +274,206 @@ public class PanelDesign
 		}
 	}
 
+	private class FluorochromeSetWorker
+			extends Thread
+	{
+		private final short[] markers = new short[PanelDesign.this.markers.length];
+		private final Fluorochrome[] fluorochromes = new Fluorochrome[markers.length];
+		private final Detector[] detectors = new Detector[markers.length];
+		private final double spectrum[][] = new double[markers.length][markers.length];
+		private final double compensationSquared[][] = new double[markers.length][markers.length];
+		private final double[] trueSignal = new double[markers.length];
+		private final double[] observedSignal = new double[markers.length];
+		private final double[] variance = new double[markers.length];
+		private final Stack<Solution> toDo = new Stack<Solution>();
+		private final List<StainSet> results = new ArrayList<StainSet>(100);
+		
+		/*
+		 * Score the staining on one population
+		 */
+		
+		private double scorePopulation (MarkerStaining[] targets)
+		{
+			double score = 0;
+
+			// start with the background on each detector
+			for (int j = 0; j < detectors.length; ++j)
+				observedSignal[j] = detectors[j].background;
+			// for each marker/fluorochrome
+			for (int i = 0; i < markers.length; ++i)
+			{
+				// compute the direct signal from the marker and fluorochrome alone
+				int markerLevel = targets[markers[i]].level;
+				trueSignal[i] = spectrum[i][i] * markerLevel;
+				// and the total signal expected from the combined stain
+				for (int j = 0; j < detectors.length; ++j)
+					observedSignal[j] += spectrum[i][j] * markerLevel;
+			}
+			
+			// compute compensation variance
+			Arrays.fill(variance, 0);
+			for (int j = 0; j < markers.length; ++j)
+				for (int k = 0; k < markers.length; ++k)
+					variance[j] += compensationSquared[j][k] * observedSignal[j];
+			for (int j = 0; j < markers.length; ++j)
+				if (targets[j].important)
+					score += Math.log(trueSignal[j] / Math.sqrt(variance[j]));
+			
+			return score;
+		}
+		
+		/*
+		 * Score this staining panel
+		 */
+		private double scorePanel (short[] panel)
+		{
+			// find the markers assigned to each fluorochrome in this panel
+			for (int j = 0; j < markers.length; ++j)
+				markers[j] = catalogStains[panel[j]].marker;
+			
+			// sum scores from each target population
+			double score = 0;
+			for (int i = 0; i < targets.length; ++i)
+				score += scorePopulation(targets[i]);
+			
+			return Math.exp(score / nImportant);
+		}
+		
+		/*
+		 * Find and score all feasible combinations of reagents utilizing
+		 * a specified set of fluorochromes
+		 * 
+		 * (non-Javadoc)
+		 * @see java.lang.Thread#run()
+		 */
+
+		public void run ()
+		{
+			try
+			{
+				// get a complete set of fluorochromes from the queue
+				FluorochromeSet set = fluorochromeSetQueue.take();
+				if (DEBUG)
+				{
+					Arrays.sort(set.chosen);
+					synchronized (PanelDesign.this)
+					{
+						System.out.print(set.minDistance);
+						for (int i = 0; i < set.chosen.length; ++i)
+						{
+							System.out.print(", ");
+							System.out.print(PanelDesign.this.fluorochromes[set.chosen[i]].name);
+						}
+						System.out.println();
+					}
+				}
+
+				// check for detector collision and initialize some arrays
+				// needed for scoring all panels using this set of fluorochromes
+				for (int i = 0; i < markers.length; ++i)
+				{
+					Fluorochrome fluorochrome = fluorochromes[i] = PanelDesign.this.fluorochromes[set.chosen[i]];
+					Detector detector = detectors[i] = instrument.detector(fluorochrome);
+					// make sure this set of dyes uses distinct detectors on the instrument
+					for (int j = 0; j < i; ++j)
+						if (detectors[i] == detectors[j])
+						{
+							if (DEBUG)
+								synchronized (PanelDesign.this)
+								{
+									System.out.println("detector clash " + fluorochromes[i].name + " and " + fluorochromes[j].name);
+								}
+							return;
+						}
+				}
+				for (int i = 0; i < markers.length; ++i)
+				{
+					for (int j = 0; j < markers.length; ++j)
+						compensationSquared[i][j] = spectrum[i][j] = spectra[set.chosen[i]][detectors[j].position];
+					for (int j = 0; j < markers.length; ++j)
+						compensationSquared[i][j] /= compensationSquared[i][i];
+				}
+				invert(compensationSquared);
+				for (int i = 0; i < markers.length; ++i)
+					for (int j = 0; j < markers.length; ++j)
+						compensationSquared[i][j] *= compensationSquared[i][j];
+
+				// construct an initial empty solution
+				// excluding any stains that don't use these fluorochromes
+				Solution initial = new Solution(catalogStains.length);
+				for (int i = 0; i < catalogStains.length; ++i)
+					if (!set.get(catalogStains[i].fluorochrome))
+						initial.set(i);
+
+				// keep trying to refine the partial solutions 
+				// till we find all the complete ones
+				toDo.push(initial);
+				while (!toDo.isEmpty())
+				{
+					// get a partial solution and find the next available reagent
+					// if there aren't any this solution in infeasible and we drop it
+					Solution work = toDo.pop();
+					int i = work.nextClear(0);
+					if (i < catalogStains.length)
+					{
+						// found a reagent so we will dispose of it one way or the other now
+						// by dividing the solutions into two cases
+						work.set(i);
+
+						// either use it now and therefore fix a reagent in the panel
+						Solution used = new Solution(work, i);
+						if (used.panel.length < markers.length)
+						{
+							// if that didn't complete the panel, remove any other reagents that
+							// would clash and keep trying
+							Stain stain = catalogStains[i];
+							while ((i = used.nextClear(++i)) < catalogStains.length)
+							{
+								if (catalogStains[i].marker == stain.marker
+										|| catalogStains[i].fluorochrome == stain.fluorochrome
+										|| (stain.hapten >= 0 && catalogStains[i].hapten == stain.hapten))
+									used.set(i);
+							}
+							toDo.push(used);
+						}
+						else
+						{
+							// finished the panel so score it and add it to the list of
+							// candidates
+							++solutions;
+							Arrays.sort(used.panel);
+							double stainingIndex = scorePanel(used.panel);
+							StainSetImpl stainSet = new StainSetImpl(stainingIndex, used.panel);
+							
+							if (DEBUG)
+								synchronized (PanelDesign.this)
+								{
+									stainSet.print();
+								}
+
+							results.add(stainSet);
+							if (results.size() > nSolutions)
+								returnResults(results);
+						}
+
+						// otherwise never use this reagent in this family of solutions
+						// since the stains are sorted by marker, if the next available 
+						// stain isn't for this marker then the solution is no longer feasible
+						int j = work.nextClear(i + 1);
+						if (j < catalogStains.length && catalogStains[i].marker == catalogStains[j].marker)
+							toDo.push(work);
+					}
+				}
+				
+				returnResults(results);
+			}
+			catch (InterruptedException e)
+			{
+				return;
+			}
+		}
+	}
+
 	public PanelDesign(int nWorkers, int nSolutions)
 	{
 		this.nWorkers = nWorkers;
@@ -304,63 +500,68 @@ public class PanelDesign
 		this.nSolutions = nSolutions;
 	}
 
-	synchronized void doTask (Solution work)
-	{
-		++started;
-		toDo.push(work);
-		notify();
-	}
+	private static void invert (double[][] matrix)
+  {
+    int row = 0, col = 0, n = matrix.length;
+    int pivot[] = new int[n];
+    int row_index[] = new int[n];
+    int col_index[] = new int[n];
 
-	private void evaluateFluorochromeSet (FluorochromeSet set,
-			List<StainSet> results)
-	{
-		if (DEBUG)
-		{
-			Arrays.sort(set.chosen);
-			System.out.print(set.minDistance);
-			for (int i = 0; i < set.chosen.length; ++i)
-			{
-				System.out.print(", ");
-				System.out.print(fluorochromes[set.chosen[i]].name);
-			}
-			System.out.println();
-		}
-		
-		Fluorochrome[] fluorochromes = new Fluorochrome[markers.length];
-		Detector[] detectors = new Detector[markers.length];
-		double spectrum[][] = new double[markers.length][markers.length];
-		for (int i = 0; i < markers.length; ++i)
-		{
-			Fluorochrome fluorochrome = fluorochromes[i] = this.fluorochromes[set.chosen[i]];
-			Detector detector = detectors[i] = instrument.detector(fluorochrome);
-			// make sure this set of dyes uses distinct detectors on the instrument
-			for (int j = 0; j < i; ++j)
-				if (detectors[i] == detectors[j])
-				{
-					if (DEBUG)
-						System.out.println("detector clash " + fluorochromes[i].name + " and " + fluorochromes[j].name);
-					return;
-				}
-			for (int j = 0; j < markers.length; ++j)
-				spectrum[i][j] = spectra[set.chosen[i]][detector.position];
-		}
-		
-		// complete set of fluorochromes so construct a partial solution
-		Solution partial = new Solution(catalogStains.length);
-		// excluding any stains that don't use these fluorochromes
-		for (int i = 0; i < catalogStains.length; ++i)
-			if (!set.get(catalogStains[i].fluorochrome))
-				partial.set(i);
+    for (int i = 0; i < n; ++i)
+    {
+      double big = 0;
+      for (int j = 0; j < n; ++j)
+      {
+        if (pivot[j] != 1)
+          for (int k = 0; k < n; ++k)
+          {
+            if (pivot[k] == 0)
+            {
+              double abs = Math.abs(matrix[j][k]);
+              if (abs >= big)
+              {
+                big = abs;
+                row = j;
+                col = k;
+              }
+            }
+            else if (pivot[k] > 1)
+              throw new IllegalArgumentException("Matrix is singular");
+          }
+      }
+      ++pivot[col];
+      row_index[i] = row;
+      col_index[i] = col;
 
-		toDo.push(partial);
-		while (!toDo.isEmpty())
-			findFeasiblePanels(set.minDistance, toDo.pop(), results);
-		
-		returnResults(results);
-	}
+      if (row != col)
+        for (int k = 0; k < n; ++k)
+        {
+          double t = matrix[row][k];
+          matrix[row][k] = matrix[col][k];
+          matrix[col][k] = t;
+        }
+
+      if (matrix[col][col] == 0)
+        throw new IllegalArgumentException("Matrix is singular");
+      double inverse = 1 / matrix[col][col];
+      matrix[col][col] = 1;
+      for (int j = 0; j < n; ++j)
+        matrix[col][j] *= inverse;
+      for (int j = 0; j < n; ++j)
+        if (j != col)
+        {
+          double t = matrix[j][col];
+          matrix[j][col] = 0;
+          for (int k = 0; k < n; ++k)
+            matrix[j][k] -= matrix[col][k] * t;
+        }
+    }
+  }
 	
 	private synchronized void returnResults (Collection<StainSet> results)
 	{
+		solutions += results.size();
+		
 		double minimum = 0;
 		if (resultCount >= nSolutions)
 			minimum = this.results[nSolutions - 1].index;
@@ -382,109 +583,23 @@ public class PanelDesign
 		Arrays.sort(this.results, 0, resultCount);
 		if (resultCount > nSolutions)
 			resultCount = nSolutions;
-	}
-
-	private void findFeasiblePanels (double score, Solution work, Collection<StainSet> results)
-	{
-		// find the next possible reagent
-		// if there is none this partial solutions fails
-		int i = work.nextClear(0);
-		if (i < catalogStains.length)
-		{
-			// we'll dispose of this reagent here
-			work.set(i);
-
-			// by dividing the solutions into two cases
-			// either use it now and therefore fix a reagent in the panel
-			Solution used = new Solution(work, i);
-
-			// or never use this reagent
-			// since the stains are sorted by marker if the next available stain isn't for this
-			// marker then the set is not feasible
-			int j = work.nextClear(i + 1);
-			if (j < catalogStains.length && catalogStains[i].marker == catalogStains[j].marker)
-				toDo.push(work);
-
-			// if that didn't complete the panel, remove any other reagents that
-			// would clash and keep trying
-			if (used.panel.length < markers.length)
-			{
-				Stain stain = catalogStains[i];
-				while ((i = used.nextClear(++i)) < catalogStains.length)
-				{
-					if (catalogStains[i].marker == stain.marker
-							|| catalogStains[i].fluorochrome == stain.fluorochrome
-							|| (stain.hapten >= 0 && catalogStains[i].hapten == stain.hapten))
-						used.set(i);
-				}
-				toDo.push(used);
-			}
-			else
-			{
-				// finished the panel so score it and add it to the list of
-				// candidates
-				++solutions;
-				double stainingIndex = scorePanel(score, used.panel);
-				Arrays.sort(used.panel);
-				StainSetImpl stainSet = new StainSetImpl(stainingIndex, used.panel);
-				results.add(stainSet);
-				
-				if (DEBUG)
-					stainSet.print();
-			}
-		}
-	}
-	
-	private double scorePanel (double score, short[] panel)
-	{
-		double[][] dyeExpected = new double[targets.length][markers.length];
-		for (int i = 0; i < targets.length; ++i)
-			for (int j = 0; j < markers.length; ++j)
-				if (targets[i][j] == null)
-					dyeExpected[i][j] = 0;
-				else
-				{
-					Fluorochrome fluorochrome = fluorochromes[catalogStains[panel[j]].fluorochrome];
-					Detector detector = instrument.detector(fluorochrome);
-					double brightness = fluorochrome.brightness;
-					double emissionEffiency = fluorochrome.emissionEffiency(detector);
-					double excitationEffiency = fluorochrome.excitationEffiency(detector);
-					int laserPower = detector.laserPower;
-					dyeExpected[i][j] = targets[i][j].level * brightness * excitationEffiency * laserPower;
-				}
-		double[][] speExpected = new double[targets.length][markers.length];
-		for (int i = 0; i < targets.length; ++i)
-			for (int j = 0; j < markers.length; ++j)
-			{
-				Fluorochrome fluorochrome = fluorochromes[catalogStains[panel[j]].fluorochrome];
-				for (int k = 0; k < markers.length; ++k)
-				{
-					Detector detector = instrument.detector(fluorochromes[catalogStains[panel[k]].fluorochrome]);
-					speExpected[i][j] += fluorochrome.emissionEffiency(detector);
-				}
-			}
 		
-		return score * Math.exp(-.3 * solutions * Math.random());
-	}
-
-	private static class Worker
-			extends Thread
-	{
-		private List<StainSet> results = new ArrayList<StainSet>(100);
-
-		public void run ()
-		{
-		}
+		results.clear();
 	}
 	
 	private void startWorkers ()
 	{
-		if (!SINGLE_THREAD)
+		if (SINGLE_THREAD)
 		{
-			this.workers = new Worker[nWorkers];
+			workers = new FluorochromeSetWorker[1];
+			workers[0] = new FluorochromeSetWorker();
+		}
+		else
+		{
+			workers = new FluorochromeSetWorker[nWorkers];
 			for (int i = 0; i < workers.length; i++)
 			{
-				Worker worker = workers[i] = new Worker();
+				FluorochromeSetWorker worker = workers[i] = new FluorochromeSetWorker();
 				worker.start();
 			}
 		}
@@ -497,6 +612,7 @@ public class PanelDesign
 			for (int i = 0; i < workers.length; i++)
 				try
 				{
+					workers[i].interrupt();
 					workers[i].join();
 				}
 				catch (InterruptedException e)
@@ -539,8 +655,17 @@ public class PanelDesign
 		
 		targets = new MarkerStaining[populations.size()][markers.length];
 		for (int i = 0; i < targets.length; ++i)
+		{
 			for (MarkerStaining staining : populations.get(i))
+			{
 				targets[i][Arrays.binarySearch(markers, staining.marker)] = staining;
+				if (staining.important)
+					++nImportant;
+			}
+			for (int j = 0; j < markers.length; ++j)
+				if (targets[i][j] == null)
+					targets[i][j] = new MarkerStaining(markers[j], 0, false);
+		}
 
 		Set<Fluorochrome> fluorochromeSet = new HashSet<Fluorochrome>();
 		for (Set<Fluorochrome> fluorochromes : directStains.values())
@@ -607,22 +732,21 @@ public class PanelDesign
 				System.out.println(fluorochromes[catalogStains[i].fluorochrome].name);
 			}
 		
-		// compute the spectra of the fluorochromes
+		// compute the complete spectra of the fluorochromes
 		
 		spectra = new double[fluorochromes.length][instrument.detectors.size()];
 		for (int i = 0; i < fluorochromes.length; ++i)
 		{
-			double peak = 0;
+			Fluorochrome fluorochrome = fluorochromes[i];
 			for (int j = 0; j < instrument.detectors.size(); ++j)
 			{
 				Detector detector = instrument.detectors.get(j);
-				double signal = fluorochromes[i].emissionEffiency(detector);
-				spectra[i][j] = signal;
-				if (signal > peak)
-					peak = signal;
+				double brightness = fluorochrome.brightness;
+				double emissionEffiency = fluorochrome.emissionEffiency(detector);
+				double excitationEffiency = fluorochrome.excitationEffiency(detector);
+				int laserPower = detector.laserPower;
+				spectra[i][j] = brightness * emissionEffiency * excitationEffiency * laserPower;
 			}
-			for (int j = 0; j < instrument.detectors.size(); ++j)
-				spectra[i][j] /= peak;
 		}
 
 		// compute the spectrum metric
@@ -672,12 +796,7 @@ public class PanelDesign
 				// complete set found so evaluate it
 				fluorochromeSetQueue.put(set);
 				if (SINGLE_THREAD)
-				{
-					// eventually will be in separate thread
-					set = fluorochromeSetQueue.take();
-					results.clear();
-					evaluateFluorochromeSet(set, results);
-				}
+					workers[0].run();
 			}
 			else
 				// create new sets by adding each currently unused fluorochrome to the set

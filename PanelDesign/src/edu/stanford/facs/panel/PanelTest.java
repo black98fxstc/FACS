@@ -34,7 +34,7 @@ public class PanelTest
 		protected TestDetector(Instrument instrument, int position, Set<String> names, String laser,
 				int wavelength, int power, BandPass[] bandPass)
 		{
-			instrument.super(position, names, laser, wavelength, power, bandPass);
+			instrument.super(position, names, laser, wavelength, power, bandPass, 0);
 		}
 	}
 	
@@ -279,6 +279,7 @@ public class PanelTest
 					laser_name = field[0];
 					laser_wavelength = Integer.parseInt(field[2]);
 					laser_power = Integer.parseInt(field[3]);
+					assert laser_power > 0;
 					last_long_pass = NM_MAX;
 				}
 				if (field[8] != null && field[8].length() > 0)
@@ -375,14 +376,20 @@ public class PanelTest
 			if (values[0].length() > 0)
 			{
 				int nm = (int) Math.floor(Double.parseDouble(values[0]));
-				excitation[nm - PanelTest.NM_MIN] = Double.parseDouble(values[1]);
+				double ex = Double.parseDouble(values[1]);
+				if (ex < 0)
+					ex = 0;
+				excitation[nm - PanelTest.NM_MIN] = ex;
 			}
 			if (values.length < 4)
 				continue;
 			if (values[2].length() > 0)
 			{
 				int nm = (int) Math.floor(Double.parseDouble(values[2]));
-				emission[nm - PanelTest.NM_MIN] = Double.parseDouble(values[3]);
+				double em = Double.parseDouble(values[3]);
+				if (em < 0)
+					em = 0;
+				emission[nm - PanelTest.NM_MIN] = em;
 			}
 		}
 		spectrum_reader.close();
@@ -433,6 +440,7 @@ public class PanelTest
 		double excitation_efficiency =
 				excitation[detector.wavelength - PanelTest.NM_MIN]
 						/ excitation[excitationMaximum - PanelTest.NM_MIN];
+		assert excitation_efficiency >= 0;
 		return excitation_efficiency;
 	}
 
@@ -442,6 +450,7 @@ public class PanelTest
 		for (int i = 0; i < detector.bandPass.length; i++)
 			for (int wavelength = detector.bandPass[i].nmMin; wavelength <= detector.bandPass[i].nmMax; ++wavelength)
 				emmission_efficiency += emission[wavelength - PanelTest.NM_MIN];
+		assert emmission_efficiency >= 0;
 		return emmission_efficiency;
 	}
 
@@ -480,22 +489,6 @@ public class PanelTest
 				populations.add(new PopulationStaining(population[0], staining));
 			}
 			panel_reader.close();
-
-			// make up some staining data from markers on the command line
-
-//			List<PopulationStaining> populations = new ArrayList<PopulationStaining>();
-//			for (int i = 1; i <= 3; ++i)
-//			{
-//				List<MarkerStaining> staining = new ArrayList<MarkerStaining>();
-//				for (int j = 0; j < Nmarkers; ++j)
-//				{
-//					Marker marker = factory.getMarker(args[j]);
-//					int level = (int) Math.exp(4 * Math.log(10) * Math.random());
-//					boolean important = Math.random() > .5;
-//					staining.add(new MarkerStaining(marker, level, important));
-//				}
-//				populations.add(new PopulationStaining("population " + i, staining));
-//			}
 
 			// get a set of markers for the populations
 
@@ -629,12 +622,7 @@ public class PanelTest
 			double seconds = (double) (System.currentTimeMillis() - begin) / 1000D;
 
 			System.out.println("run time " + seconds);
-			System.out.println("tasks executed " + designer.started);
-			System.out.println("solutions found " + designer.solutions);
-
-			// best case is Nmarkers * solutions
-			double multiplier = (double) designer.started / (double) designer.solutions;
-			System.out.println("average tasks per solution " + multiplier);
+			System.out.println();
 			
 			for (StainSet stainSet : results)
 				stainSet.print();

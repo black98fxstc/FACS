@@ -26,10 +26,11 @@ public abstract class Instrument
 		public final int wavelength;
 		public final int laserPower;
 		public final BandPass[] bandPass;
+		public final double background;
 		public final Set<String> names;
 
 		protected Detector(int position, Set<String> names, String laser, int wavelength, int power,
-				BandPass[] bandPass)
+				BandPass[] bandPass, double background)
 		{
 			this.position = position;
 			this.names = Collections.unmodifiableSet(names);
@@ -37,6 +38,7 @@ public abstract class Instrument
 			this.wavelength = wavelength;
 			this.laserPower = power;
 			this.bandPass = bandPass;
+			this.background = background;
 		}
 	}
 	
