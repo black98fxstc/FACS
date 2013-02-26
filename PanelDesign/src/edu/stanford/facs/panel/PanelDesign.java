@@ -791,17 +791,17 @@ public class PanelDesign
 			}
 
 		startWorkers();
-		Set<FluorochromeSet> alreadySeen = new TreeSet<FluorochromeSet>();
+//		Set<FluorochromeSet> alreadySeen = new TreeSet<FluorochromeSet>();
 		while (!priorityQueue.isEmpty() && uselessResults < nSolutions * 10)
 		{
 			// get the best current solution
 
 			FluorochromeSet set = priorityQueue.first();
 			priorityQueue.remove(set);
-			assert !alreadySeen.contains(set) : "duplicate fluorochrome set";
+//			assert !alreadySeen.contains(set) : "duplicate fluorochrome set";
 			if (set.chosen.length == markers.length)
 			{
-				alreadySeen.add(set);
+//				alreadySeen.add(set);
 				// complete set found so evaluate it
 				fluorochromeSetQueue.put(set);
 				if (SINGLE_THREAD)
