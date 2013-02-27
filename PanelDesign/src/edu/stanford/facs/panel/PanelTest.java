@@ -458,11 +458,6 @@ public class PanelTest
 	 */
 	public static void main (String[] args)
 	{
-		int Nmarkers;
-
-		Nmarkers = args.length;
-		Nmarkers = 10;
-
 		try
 		{
 			PanelFactory factory = new PanelTest();
@@ -470,22 +465,22 @@ public class PanelTest
 			// read a panel
 			
 			List<PopulationStaining> populations = new ArrayList<PopulationStaining>();
-			BufferedReader panel_reader = new BufferedReader(new FileReader(new File("panel1.csv")));
+			BufferedReader panel_reader = new BufferedReader(new FileReader(new File(args[0] + ".csv")));
 			String line = panel_reader.readLine();
 			String[] markers = line.split("\t");
-			String species = markers[0];
+			String species = markers[0].trim();
 			while ((line = panel_reader.readLine()) != null)
 			{
 				String[] population = line.split("\t");
 				List<MarkerStaining> staining = new ArrayList<MarkerStaining>();
 				for (int i = 1; i < population.length; ++i)
 				{
-					Marker marker = factory.getMarker(markers[i]);
-					int level = Integer.parseInt(population[i]);
+					Marker marker = factory.getMarker(markers[i].trim());
+					int level = Integer.parseInt(population[i].trim());
 					boolean important = level > 0;
 					staining.add(new MarkerStaining(marker, level, important));
 				}
-				populations.add(new PopulationStaining(population[0], staining));
+				populations.add(new PopulationStaining(population[0].trim(), staining));
 			}
 			panel_reader.close();
 
@@ -547,12 +542,13 @@ public class PanelTest
 			int usefulTotal = 0;
 			ZipFile zip = new ZipFile(species + ".zip");
 			Enumeration<? extends ZipEntry> e = zip.entries();
+			Set<Marker> catalogMarkers = new HashSet<Marker>();
 			while (e.hasMoreElements())
 			{
 				ZipEntry ze = e.nextElement();
-				BufferedReader spectrum_reader =
+				BufferedReader catalog_reader =
 						new BufferedReader(new InputStreamReader(zip.getInputStream(ze)));
-				line = spectrum_reader.readLine();
+				line = catalog_reader.readLine();
 				String[] field = line.split("\t");
 				int c = -1;
 				int a = -1;
@@ -566,7 +562,7 @@ public class PanelTest
 				if (c == -1 || a == -1)
 					throw new IllegalStateException("Can't read antibody catalog "
 							+ ze.getName());
-				while ((line = spectrum_reader.readLine()) != null)
+				while ((line = catalog_reader.readLine()) != null)
 				{
 					String[] data = line.split("\t");
 					String conjugated = data[c];
@@ -585,6 +581,7 @@ public class PanelTest
 					if (!markerSet.contains(antigen))
 						continue;
 					++markerTotal;
+					catalogMarkers.add(antigen);
 					if (conjugated.equalsIgnoreCase("Biotin"))
 					{
 						Set<Marker> biotinMarkers = haptenReagents.get(biotin);
@@ -603,6 +600,12 @@ public class PanelTest
 				}
 			}
 			zip.close();
+			if (!markerSet.equals(catalogMarkers))
+			{
+				markerSet.removeAll(catalogMarkers);
+				System.out.println("catalog has no reagents for " + markerSet);
+				return;
+			}
 
 			System.out.println("full catalog contains " + catalogTotal);
 			System.out.println("catalog reagents for markers " + markerTotal);
@@ -626,7 +629,11 @@ public class PanelTest
 			for (StainSet stainSet : results)
 				stainSet.print();
 		}
-		catch (Exception ex)
+		catch (IOException ex)
+		{
+			ex.printStackTrace();
+		}
+		catch (InterruptedException ex)
 		{
 			ex.printStackTrace();
 		}
