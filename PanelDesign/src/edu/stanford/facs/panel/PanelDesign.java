@@ -451,7 +451,6 @@ public class PanelDesign
 											else if (catalogStains[i].fluorochrome == stain.fluorochrome)
 												used.set(i);
 										}
-										
 										break;
 									}
 							toDo.push(used);
