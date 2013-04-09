@@ -17,6 +17,8 @@ public class PanelDesign
 	private Marker[] markers;
 	private Fluorochrome[] fluorochromes;
 	private Hapten[] haptens;
+	private Combination singletonMarker;
+	private Combination[] multiMarker;
 	private Stain[] catalogStains;
 	private MarkerStaining[][] targets;
 	private float[][] distance;
@@ -424,13 +426,34 @@ public class PanelDesign
 							// if that didn't complete the panel, remove any other reagents that
 							// would clash and keep trying
 							Stain stain = catalogStains[i];
-							while ((i = used.nextClear(++i)) < catalogStains.length)
-							{
-								if (catalogStains[i].marker == stain.marker
-										|| catalogStains[i].fluorochrome == stain.fluorochrome
-										|| (stain.hapten >= 0 && catalogStains[i].hapten == stain.hapten))
-									used.set(i);
-							}
+							if (singletonMarker.get(stain.marker))
+								while ((i = used.nextClear(++i)) < catalogStains.length)
+								{
+									if (catalogStains[i].marker == stain.marker
+											|| catalogStains[i].fluorochrome == stain.fluorochrome
+											|| (stain.hapten >= 0 && catalogStains[i].hapten == stain.hapten))
+										used.set(i);
+								}
+							else
+								for (Combination multi_marker : multiMarker)
+									if (multi_marker.get(stain.marker))
+									{
+										while ((i = used.nextClear(++i)) < catalogStains.length)
+										{
+											if (catalogStains[i].marker == stain.marker
+												  || (stain.hapten >= 0 && catalogStains[i].hapten == stain.hapten))
+												used.set(i);
+											else if (multi_marker.get(catalogStains[i].marker))
+											{
+												if (catalogStains[i].fluorochrome != stain.fluorochrome)
+													used.set(i);
+											}
+											else if (catalogStains[i].fluorochrome == stain.fluorochrome)
+												used.set(i);
+										}
+										
+										break;
+									}
 							toDo.push(used);
 						}
 						else
@@ -626,6 +649,17 @@ public class PanelDesign
 			Map<Hapten, Set<Fluorochrome>> indirectStains)
 			throws InterruptedException
 	{
+		return design(instrument, populations, directStains, haptenReagents, indirectStains, Collections.<Set<Marker>> emptyList());
+	}
+
+	public final List<StainSet> design (Instrument instrument,
+			List<PopulationStaining> populations,
+			Map<Marker, Set<Fluorochrome>> directStains,
+			Map<Hapten, Set<Marker>> haptenReagents,
+			Map<Hapten, Set<Fluorochrome>> indirectStains,
+			List<Set<Marker>> multiMarkers)
+			throws InterruptedException
+	{
 		nImportant = 0;
 		resultCount = 0;
 		uselessResults = 0;
@@ -648,6 +682,19 @@ public class PanelDesign
 			markerSet2.addAll(markers);
 		
 		assert markerSet1.equals(markerSet2);
+		
+		for (int i = 0; i < multiMarkers.size(); ++i)
+			for (int j = i + 1; j < multiMarkers.size(); ++j)
+				for (Marker marker : multiMarkers.get(i))
+					assert !multiMarkers.get(j).contains(marker);
+		
+		Set<Marker> singletons = new HashSet<Marker>(markerSet1);
+		for (Set<Marker> markers : multiMarkers)
+			for (Marker marker : markers)
+			{
+				singletons.remove(marker);
+				assert markerSet1.contains(marker);
+			}
 		
 		markers = markerSet2.toArray(new Marker[markerSet2.size()]);
 		Arrays.sort(markers);
@@ -699,7 +746,7 @@ public class PanelDesign
 		}
 		if (DEBUG) System.out.println("direct stains for markers " + directTotal);
 
-		// add and indirect stains for which a direct reagent is not available
+		// add any indirect stains for which a direct reagent is not available
 		
 		int indirectTotal = 0;
 		for (Map.Entry<Hapten, Set<Marker>> entry : haptenReagents.entrySet())
@@ -722,6 +769,19 @@ public class PanelDesign
 		}
 		if (DEBUG) System.out.println("indirect stains for markers " + indirectTotal);
 		if (DEBUG) System.out.println("possible stains " + catalogSet.size());
+		
+		// process singleton set and multi-marker sets to indices
+		
+		singletonMarker = new Combination(markers.length);
+		for (Marker marker : singletons)
+			singletonMarker.set(Arrays.binarySearch(markers, marker));
+		multiMarker = new Combination[multiMarkers.size()];
+		for (int i = 0; i < multiMarker.length; i++)
+		{
+			multiMarker[i] = new Combination(markers.length);
+			for (Marker marker : multiMarkers.get(i))
+				multiMarker[i].set(Arrays.binarySearch(markers, marker));
+		}
 		
 		// order the stains by marker and then by fluorochrome
 		// we will use this later to optimize the search
