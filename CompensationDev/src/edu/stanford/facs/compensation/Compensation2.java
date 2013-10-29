@@ -23,13 +23,13 @@ public class Compensation2
   public static final double PMT_STANDARD_VOLTS = 500D;
 
   public static final boolean WAYNE = false;
-  public static final boolean DEBUG = false;
+  public static final boolean DEBUG = true;
   public static final boolean CATE = false;
 
-  public static final boolean RECORD_RESIDUALS = false;
-  public static final boolean RECORD_FIT = false;
-  public static final boolean RECORD_GATES = false;
-  public static final boolean RECORD_CSV = false;
+  public static final boolean RECORD_RESIDUALS = true;
+  public static final boolean RECORD_FIT = true;
+  public static final boolean RECORD_GATES = true;
+  public static final boolean RECORD_CSV = true;
   public static final boolean RECORD_FCS = false;
   public static final boolean RECORD_ANY = 
     (RECORD_RESIDUALS || RECORD_FIT || RECORD_GATES)
@@ -489,51 +489,54 @@ public class Compensation2
       p = stainedControl[index].getFCSFile().getParameter("SSC-A");
       scatterRange[1] = p.getMaximum();
      
+			for (UnstainedControl unstained : unstainedControl)
+			{
+				unstained.load();
+			}
+			for (StainedControl stained : stainedControl)
+			{
+				if (stained != null)
+					stained.load();
+			}
 
-      for (int i = 0; i < unstainedControl.length; i++)
-      {
-        unstainedControl[i].load();
-        unstainedControl[i].analyze();
-        if (RECORD_ANY)
-        {
-          if (RECORD_FCS)
-            unstainedControl[i].writeAugmented();
-          if (RECORD_CSV)
-            unstainedControl[i].writeAugmentedCSV();
-        }
-        setProgress((int)(100.0 * thistep++ / steps));
-        // System.out.println (" this steps after the unstained control " +
-        // thistep);
-        if (isCancelled())
-          return null;
-      }
-//       System.out.println (" Let's do the stainedControls now. "+ stainedControl.length);
-      for (int i = 0; i < stainedControl.length; i++)
-      {
-          if (stainedControl[i] != null){
-                stainedControl[i].load();
-                stainedControl[i].analyze();
-                
-                publish(stainedControl[i]);
-                if (RECORD_ANY)
-                {
-                  if (RECORD_FCS)
-                    stainedControl[i].writeAugmented();
-                  if (RECORD_CSV)
-                    stainedControl[i].writeAugmentedCSV();
-                }
+			for (int i = 0; i < unstainedControl.length; i++)
+			{
+				unstainedControl[i].analyze();
+				if (RECORD_ANY)
+				{
+					if (RECORD_FCS)
+						unstainedControl[i].writeAugmented();
+					if (RECORD_CSV)
+						unstainedControl[i].writeAugmentedCSV();
+				}
+				setProgress((int) (100.0 * thistep++ / steps));
+				if (isCancelled())
+					return null;
+			}
+			for (int i = 0; i < stainedControl.length; i++)
+			{
+				if (stainedControl[i] != null)
+				{
+					stainedControl[i].analyze();
 
-                setProgress((int)(100.0 * thistep++ / steps));
-                // System.out.println (" thistep after the ith stained control " +
-                // thistep + ", "+ i);
-                if (isCancelled())
-                  return null;
-          }
-          else
-              System.out.println (" no stained control for "+ i);
-      }
-      if (false)
-        analyze();
+					publish(stainedControl[i]);
+					if (RECORD_ANY)
+					{
+						if (RECORD_FCS)
+							stainedControl[i].writeAugmented();
+						if (RECORD_CSV)
+							stainedControl[i].writeAugmentedCSV();
+					}
+
+					setProgress((int) (100.0 * thistep++ / steps));
+					if (isCancelled())
+						return null;
+				}
+				else
+					System.out.println(" no stained control for " + i);
+			}
+			if (false)
+				analyze();
     }
     catch (Exception e)
     {

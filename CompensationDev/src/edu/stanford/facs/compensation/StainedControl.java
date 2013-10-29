@@ -570,6 +570,11 @@ public class StainedControl
 						severity /= 2;
 						significance /= 100;
 					}
+					if (getContentType() == TubeContents.BEADS_1)
+					{
+						severity /= 2;
+						significance /= 100;
+					}
 					if (normalityOfResiduals[j] < significance)
 					{
 						addDiagnostic(severity, j,
