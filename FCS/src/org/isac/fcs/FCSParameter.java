@@ -252,7 +252,7 @@ public class FCSParameter
    * Sets the number of bits stored for each data value for this parameter.
    * This corresponds to the <code>$PnB</code> standard keyword.
    *
-   * @param range The <code>int</code> maximum value (exclusive) for stored data
+   * @param bits The <code>int</code> number of bits stored
    * @throws FCSException If the FCS version is not supported of the file is malformed
    */
   public void setBits(
@@ -466,7 +466,7 @@ public class FCSParameter
    * parameter.
    * This corresponds to the second component of the <code>$PnE</code> standard keyword.
    *
-   * @param gain The <code>double</code> minimum scale value
+   * @param minimum The <code>double</code> minimum scale value
    * @throws FCSException If the FCS version is not supported of the file is malformed
    */
   public void setMinimum(

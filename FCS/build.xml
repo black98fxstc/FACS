@@ -41,6 +41,13 @@
 		</javac>
 	</target>
 
+	<!-- ================================= 
+          target: javadoc              
+         ================================= -->
+    <target name="javadoc">
+        <javadoc access="package" author="true" classpath="." destdir="doc" nodeprecated="false" nodeprecatedlist="false" noindex="true" nonavbar="false" notree="false" packagenames="org.isac.fcs" source="1.6" sourcepath="src" splitindex="false" use="true" version="true"/>
+    </target>
+         
 	<!-- - - - - - - - - - - - - - - - - - 
           target: fcs-jar                      
          - - - - - - - - - - - - - - - - - -->
@@ -49,10 +56,19 @@
 			<fileset dir="bin" includes="org/isac/fcs/*" />
 		</jar>
 	</target>
-
+         
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: fcsdoc-jar                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="fcsdoc-jar" depends="compile,javadoc">
+		<jar destfile="FCS-javadoc.jar" duplicate="fail">
+			<fileset dir="doc" />
+		</jar>
+	</target>
+	
 	<!-- ================================= 
           target: build              
          ================================= -->
-	<target name="build" depends="fcs-jar" description="Build FCS library jar" />
+	<target name="build" depends="fcs-jar, fcsdoc-jar" description="Build FCS library jar" />
 
 </project>
