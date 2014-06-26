@@ -313,7 +313,7 @@ public class FCSParameter
   public boolean isLog()
   {
     double d = getDecades();
-    return!Double.isNaN(d) && d > 0;
+    return !Double.isNaN(d) && d > 0;
   }
 
   /**

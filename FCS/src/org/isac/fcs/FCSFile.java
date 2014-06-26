@@ -487,15 +487,20 @@ public class FCSFile
             setDataEnd(Long.parseLong(getAttribute("$ENDDATA").trim()));
           }
 
-          long sTextStart = Long.parseLong(getAttribute("$BEGINSTEXT").trim());
-          long sTextEnd = Long.parseLong(getAttribute("$ENDSTEXT").trim());
-          if (sTextEnd > sTextStart)
+          // deal with broken FACSCalibur
+          String beginText = getAttribute("$BEGINSTEXT");
+          if (beginText != null)
           {
-            random.seek(sTextStart);
-            text_header = new byte[(int)(sTextEnd - sTextStart + 1)];
-            random.readFully(text_header);
-
-            textSegment.readFrom(text_header);
+	          long sTextStart = Long.parseLong(beginText.trim());
+	          long sTextEnd = Long.parseLong(getAttribute("$ENDSTEXT").trim());
+	          if (sTextEnd > sTextStart)
+	          {
+	            random.seek(sTextStart);
+	            text_header = new byte[(int)(sTextEnd - sTextStart + 1)];
+	            random.readFully(text_header);
+	
+	            textSegment.readFrom(text_header);
+	          }
           }
         }
         else if (!Arrays.equals(version, FCS.FCS2))
