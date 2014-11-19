@@ -383,6 +383,10 @@ public class FCSFile
       dataEnd = readHeaderValue();
       analysisStart = readHeaderValue();
       analysisEnd = readHeaderValue();
+      
+      long fileLength = random.length();
+      if (dataEnd >= fileLength || textEnd >= fileLength || analysisEnd >= fileLength)
+      	throw new FCSException("File is shorter than header says");
 
       headerModified = false;
     }
@@ -500,6 +504,9 @@ public class FCSFile
 	            random.readFully(text_header);
 	
 	            textSegment.readFrom(text_header);
+	            
+	            textSegment.setAttribute("$BEGINSTEXT", 0);
+	            textSegment.setAttribute("$ENDSTEXT", 0);
 	          }
           }
         }
@@ -1304,4 +1311,100 @@ public class FCSFile
     this.version = version;
     headerModified = true;
   }
+	
+	public static void main (String[] args)
+	{
+		try
+		{
+			File input = new File(args[0]);
+			String inputName = input.getName();
+			File output;
+			String outputName;
+			if (args.length > 1)
+			{
+			  output = new File(args[1]);
+			  outputName = output.getName();
+			}
+			else
+			{
+				if (inputName.endsWith(".csv"))
+					outputName = inputName.substring(0, inputName.lastIndexOf('.')) + ".fcs";
+				else
+					outputName = inputName.substring(0, inputName.lastIndexOf('.')) + ".csv";
+				output = new File(input.getParentFile(), outputName);
+			}
+			
+			if (inputName.endsWith(".csv") && outputName.endsWith(".fcs"))
+			{
+				FCSFile fcs = new FCSFile(output);
+				fcs.getTextSegment().setAttribute("$MODE", "L");
+				fcs.getTextSegment().setAttribute("$DATATYPE", "F");
+				BufferedReader br = new BufferedReader(new FileReader(input));
+				String line = br.readLine();
+				StringTokenizer st = new StringTokenizer(line, ",");
+				for (int i = 1; st.hasMoreTokens(); ++i)
+				{
+					String token = st.nextToken();
+					FCSParameter p = fcs.addParameter();
+					p.setAttribute("$P", "N", token);
+					p.setAttribute("$P", "B", 32);
+					p.setAttribute("$P", "R", 1 << 18);
+				}
+				int n = fcs.getParameters();
+				FCSHandler oi = fcs.getOutputIterator();
+				for (;;)
+				{
+					line = br.readLine();
+					if (line == null)
+						break;
+					st = new StringTokenizer(line, ",");
+					for (int i = 0; i < n; ++i)
+						oi.writeFloat(Float.parseFloat(st.nextToken()));
+				}
+				oi.close();
+				fcs.close();
+			}
+			else if (inputName.endsWith(".fcs") && outputName.endsWith(".csv"))
+			{
+				FCSFile fcs = new FCSFile(input);
+				BufferedWriter bw = new BufferedWriter(new FileWriter(output));
+				List<FCSParameter> parameters = fcs.getParameterList();
+				Iterator<FCSParameter> i = parameters.iterator();
+				i.hasNext();
+				bw.write(i.next().getAttribute("$P", "N"));
+				while (i.hasNext())
+				{
+					bw.write(",");
+					bw.write(i.next().getAttribute("$P", "N"));
+				}
+				bw.newLine();
+				FCSHandler handler = fcs.getInputIterator();
+				while (handler.hasMoreEvents())
+				{
+					handler.hasMoreValues();
+					bw.write(String.valueOf(handler.readFloat()));
+					while (handler.hasMoreValues())
+					{
+						bw.write(",");
+						bw.write(String.valueOf(handler.readFloat()));
+					}
+					bw.newLine();
+				}
+				bw.close();
+				handler.close();
+			}
+			else
+			{
+				System.out.println("Hunh?");
+			}
+		}
+		catch (FCSException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
 }
