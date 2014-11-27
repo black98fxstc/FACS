@@ -1336,6 +1336,8 @@ public class FCSFile
 			
 			if (inputName.endsWith(".csv") && outputName.endsWith(".fcs"))
 			{
+				if (output.exists() && !output.delete())
+					throw new IllegalStateException();
 				FCSFile fcs = new FCSFile(output);
 				fcs.getTextSegment().setAttribute("$MODE", "L");
 				fcs.getTextSegment().setAttribute("$DATATYPE", "F");
@@ -1358,9 +1360,10 @@ public class FCSFile
 					if (line == null)
 						break;
 					st = new StringTokenizer(line, ",");
-					for (int i = 0; i < n; ++i)
+					for (int i = 0; i < n && st.hasMoreTokens(); ++i)
 						oi.writeFloat(Float.parseFloat(st.nextToken()));
 				}
+				br.close();
 				oi.close();
 				fcs.close();
 			}

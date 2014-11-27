@@ -54,6 +54,9 @@
 	<target name="fcs-jar" depends="compile">
 		<jar destfile="FCS.jar" duplicate="fail">
 			<fileset dir="bin" includes="org/isac/fcs/*" />
+			<manifest>
+				<attribute name="Main-Class" value="org.isac.fcs.FCSFile" />
+			</manifest>
 		</jar>
 	</target>
          
