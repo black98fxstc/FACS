@@ -36,8 +36,14 @@ public class MoveLoginRecords
   {
     long now = System.currentTimeMillis();
 
-    init(args[0]);
+    init(args);
     initAuth();
+    
+    String hostName;
+    if (args.length > 1)
+    	hostName = data_folder.getName();
+    else
+    	hostName = getHostName();
 
     long copy_days, purge_days;
     try
@@ -58,7 +64,7 @@ public class MoveLoginRecords
 
     try
     {
-      File todaysLogins = new File(folder, file_format.format(new Date(now))
+      File todaysLogins = new File(data_folder, file_format.format(new Date(now))
         + ".login");
       if (!todaysLogins.exists())
         todaysLogins.createNewFile();
@@ -67,7 +73,7 @@ public class MoveLoginRecords
     {
     }
 
-    String[] files = folder.list();
+    String[] files = data_folder.list();
     for (int i = 0; i < files.length; ++i)
     {
       if (!files[i].endsWith(".login"))
@@ -84,15 +90,14 @@ public class MoveLoginRecords
       }
       long age = now - date;
 
-      File file = new File(folder, files[i]);
+      File file = new File(data_folder, files[i]);
       if (age < 0)
         continue;
       else if (age <= copy_days * DAY)
       {
         try
         {
-          URL url = new URL(getAccountingURL(), file_date + "-" + getHostName()
-            + ".txt");
+          URL url = new URL(getAccountingURL(), file_date + "-" + hostName + ".txt");
           HttpURLConnection http = (HttpURLConnection)url.openConnection();
           http.setRequestMethod("HEAD");
           int sts = http.getResponseCode();

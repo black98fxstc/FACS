@@ -5,7 +5,7 @@ public class Dither
 {
   public static void main (String[] args)
   {
-    init(args[0]);
+    init(args);
 
     try
     {

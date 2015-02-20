@@ -15,11 +15,10 @@ import java.util.Stack;
 public class MoveCSTReports
   extends AccountingTask
 {
-  private final static boolean DEBUG = true;
 
   public static void main (String[] args)
   {
-    init(args[0]);
+    init(args);
     initAuth();
 
     System.out.println(new Date());
@@ -28,7 +27,10 @@ public class MoveCSTReports
       Stack<File> directories = new Stack<File>();
       List<File> files = new ArrayList<File>();
 
-      directories.push(new File("C:\\BDCytometerSetupAndTracking"));
+      File folder = new File("C:\\BDCytometerSetupAndTracking");
+      if (!folder.exists())
+      	folder = new File("D:\\BD\\FACSDiva");
+      directories.push(folder);
       while (!directories.empty())
       {
         File[] list = directories.pop().listFiles();

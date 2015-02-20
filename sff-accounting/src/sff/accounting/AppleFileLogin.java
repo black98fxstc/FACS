@@ -27,7 +27,7 @@ public class AppleFileLogin
 
   public static void main(String[] args)
   {
-    init(args[0]);
+    init(args);
 
     DateFormat appleDate = new SimpleDateFormat("dd/MMM/yyyy:HH:mm:ss"); // no timzone, timezone in log is wrong
 
@@ -37,7 +37,7 @@ public class AppleFileLogin
     {
       File log_file = new File("/Library/Logs/AppleFileService/AppleFileServiceAccess.log");
 //      File log_file = new File(folder, "AppleFileServiceAccess.log");
-      File login_record = new File(folder, fileDate.format(calendar.getTime()) + ".login");
+      File login_record = new File(login_folder, fileDate.format(calendar.getTime()) + ".login");
       RandomAccessFile records = new RandomAccessFile(login_record, "rw");
 
       Date last_time = calendar.getTime();
@@ -120,6 +120,7 @@ public class AppleFileLogin
           host_map.remove(ip_addr);
         }
       }
+      logFile.close();
 
       Iterator<LoginInfo> i = host_map.values().iterator();
       while (i.hasNext())

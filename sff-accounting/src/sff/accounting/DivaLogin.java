@@ -60,7 +60,8 @@ public class DivaLogin
       String username = st.nextToken();
       if (username.equals("BDService"))
       	continue;
-      String field = st.nextToken();
+      @SuppressWarnings("unused")
+			String field = st.nextToken();
       field = st.nextToken();
       field = st.nextToken();
       field = st.nextToken();
@@ -112,36 +113,45 @@ public class DivaLogin
 
   public static void main(String[] args)
   {
-    init(args[0]);
+    init(args);
     if (!DEBUG)
       initLog("sff-logins");
 
     File divaFolder = new File("C:\\Program Files\\Common Files\\BD");
+    if (!divaFolder.exists())
+    	divaFolder = new File("C:\\ProgramData\\BD\\Shared");
     if (DEBUG)
-      divaFolder = folder;
+      divaFolder = login_folder;
+    if (!divaFolder.exists() || !divaFolder.isDirectory())
+    	throw new IllegalStateException("Cannot find Diva folder");
     DateFormat divaFile = new SimpleDateFormat("yyyy MMMM'.csv'", Locale.US);
 
     try
     {
-      if (args.length > 1)
-        calendar.setTime(fileDate.parse(args[1]));
+      if (args.length > 2)
+        calendar.setTime(fileDate.parse(args[2]));
       calendar.set(Calendar.HOUR_OF_DAY, 6);
       calendar.set(Calendar.MINUTE, 0);
       calendar.set(Calendar.SECOND, 0);
 
 
-      File login_record = new File(folder, fileDate.format(calendar.getTime()) + ".login");
+      File login_record = new File(data_folder, fileDate.format(calendar.getTime()) + ".login");
       records = new RandomAccessFile(login_record, "rw");
 
       lastTime = calendar.getTime();
       calendar.add(GregorianCalendar.DATE, -1);
       firstTime = calendar.getTime();
+      calendar.add(GregorianCalendar.DATE, -13);
+      Date firstFileTime = calendar.getTime();
+      calendar.add(GregorianCalendar.DATE, 28);
+      Date lastFileTime = calendar.getTime();
 
-      File firstFile = new File(divaFolder, divaFile.format(firstTime));
-      File lastFile = new File(divaFolder, divaFile.format(lastTime));
+      File firstFile = new File(divaFolder, divaFile.format(firstFileTime));
+      File lastFile = new File(divaFolder, divaFile.format(lastFileTime));
 
-      readDivaLoginRecords(firstFile);
-      if (!firstFile.equals(lastFile))
+      if (firstFile.exists())
+      	readDivaLoginRecords(firstFile);
+      if (!firstFile.equals(lastFile) && lastFile.exists())
         readDivaLoginRecords(lastFile);
 
       records.close();

@@ -25,7 +25,7 @@ public class MoveInvestigators
 
   public static void main(String[] args)
   {
-    init(args[0]);
+    init(args);
     initAuth();
 
     try
@@ -56,7 +56,7 @@ public class MoveInvestigators
   {
     try
     {
-      File f = new File(folder, getProperty( "sff.accounting.checkin.user_list", "XUSER_LIST.txt" ));
+      File f = new File(login_folder, getProperty( "sff.accounting.checkin.user_list", "XUSER_LIST.txt" ));
       System.out.println(f.getAbsolutePath());
       BufferedReader br = new BufferedReader(new FileReader(f));
       StringBuffer sb = new StringBuffer();
@@ -149,6 +149,7 @@ public class MoveInvestigators
         sb.append(eMail);
         emails.add(sb.toString());
       }
+      br.close();
 
       if (users.isEmpty())
       {

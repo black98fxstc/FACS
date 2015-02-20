@@ -16,7 +16,7 @@ public class MacLogin
 {
   public static void main(String[] args)
   {
-    init(args[0]);
+    init(args);
     initLog("sff-login");
 
     if (args.length < 2)
@@ -34,7 +34,7 @@ public class MacLogin
       }
       try
       {
-        File login = new File(folder, "mac-login.dat");
+        File login = new File(login_folder, "mac-login.dat");
         DataOutputStream dos = new DataOutputStream(new FileOutputStream(login));
         String username = args[2];
         long current_time = System.currentTimeMillis();
@@ -52,7 +52,7 @@ public class MacLogin
     {
       try
       {
-        File login = new File(folder, "mac-login.dat");
+        File login = new File(login_folder, "mac-login.dat");
         DataInputStream dis = new DataInputStream(new FileInputStream(login));
         setUserName(dis.readUTF());
         setLoginTime(dis.readLong());

@@ -39,7 +39,7 @@ public class WindowsLogin
 
   public static void main(String[] args)
   {
-    init(args[0]);
+    init(args);
     initLog("sff-login");
 
     new Thread(recorder).start();

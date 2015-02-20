@@ -23,7 +23,8 @@ public class AccountingTask
   static final long DAY = 24 * HOUR;
   static final DateFormat fileDate = new SimpleDateFormat("yyyy-MM-dd");
 
-  static File folder;
+  static File login_folder;
+  static File data_folder;
 
   private static Properties props;
   private static Set<String> ignored;
@@ -47,7 +48,7 @@ public class AccountingTask
       try
       {
         InputStream is = new BufferedInputStream(new FileInputStream(new File(
-            folder, "accounting.properties")));
+            login_folder, "accounting.properties")));
         props.load(is);
         is.close();
       }
@@ -206,7 +207,7 @@ public class AccountingTask
 
     if (login_record == null)
     {
-      login_record = new File(folder, fileDate.format(calendar.getTime()) + ".login");
+      login_record = new File(data_folder, fileDate.format(calendar.getTime()) + ".login");
       if (login_record.exists())
         login_pos = login_record.length();
       else
@@ -249,7 +250,7 @@ public class AccountingTask
   static void initLog(
       String logName)
   {
-    String fn = new File(folder, logName + ".log").getAbsolutePath();
+    String fn = new File(login_folder, logName + ".log").getAbsolutePath();
     OutputStream os;
     try
     {
@@ -277,8 +278,12 @@ public class AccountingTask
     });
   }
 
-  static void init(String folder)
+  static void init(String[] args)
   {
-    AccountingTask.folder = new File(folder);
+    AccountingTask.login_folder = new File(args[0]);
+    if (args.length > 1)
+    	AccountingTask.data_folder = new File(args[1]);
+    else
+    	AccountingTask.data_folder = AccountingTask.login_folder;
   }
 }
