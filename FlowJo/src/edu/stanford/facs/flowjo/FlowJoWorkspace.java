@@ -67,53 +67,53 @@ public class FlowJoWorkspace
   {
     Document doc = builder.newDocument();
     Element workspace = doc.createElement("Workspace");
-    workspace.setAttribute("version", "1.5");
-    workspace.setAttribute("curGroup", "All Samples");
+    workspace.setAttribute("version", "20.0");
+    workspace.setAttribute("origin", "Stanford FACS Datastore");
+//    workspace.setAttribute("curGroup", "All Samples");
     doc.appendChild(workspace);
 
-    Element columns = doc.createElement("Columns");
-    columns.setAttribute("wsSortOrder", "$BTIM");
-    columns.setAttribute("wsSortAscending", "1");
-    workspace.appendChild(columns);
+//    Element columns = doc.createElement("Columns");
+//    columns.setAttribute("wsSortOrder", "$BTIM");
+//    columns.setAttribute("wsSortAscending", "1");
+//    workspace.appendChild(columns);
+//
+//    Element column = doc.createElement("Column");
+//    column.setAttribute("name", "Name");
+//    column.setAttribute("width", "240");
+//    columns.appendChild(column);
+//
+//    column = doc.createElement("Column");
+//    column.setAttribute("name", "Statistic");
+//    column.setAttribute("width", "80");
+//    columns.appendChild(column);
+//
+//    column = doc.createElement("Column");
+//    column.setAttribute("name", "#Cells");
+//    column.setAttribute("width", "80");
+//    columns.appendChild(column);
 
-    Element column = doc.createElement("Column");
-    column.setAttribute("name", "Name");
-    column.setAttribute("width", "240");
-    columns.appendChild(column);
-
-    column = doc.createElement("Column");
-    column.setAttribute("name", "Statistic");
-    column.setAttribute("width", "80");
-    columns.appendChild(column);
-
-    column = doc.createElement("Column");
-    column.setAttribute("name", "#Cells");
-    column.setAttribute("width", "80");
-    columns.appendChild(column);
-
-    Node groups = workspace.appendChild(doc.createElement("Groups"));
-
-    Element groupNode = doc.createElement("GroupNode");
-    groupNode.setAttribute("name", "All Samples");
-    groupNode.setAttribute("owningGroup", "All Samples");
-    groupNode.setAttribute("sortPriority", "10");
-    groups.appendChild(groupNode);
-
-    Element group = doc.createElement("Group");
-    group.setAttribute("name", "All Samples");
-    groupNode.appendChild(group);
-
-    group.appendChild(doc.createElement("Criteria"));
-
-    Node sampleRefs = group.appendChild(doc.createElement("SampleRefs"));
+//    Node groups = workspace.appendChild(doc.createElement("Groups"));
+//
+//    Element groupNode = doc.createElement("GroupNode");
+//    groupNode.setAttribute("name", "All Samples");
+//    groupNode.setAttribute("owningGroup", "All Samples");
+//    groupNode.setAttribute("sortPriority", "10");
+//    groups.appendChild(groupNode);
+//
+//    Element group = doc.createElement("Group");
+//    group.setAttribute("name", "All Samples");
+//    groupNode.appendChild(group);
+//
+//    group.appendChild(doc.createElement("Criteria"));
+//
+//    Node sampleRefs = group.appendChild(doc.createElement("SampleRefs"));
 
     Node sampleList = workspace.appendChild(doc.createElement("SampleList"));
-    StringBuffer sb = new StringBuffer(100);
     for (int i = 0; i < headers.length; ++i)
     {
-      Element sampleRef = doc.createElement("SampleRef");
-      sampleRef.setAttribute("sampleID", String.valueOf(i + 1));
-      sampleRefs.appendChild(sampleRef);
+//      Element sampleRef = doc.createElement("SampleRef");
+//      sampleRef.setAttribute("sampleID", String.valueOf(i + 1));
+//      sampleRefs.appendChild(sampleRef);
 
       Node sample = sampleList.appendChild(doc.createElement("Sample"));
 
@@ -130,45 +130,36 @@ public class FlowJoWorkspace
 
       Element dataSet = doc.createElement("DataSet");
       dataSet.setAttribute("sampleID", String.valueOf(i + 1));
-      sb.setLength(0);
-      sb.append("http:");
-      StringTokenizer st = new StringTokenizer(urls[i].substring("http:/".
-          length()), "/");
-      while (st.hasMoreTokens())
-      {
-        sb.append('\\');
-        sb.append(st.nextToken());
-      }
-      dataSet.setAttribute("uri", sb.toString());
+      dataSet.setAttribute("uri", urls[i]);
       sample.appendChild(dataSet);
 
-      Element sampleNode = doc.createElement("SampleNode");
-      sampleNode.setAttribute("sampleID", String.valueOf(i + 1));
-      sampleNode.setAttribute("name", headers[i].getAttribute("$FIL"));
-      sampleNode.setAttribute("sortPriority", "10");
-      sample.appendChild(sampleNode);
-
-      Element graph = doc.createElement("Graph");
-      graph.setAttribute("type", "Pseudocolor");
-      graph.setAttribute("showAxes", "tnlTNL");
-      graph.setAttribute("backColor", "#FFFFFF");
-      graph.setAttribute("foreColor", "#000000");
-      graph.setAttribute("smoothing", "0");
-      graph.setAttribute("histogramSmoothingCount", "0");
-      graph.setAttribute("showOutliers", "0");
-      graph.setAttribute("drawLargeDots", "0");
-      graph.setAttribute("scientificNotation", "0");
-      graph.setAttribute("showGateNames", "0");
-      graph.setAttribute("showUncompParm", "0");
-      graph.setAttribute("showGates", "0");
-      graph.setAttribute("xLabelOverride", "0");
-      graph.setAttribute("yLabelOverride", "0");
-      graph.setAttribute("fast", "1");
-      graph.setAttribute("smoothingHighResolution", "1");
-      graph.setAttribute("histogramHighResolution", "1");
-      graph.setAttribute("showGateFreqs", "1");
-      graph.setAttribute("fast", "1");
-      sampleNode.appendChild(graph);
+//      Element sampleNode = doc.createElement("SampleNode");
+//      sampleNode.setAttribute("sampleID", String.valueOf(i + 1));
+//      sampleNode.setAttribute("name", headers[i].getAttribute("$FIL"));
+//      sampleNode.setAttribute("sortPriority", "10");
+//      sample.appendChild(sampleNode);
+//
+//      Element graph = doc.createElement("Graph");
+//      graph.setAttribute("type", "Pseudocolor");
+//      graph.setAttribute("showAxes", "tnlTNL");
+//      graph.setAttribute("backColor", "#FFFFFF");
+//      graph.setAttribute("foreColor", "#000000");
+//      graph.setAttribute("smoothing", "0");
+//      graph.setAttribute("histogramSmoothingCount", "0");
+//      graph.setAttribute("showOutliers", "0");
+//      graph.setAttribute("drawLargeDots", "0");
+//      graph.setAttribute("scientificNotation", "0");
+//      graph.setAttribute("showGateNames", "0");
+//      graph.setAttribute("showUncompParm", "0");
+//      graph.setAttribute("showGates", "0");
+//      graph.setAttribute("xLabelOverride", "0");
+//      graph.setAttribute("yLabelOverride", "0");
+//      graph.setAttribute("fast", "1");
+//      graph.setAttribute("smoothingHighResolution", "1");
+//      graph.setAttribute("histogramHighResolution", "1");
+//      graph.setAttribute("showGateFreqs", "1");
+//      graph.setAttribute("fast", "1");
+//      sampleNode.appendChild(graph);
     }
 
     doc.normalize();
