@@ -8,8 +8,8 @@
 	<property name="FlowJo.location" value="../FlowJo" />
 
 	<property name="debuglevel" value="source,lines,vars" />
-	<property name="target" value="1.5" />
-	<property name="source" value="1.5" />
+	<property name="target" value="1.7" />
+	<property name="source" value="1.7" />
 	<property name="jaf.home" value="${library}/jaf-1.1.1" />
 	
 	<path id="JAF Library.userclasspath">
