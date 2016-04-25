@@ -5,8 +5,8 @@
 	<property environment="env" />
 
 	<property name="debuglevel" value="source,lines,vars" />
-	<property name="target" value="1.6" />
-	<property name="source" value="1.6" />
+	<property name="target" value="1.7" />
+	<property name="source" value="1.7" />
 
 	<!-- ================================= 
           target: clean              
@@ -45,7 +45,7 @@
           target: javadoc              
          ================================= -->
     <target name="javadoc">
-        <javadoc access="package" author="true" classpath="." destdir="doc" nodeprecated="false" nodeprecatedlist="false" noindex="true" nonavbar="false" notree="false" packagenames="org.isac.fcs" source="1.6" sourcepath="src" splitindex="false" use="true" version="true"/>
+        <javadoc access="package" author="true" classpath="." destdir="doc" nodeprecated="false" nodeprecatedlist="false" noindex="true" nonavbar="false" notree="false" packagenames="org.isac.fcs" source="${source}" sourcepath="src" splitindex="false" use="true" version="true"/>
     </target>
          
 	<!-- - - - - - - - - - - - - - - - - - 

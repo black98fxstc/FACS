@@ -1344,7 +1344,7 @@ public class FCSFile
 				BufferedReader br = new BufferedReader(new FileReader(input));
 				String line = br.readLine();
 				StringTokenizer st = new StringTokenizer(line, ",");
-				for (int i = 1; st.hasMoreTokens(); ++i)
+				while (st.hasMoreTokens())
 				{
 					String token = st.nextToken();
 					FCSParameter p = fcs.addParameter();
