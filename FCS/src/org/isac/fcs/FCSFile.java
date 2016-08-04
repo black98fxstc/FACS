@@ -237,7 +237,7 @@ public class FCSFile
       writeHeaderValue(getDataStart());
       writeHeaderValue(getDataEnd());
     }
-    else if (Arrays.equals(version, FCS.FCS3))
+    else if (Arrays.equals(version, FCS.FCS3) || Arrays.equals(version, FCS.FCS3_1))
     {
       writeHeaderValue(0);
       writeHeaderValue(0);
@@ -254,7 +254,7 @@ public class FCSFile
       writeHeaderValue(getAnalysisStart());
       writeHeaderValue(getAnalysisEnd());
     }
-    else if (Arrays.equals(version, FCS.FCS3))
+    else if (Arrays.equals(version, FCS.FCS3) || Arrays.equals(version, FCS.FCS3_1))
     {
       writeHeaderValue(0);
       writeHeaderValue(0);
@@ -317,7 +317,7 @@ public class FCSFile
     if (!crcModified)
       return;
 
-    if (Arrays.equals(version, FCS.FCS3))
+    if (Arrays.equals(version, FCS.FCS3) || Arrays.equals(version, FCS.FCS3_1))
     {
       createMutator();
 
@@ -483,7 +483,7 @@ public class FCSFile
 
         textSegment.readFrom(text_header);
 
-        if (Arrays.equals(version, FCS.FCS3))
+        if (Arrays.equals(version, FCS.FCS3) || Arrays.equals(version, FCS.FCS3_1))
         {
           if (getDataStart() == 0 && getDataEnd() == 0)
           {
@@ -531,7 +531,7 @@ public class FCSFile
           textSegment.setAttribute("$VALMAXCHARS", FCS.MAX_VALUE);
 //          textSegment.setAttribute("$SYS", "PASCAL; VMS_VAX Desk Export");
         }
-        else if (Arrays.equals(version, FCS.FCS3))
+        else if (Arrays.equals(version, FCS.FCS3) || Arrays.equals(version, FCS.FCS3_1))
         {
           textSegment.setAttribute("$BEGINDATA", "00000000000000000000");
           textSegment.setAttribute("$ENDDATA", "00000000000000000000");
@@ -810,7 +810,7 @@ public class FCSFile
 
       getTextSegment().removeAttribute("$NEXTDATA");
     }
-    else if (Arrays.equals(version, FCS.FCS3))
+    else if (Arrays.equals(version, FCS.FCS3) || Arrays.equals(version, FCS.FCS3_1))
     {
       getTextSegment().setAttribute("$BEGINDATA", "00000000000000000000");
       getTextSegment().setAttribute("$ENDDATA", "00000000000000000000");
@@ -1059,7 +1059,7 @@ public class FCSFile
     if (dataStart < 0)
       createAccessor();
 
-    if (dataStart == 0 && Arrays.equals(version, FCS.FCS3))
+    if (dataStart == 0 && !Arrays.equals(version, FCS.FCS2))
     {
       String start = getTextSegment().getAttribute("$BEGINDATA");
       if (start != null)
@@ -1103,7 +1103,7 @@ public class FCSFile
       return;
 
     this.dataEnd = dataEnd;
-    if (Arrays.equals(version, FCS.FCS3))
+    if (Arrays.equals(version, FCS.FCS3) || Arrays.equals(version, FCS.FCS3_1))
       textSegment.setAttribute("$ENDDATA", dataEnd);
     headerModified = true;
     crcModified = true;
@@ -1126,7 +1126,7 @@ public class FCSFile
       return;
 
     this.dataStart = dataStart;
-    if (Arrays.equals(version, FCS.FCS3))
+    if (Arrays.equals(version, FCS.FCS3) || Arrays.equals(version, FCS.FCS3_1))
       textSegment.setAttribute("$BEGINDATA", dataStart);
     headerModified = true;
   }
@@ -1302,7 +1302,7 @@ public class FCSFile
   public void setVersion(byte[] version)
       throws FCSException
   {
-    if (!Arrays.equals(version, FCS.FCS2) && !Arrays.equals(version, FCS.FCS3))
+    if (!Arrays.equals(version, FCS.FCS2) && !Arrays.equals(version, FCS.FCS3) && !Arrays.equals(version, FCS.FCS3_1))
       throw new FCSException("Unsupported version " + new String(version));
 
     if (Arrays.equals(this.version, version))
