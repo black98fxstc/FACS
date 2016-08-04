@@ -374,7 +374,7 @@ public class FCSFile
       for (int i = 0; i < FCS.FCS.length; ++i)
         if (version[i] != FCS.FCS[i])
           throw new FCSException("Not an FCS file");
-      if (!Arrays.equals(version, FCS.FCS2) && !Arrays.equals(version, FCS.FCS3))
+      if (!Arrays.equals(version, FCS.FCS2) && !Arrays.equals(version, FCS.FCS3) && !Arrays.equals(version, FCS.FCS3_1))
         throw new FCSException("Unsupported version " + new String(version));
 
       textStart = readHeaderValue();
@@ -926,7 +926,7 @@ public class FCSFile
     if (analysisEnd < 0)
       createAccessor();
 
-    if (analysisEnd == 0 && Arrays.equals(version, FCS.FCS3))
+    if (analysisEnd == 0 && !Arrays.equals(version, FCS.FCS2))
     {
       String end = getTextSegment().getAttribute("$ENDANALYSIS");
       if (end != null)
@@ -977,7 +977,7 @@ public class FCSFile
     if (analysisStart < 0)
       createAccessor();
 
-    if (analysisStart == 0 && Arrays.equals(version, FCS.FCS3))
+    if (analysisStart == 0 && !Arrays.equals(version, FCS.FCS2))
     {
       String start = getTextSegment().getAttribute("$BEGINANALYSIS");
       if (start != null)
@@ -1028,7 +1028,7 @@ public class FCSFile
     if (dataEnd < 0)
       createAccessor();
 
-    if (dataEnd == 0 && Arrays.equals(version, FCS.FCS3))
+    if (dataEnd == 0 && !Arrays.equals(version, FCS.FCS2))
     {
       String end = getTextSegment().getAttribute("$ENDDATA");
       if (end != null)

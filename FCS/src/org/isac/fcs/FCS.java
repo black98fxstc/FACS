@@ -50,6 +50,12 @@ public interface FCS
   public static final byte[] FCS3 = "FCS3.0    ".getBytes();
 
   /**
+   * The <code>byte array</code> corresponding to <code>"FCS3.0"</code>, which starts files conforming
+   * to FCS V3.0
+   */
+  public static final byte[] FCS3_1 = "FCS3.1    ".getBytes();
+
+  /**
    * The size of the standard FCS header in <code>byte</code>s.
    */
   public static final int HEADER_SIZE = 10 + 6 * 8;
