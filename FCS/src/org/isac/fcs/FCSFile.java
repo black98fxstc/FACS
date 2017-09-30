@@ -385,7 +385,7 @@ public class FCSFile
       analysisEnd = readHeaderValue();
       
       long fileLength = random.length();
-      if (dataEnd >= fileLength || textEnd >= fileLength || analysisEnd >= fileLength)
+      if (dataEnd > fileLength || textEnd > fileLength || analysisEnd > fileLength)
       	throw new FCSException("File is shorter than header says");
 
       headerModified = false;
